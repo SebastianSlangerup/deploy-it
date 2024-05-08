@@ -18,9 +18,9 @@ docker run --rm \
 ```
 Resten af guiden går ud fra at du har opsat et `sail` alias. Hvis du ikke har det, kan du udskifte `sail` med 
 `./vendor/bin/sail` i de næste skridt.
-4. Start projektet op: `sail up -d`
-5. Generer din app key: `sail artisan key:generate`
-6. Migrer din database: `sail artisan migrate:fresh --seed`
+4. Start projektet op: `sail up -d`<br>
+5. Generer din app key: `sail artisan key:generate`<br>
+6. Migrer din database: `sail artisan migrate:fresh --seed`<br>
 7. Byg front-end assets: `sail npm run dev`
 
 Hvis du oplever problemer med composer, så prøv at genkør `composer install` inde fra sail:
