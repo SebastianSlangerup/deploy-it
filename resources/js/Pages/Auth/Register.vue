@@ -5,11 +5,13 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { PhotoIcon } from "@heroicons/vue/24/solid/index.js";
 
 const form = useForm({
     name: '',
     email: '',
     password: '',
+    public_key: null,
     password_confirmation: '',
 });
 
@@ -69,6 +71,28 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
+            </div>
+
+            <div class="mt-4">
+                <div class="col-span-full">
+                    <label for="public_key" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Public Key</label>
+                    <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 dark:border-white/25 px-6 py-10">
+                        <div class="text-center">
+                            <PhotoIcon class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
+                            <div class="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                                <label for="public_key" class="relative cursor-pointer rounded-md bg-white dark:bg-gray-800 font-semibold text-indigo-600 dark:text-white focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-indigo-500">
+                                    <span v-if="form.public_key === null">Upload a file</span>
+                                    <span v-if="form.public_key !== null">{{ form.public_key.name }}</span>
+                                    <input @input="form.public_key = $event.target.files[0]" id="public_key" name="public_key" type="file" class="sr-only" />
+                                </label>
+                                <p v-if="form.public_key === ''" class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs leading-5 text-gray-600 dark:text-gray-400">.pub extension expected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <InputError class="mt-2" :message="form.errors.public_key" />
             </div>
 
             <div class="mt-4">

@@ -22,6 +22,10 @@ Route::get('/dashboard', [EnvironmentController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
 
+    Route::get('/userpath', function () {
+       return response()->json([\Illuminate\Support\Facades\Auth::user()->public_key]);
+    });
+
     Route::get('/environment/new', function () {
         return Inertia::render('EnvironmentForm');
     })->name('environment.new');
@@ -30,6 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/environment/details/{id}', function (int $id) {
         $vm = Http::get('http://192.168.1.20/cnc/');
     })->name('environment.details');
+
+    Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
 });
 
 
