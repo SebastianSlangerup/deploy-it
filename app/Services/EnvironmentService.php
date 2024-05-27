@@ -15,11 +15,17 @@ class EnvironmentService
     {
         $response = Http::get(config('app.api.endpoint').'/vm/list_all_vm_ids');
 
+        $vmids = [];
+
         if (! $response->failed()) {
             $json = $response->json();
 
             foreach ($json as $node) {
                 foreach ($node['vm_ids'] as $vm) {
+
+                    //$vmids[] = $vm['vmid'];
+                    //Environment::query()->whereIn('vm_id', $vmids)->get();
+
                     // Convert the uptime in seconds into a more human-readable format, before saving
                     $vm['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
 

@@ -1,27 +1,33 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { useForm } from '@inertiajs/vue3';
+import {Head, useForm} from '@inertiajs/vue3';
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
+import CheckboxInput from "@/Components/CheckboxInput.vue";
+import {ref} from "vue";
 
 const form = useForm({
-    name: 'null',
-    description: 'null',
-    template: 'null',
+    name: '',
+    description: '',
+    template: '',
     dependencies: {
-        nodejs: 'null',
-        python: 'null',
-        php: 'null',
-        mysql: 'null',
-        postgresql: 'null',
+        nodejs: false,
+        python: false,
+        php: false,
+        mysql: false,
+        postgresql: false,
     },
 })
+
+const selection = ref('');
 
 function grabDependencies(template) {
     axios.get('/dependencies/template/'+template)
         .then(function (response) {
-            form.dependencies = response.data;
+            // Reset dependencies before setting new ones to true
+            Object.keys(form.dependencies).forEach(dependency => form.dependencies[dependency] = false);
+
+            response.data.forEach(dependency => form.dependencies[dependency.name.toLowerCase()] = true);
         })
         .catch(function (error) {
             console.log(error)
@@ -68,10 +74,10 @@ function grabDependencies(template) {
 
                         <div>
                             <InputLabel for="template" value="Skabelon" />
-                            <select v-on:change="grabDependencies()" id="template" name="template" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option value="web">Webudvikling</option>
-                                <option value="script">Scripting</option>
-                                <option value="crypto">Crypto</option>
+                            <select v-model="selection" v-on:change="grabDependencies(selection)" id="template" name="template" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="1">Webudvikling</option>
+                                <option value="2">Scripting</option>
+                                <option value="3">Crypto</option>
                             </select>
                         </div>
 
@@ -79,47 +85,52 @@ function grabDependencies(template) {
                             <p>Ekstra pakker</p>
                             <div class="grid grid-cols-2 w-64 gap-y-2">
                                 <div class="flex space-x-2 place-items-center">
-                                    <TextInput
+                                    <CheckboxInput
                                         id="nodejs"
                                         type="checkbox"
                                         class="rounded-sm"
-                                        v-model="form.dependencies.nodejs"
+                                        :checked="form.dependencies.nodejs"
+                                        :v-model="form.dependencies.nodejs"
                                     />
                                     <label for="nodejs">Node.js</label>
                                 </div>
                                 <div class="flex space-x-2 place-items-center">
-                                    <TextInput
+                                    <CheckboxInput
                                         id="python"
                                         type="checkbox"
                                         class="rounded-sm"
-                                        v-model="form.dependencies.python"
+                                        :checked="form.dependencies.python"
+                                        :v-model="form.dependencies.python"
                                     />
                                     <label for="python">Python 3</label>
                                 </div>
                                 <div class="flex space-x-2 place-items-center">
-                                    <TextInput
+                                    <CheckboxInput
                                         id="php"
                                         type="checkbox"
                                         class="rounded-sm"
-                                        v-model="form.dependencies.php"
+                                        :checked="form.dependencies.php"
+                                        :v-model="form.dependencies.php"
                                     />
                                     <label for="php">PHP</label>
                                 </div>
                                 <div class="flex space-x-2 place-items-center">
-                                    <TextInput
+                                    <CheckboxInput
                                         id="mysql"
                                         type="checkbox"
                                         class="rounded-sm"
-                                        v-model="form.dependencies.mysql"
+                                        :checked="form.dependencies.mysql"
+                                        :v-model="form.dependencies.mysql"
                                     />
                                     <label for="mysql">MySQL</label>
                                 </div>
                                 <div class="flex space-x-2 place-items-center">
-                                    <TextInput
+                                    <CheckboxInput
                                         id="postgresql"
                                         type="checkbox"
                                         class="rounded-sm"
-                                        v-model="form.dependencies.postgresql"
+                                        :checked="form.dependencies.postgresql"
+                                        :v-model="form.dependencies.postgresql"
                                     />
                                     <label for="postgresql">PostgreSQL</label>
                                 </div>

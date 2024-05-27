@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Template;
 use App\Services\EnvironmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -39,6 +40,13 @@ class EnvironmentController extends Controller
         ])->delete(config('app.api.endpoint')."/vm/delete_vm");
 
         return redirect()->route('dashboard');
+    }
+
+    public function getDependencies(int $templateId)
+    {
+        $template = Template::query()->findOrFail($templateId);
+
+        return $template->dependencies;
     }
 
     /**
