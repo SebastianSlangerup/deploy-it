@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Environment;
 use Carbon\CarbonInterval;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -11,9 +12,12 @@ class EnvironmentService
 {
     public array $vms = [];
 
+    /**
+     * @throws ConnectionException
+     */
     public function getEnvironments(): array
     {
-        $response = Http::get(config('app.api.endpoint').'/vm/list_all_vm_ids');
+        $response = Http::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
 
         $vmids = [];
 

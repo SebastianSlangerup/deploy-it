@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import VmList from "@/Pages/Profile/Partials/VmList.vue";
 
-defineProps(['vms'])
+defineProps(['vms', 'error'])
 </script>
 
 <template>
@@ -18,6 +18,7 @@ defineProps(['vms'])
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg px-6">
                     <p v-if="vms.length === 0" class="p-12 text-gray-700 dark:text-gray-300 text-xl">No environments created... yet</p>
+                    <p v-if="error" class="p-12 text-red-700 dark:text-red-300 text-xl">{{ error }}</p>
                     <VmList :vm-array="vms"/>
                 </div>
             </div>
