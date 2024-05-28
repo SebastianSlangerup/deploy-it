@@ -22,11 +22,11 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        //Template::factory()
-        //    ->has(
-        //        Dependency::factory()->count(5)
-        //    )
-        //    ->count(3)
-        //    ->create();
+        Template::factory()
+            ->has(
+                Dependency::factory()->count(5)
+            )
+            ->count(3)
+            ->create();
     }
 }

@@ -29,11 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/environment/new', function () {
         return Inertia::render('EnvironmentForm');
     })->name('environment.new');
-    Route::post('/environment/create', function (Request $request) {
-        return response()->json([$request]);
-    })->name('environment.create');
-    Route::get('/environment/control/{vmid}/{option}', [EnvironmentController::class, 'controlEnvironment'])->name('environment.control');
-    Route::get('/environment/delete/{vmid}', [EnvironmentController::class, 'deleteEnvironment'])->name('environment.delete');
+    Route::post('/environment/create', [EnvironmentController::class, 'create'])->name('environment.create');
+    Route::get('/environment/control/{vmid}/{option}', [EnvironmentController::class, 'control'])->name('environment.control');
+    Route::get('/environment/delete/{vmid}', [EnvironmentController::class, 'delete'])->name('environment.delete');
     Route::get('/environment/details/{id}', function (int $id) {
         $vm = Http::get('http://192.168.1.20/cnc/');
     })->name('environment.details');

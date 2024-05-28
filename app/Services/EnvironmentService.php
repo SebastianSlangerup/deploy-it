@@ -19,40 +19,39 @@ class EnvironmentService
     {
         $response = Http::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
 
-        $vmids = [];
-
+        // TODO: BIG REWRITES YOU DUMMY!
         if (! $response->failed()) {
             $json = $response->json();
 
+            $environments = Environment::all();
+
+            $array1 = [];
+            $array2 = [];
+
             foreach ($json as $node) {
                 foreach ($node['vm_ids'] as $vm) {
-
-                    //$vmids[] = $vm['vmid'];
-                    //Environment::query()->whereIn('vm_id', $vmids)->get();
-
                     // Convert the uptime in seconds into a more human-readable format, before saving
-                    $vm['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+                    $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+                    $apiArray['status'] = $vm['status'];
 
-                    $environment = Environment::query()->create([
-                        'name' => $vm['name'],
-                        'user_id' => 1,
-                        'vm_id' => $vm['vmid'],
-                        'cores' => $vm['cpus'],
-                        'memory' => $vm['maxmem'],
-                    ]);
-
-                    $vmArray = [];
-                    $vmArray['name'] = $environment->name;
-                    $vmArray['vmid'] = $environment->vm_id;
-                    $vmArray['uptime'] = $vm['uptime'];
-                    $vmArray['status'] = $vm['status'];
-                    $vmArray['cores'] = $environment->cores;
-                    $vmArray['memory'] = $environment->memory;
-                    $vmArray['created_by'] = $environment->user_id;
-
-                    $this->vms[] = $vmArray;
+                    $array1[] = $apiArray;
                 }
             }
+
+            foreach ($environments as $environment) {
+                $vmArray['name'] = $environment->name;
+                $vmArray['vmid'] = $environment->vm_id;
+                $vmArray['node'] = $environment->node;
+                $vmArray['cores'] = $environment->cores;
+                $vmArray['memory'] = $environment->memory;
+                $vmArray['created_by'] = $environment->user->name;
+
+                $array2[] = $vmArray;
+            }
+
+            $totalArray = collect($array1)->merge($array2);
+            dd($totalArray);
+
         }
 
         return $this->vms;

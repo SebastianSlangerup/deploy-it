@@ -33,7 +33,7 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <NavLink :href="route('environment.new')" :active="route().current('environment.new')">
-                                    Opret nyt miljø
+                                    Create new environment
                                 </NavLink>
                             </div>
                         </div>
@@ -119,7 +119,7 @@ const showingNavigationDropdown = ref(false);
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('environment.new')" :active="route().current('environment.new')">
-                            Opret nyt miljø
+                            Create new environment
                         </ResponsiveNavLink>
                     </div>
 

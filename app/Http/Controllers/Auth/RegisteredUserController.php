@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'public_key_path' => $publicKeyPath,
+            'public_key' => $publicKeyPath,
         ]);
 
         event(new Registered($user));

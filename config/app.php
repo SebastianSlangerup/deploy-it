@@ -125,6 +125,8 @@ return [
 
     'api' => [
         'endpoint' => env('API_ENDPOINT', ''),
+        'cipassword' => env('API_CIPASSWORD', 'password'),
+        'ciuser' => env('API_CIUSER', 'ubuntu'),
     ],
 
 ];
