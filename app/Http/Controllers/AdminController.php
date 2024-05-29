@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\User;
-
+use App\Notifications\UserActivated;
 
 class AdminController extends Controller
 {
@@ -23,6 +23,19 @@ class AdminController extends Controller
 
         $user->update([
             'is_active' => true,
+        ]);
+
+        $user->notify(new UserActivated());
+
+        return redirect()->back();
+    }
+
+    public function deactivate(int $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'is_active' => false,
         ]);
 
         return redirect()->back();

@@ -6,6 +6,9 @@
         <div class="min-w-0 flex-auto">
           <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">{{ user.name }}</p>
           <p class="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+          <p class="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-gray-400">
+            {{ user.is_active ? 'is active' : 'is deactivated' }}
+        </p>
         </div>
       </div>
       <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
@@ -21,12 +24,12 @@
                     <MenuItems class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                         <MenuItem v-slot="{ active }">
                             <a :href="route('admin.users.activate', { id: user.id })" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
-                            >Rename<span class="sr-only">, {{ user.name }}</span></a
+                            >Activate<span class="sr-only">, {{ user.name }}</span></a
                             >
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
-                            <a href="#" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
-                            >Delete<span class="sr-only">, {{ user.name }}</span></a
+                            <a :href="route('admin.users.deactivate', { id: user.id })" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
+                            >Deactivate<span class="sr-only">, {{ user.name }}</span></a
                             >
                         </MenuItem>
                     </MenuItems>
@@ -43,5 +46,7 @@ import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/vue";
 import {EllipsisVerticalIcon} from "@heroicons/vue/20/solid/index.js";
 
 const props = defineProps(['usersArray']);
+
+console.log(props.usersArray)
 
 </script>
