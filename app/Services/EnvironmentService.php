@@ -5,12 +5,14 @@ namespace App\Services;
 use App\Models\Environment;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class EnvironmentService
 {
-    public array $vms = [];
+    public array $environmentVms = [];
+    public array $apiVms = [];
 
     /**
      * @throws ConnectionException
@@ -19,25 +21,24 @@ class EnvironmentService
     {
         $response = Http::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
 
-        // TODO: BIG REWRITES YOU DUMMY!
         if (! $response->failed()) {
             $json = $response->json();
 
             $environments = Environment::all();
 
-            $array1 = [];
-            $array2 = [];
+            $apiArray = [];
+            // foreach ($json as $node) {
+            //     foreach ($node['vm_ids'] as $vm) {
+            //         // Convert the uptime in seconds into a more human-readable format, before saving
+            //         $apiArray['vmid'] = $vm['vmid'];
+            //         $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+            //         $apiArray['status'] = $vm['status'];
 
-            foreach ($json as $node) {
-                foreach ($node['vm_ids'] as $vm) {
-                    // Convert the uptime in seconds into a more human-readable format, before saving
-                    $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
-                    $apiArray['status'] = $vm['status'];
+            //         $this->apiVms[] = $apiArray;
+            //     }
+            // }
 
-                    $array1[] = $apiArray;
-                }
-            }
-
+            $vmArray = [];
             foreach ($environments as $environment) {
                 $vmArray['name'] = $environment->name;
                 $vmArray['vmid'] = $environment->vm_id;
@@ -46,14 +47,21 @@ class EnvironmentService
                 $vmArray['memory'] = $environment->memory;
                 $vmArray['created_by'] = $environment->user->name;
 
-                $array2[] = $vmArray;
+                $this->environmentVms[] = $vmArray;
             }
-
-            $totalArray = collect($array1)->merge($array2);
-            dd($totalArray);
-
         }
 
-        return $this->vms;
+        return $this->environmentVms;
+    }
+
+    public function mergeValues(array $to, array $from): void {
+        for ($x = 0; $x > count($to); $x++) {
+            for ($y = 0; $y > count($from); $y++) {
+                if ($to[$x]['vmid'] === $from[$y]['vmid']) {
+                    $to[$x]['status'] = $from[$y]['status'];
+                    $to[$x]['uptime'] = $from[$y]['uptime'];
+                }
+            }
+        }
     }
 }

@@ -18,23 +18,23 @@
                         <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
                             <circle cx="1" cy="1" r="1" />
                         </svg>
-                        <p class="truncate">Created by {{ vm.user.name }}</p>
+                        <p class="truncate">Created by {{ vm.created_by }}</p>
                     </div>
                 </div>
                 <div class="flex flex-none items-center gap-x-4">
-                    <a v-if="vm.status === 'stopped'" :href="route('environment.control', { vmid: vm.vmid, option: 'start' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'stopped'" :href="route('environment.control', { node: vm.node, vmid: vm.vmid, option: 'start' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                         </svg>
                         <span class="sr-only">Start Environment</span>
                     </a>
-                    <a v-if="vm.status === 'running'" :href="route('environment.control', { vmid: vm.vmid, option: 'stop' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'running'" :href="route('environment.control', { node: vm.node, vmid: vm.vmid, option: 'stop' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
                         </svg>
                         <span class="sr-only">Stop Environment</span>
                     </a>
-                    <a v-if="vm.status === 'running'" :href="route('environment.control', { vmid: vm.vmid, option: 'reboot' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'running'" :href="route('environment.control', { node: vm.node, vmid: vm.vmid, option: 'reboot' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>

@@ -32,25 +32,25 @@ class EnvironmentController extends Controller
         ]);
     }
 
-    public function control(int $vmid, string $option)
+    public function control(string $node, int $vmid, string $option)
     {
         try {
             Http::timeout(3)->withQueryParameters([
-                'node' => 'pve',
+                'node' => $node,
                 'vmid' => $vmid,
             ])->post(config('app.api.endpoint')."/vm/{$option}_vm");
         } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
+            return redirect()->route('dashboard')->with(['message' => Environment::ERROR_CONNECTION_FAILED]);
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')->with(['message' => 'Performing action, please wait...']);
     }
 
-    public function delete(int $vmid)
+    public function delete(string $node, int $vmid)
     {
         try {
             Http::timeout(3)->withQueryParameters([
-                'node' => 'pve',
+                'node' => $node,
                 'vmid' => $vmid,
             ])->delete(config('app.api.endpoint')."/vm/delete_vm");
         } catch (ConnectionException) {
@@ -127,7 +127,6 @@ class EnvironmentController extends Controller
                 ]);
 
             if ($response->failed()) {
-                dd($response);
                 return redirect()->back()->with('message', Environment::ERROR_CONNECTION_FAILED);
             }
         } catch (ConnectionException) {
