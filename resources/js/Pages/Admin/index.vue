@@ -5,6 +5,7 @@ import VmList from "@/Pages/Profile/Partials/VmList.vue";
 import InputError from "@/Components/InputError.vue";
 import {ref} from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import UserList from "@/Components/UserList.vue";
 
 const props = defineProps(['users', 'error']);
 
@@ -23,9 +24,9 @@ users.value = props.users;
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg">
                     <div class="p-6 space-y-6">
-                        <div class="bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg">
+                        <div class="bg-white dark:bg-gray-800 overflow-visible sm:rounded-lg">
                             <p v-if="$page.props.flash.message" class="text-sm text-green-600 dark:text-green-400">{{ $page.props.flash.message }}</p>
                             <p v-if="users.length === 0" class="p-12 text-gray-700 dark:text-gray-300 text-xl">No environments created... yet</p>
                             <p v-if="error" class="p-12 text-red-700 dark:text-red-300 text-xl">{{ error }}</p>

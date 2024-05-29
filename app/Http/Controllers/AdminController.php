@@ -16,6 +16,17 @@ class AdminController extends Controller
             'users' => $users,
         ]);
     }
+
+    public function activate(int $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'is_active' => true,
+        ]);
+
+        return redirect()->back();
+    }
 }
 
 

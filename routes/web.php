@@ -39,7 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
 
-    Route::get('/admin', [AdminController::class, 'index'])->name('Admin'); 
+    Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
+    Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
 });
 
 Route::get('/dependencies/template/{template}', function (string $template) {
