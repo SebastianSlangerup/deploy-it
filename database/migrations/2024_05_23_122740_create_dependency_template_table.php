@@ -12,6 +12,7 @@ return new class extends Migration {
         Schema::create('dependencies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('command');
             $table->timestamps();
         });
 

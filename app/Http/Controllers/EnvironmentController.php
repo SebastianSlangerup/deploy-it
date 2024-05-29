@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dependency;
 use App\Models\Environment;
 use App\Models\Template;
 use App\Services\EnvironmentService;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
+use Symfony\Component\Yaml\Yaml;
 
 class EnvironmentController extends Controller
 {
@@ -98,6 +100,24 @@ class EnvironmentController extends Controller
             'template' => 'required',
         ]);
 
+        $dependencies = collect($request->get('dependencies'));
+        $dependencies = $dependencies->filter(function ($value) {
+            return $value === true;
+        });
+
+        foreach ($dependencies as $key => $value) {
+            $dependency = Dependency::query()->where('name', $key)->first();
+            $dependencies->push($dependency->command);
+            $dependencies->pull($key);
+        }
+
+        $ymlArray = [];
+        foreach ($dependencies as $key => $value) {
+            $ymlArray['runcmd'][] = $value;
+        }
+
+        // Yaml file containing important shit!!!!!!!
+        $ymlFile = Yaml::dump($ymlArray);
 
         try {
             $response = Http::timeout(3)
@@ -138,6 +158,8 @@ class EnvironmentController extends Controller
             'vm_id' => $response->json('vmid'),
             'user_id' => Auth::id(),
         ]);
+
+        // Create a yml file from the dependencies included in the request
 
         return redirect()->route('dashboard')->with('message', 'Environment created successfully');
     }

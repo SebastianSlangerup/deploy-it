@@ -74,6 +74,21 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
+                <InputLabel for="password_confirmation" value="Confirm Password" />
+
+                <TextInput
+                    id="password_confirmation"
+                    type="password"
+                    class="mt-1 block w-full"
+                    v-model="form.password_confirmation"
+                    required
+                    autocomplete="new-password"
+                />
+
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+            </div>
+
+            <div class="mt-4">
                 <div class="col-span-full">
                     <label for="public_key" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Public Key</label>
                     <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 dark:border-white/25 px-6 py-10">
@@ -93,21 +108,6 @@ const submit = () => {
                 </div>
 
                 <InputError class="mt-2" :message="form.errors.public_key" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
-
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
             <div class="flex items-center justify-end mt-4">
