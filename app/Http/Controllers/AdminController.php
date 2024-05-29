@@ -10,10 +10,12 @@ class AdminController extends Controller
 
     public function index()
     {
-        $users = User::where('is_active', 0)->get();
-
+        $non_activated_users = User::where('is_active', 0)->get();
+        $activated_users = User::where('is_active', 1)->get(); // This should be 1 for activated users
+    
         return Inertia::render('Admin/index', [
-            'users' => $users,
+            'non_activated_users' => $non_activated_users,
+            'activated_users' => $activated_users
         ]);
     }
 
