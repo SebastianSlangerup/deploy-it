@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\EnvironmentController;
-use App\Http\Controllers\martin;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -39,7 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
 
-    Route::get('/martin', [martin::class, 'hej'])->name('martin'); 
+    Route::get('/admin', [AdminController::class, 'index'])->name('Admin'); 
 });
 
 Route::get('/dependencies/template/{template}', function (string $template) {
