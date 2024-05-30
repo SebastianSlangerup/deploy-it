@@ -10,6 +10,10 @@ use App\Services\EnvironmentService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Carbon\CarbonInterval;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+
 
 class AdminController extends Controller
 {
@@ -27,6 +31,17 @@ class AdminController extends Controller
             'activated_users' => $activated_users,
             'network_info' => $network_info,
             'node_info' => $node_info,
+        ]);
+    }
+
+    public function edit(User $user)
+    {
+        
+        // dd($user);
+        return Inertia::render('Profile/Edit', [
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
+            'status' => session('status'),
+            'user' => $user
         ]);
     }
 
@@ -107,6 +122,12 @@ class AdminController extends Controller
             'is_active' => true,
         ]);
 
+        // $file = Http::post('openvpn/generate_config')...
+        // $path = Storage::put($file);
+        // $user->ovpn_path = $path;
+
+
+        // new UserActivated($user->ovpn_path)
         $user->notify(new UserActivated());
 
         return redirect()->back();
