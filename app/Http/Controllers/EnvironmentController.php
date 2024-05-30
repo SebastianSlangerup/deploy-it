@@ -105,15 +105,16 @@ class EnvironmentController extends Controller
             return $value === true;
         });
 
+        $dependencyCommands = collect();
         foreach ($dependencies as $key => $value) {
             $dependency = Dependency::query()->where('name', $key)->first();
-            $dependencies->push($dependency->command);
+            $dependencyCommands->push($dependency->command);
             $dependencies->pull($key);
         }
 
         $ymlArray = [];
-        foreach ($dependencies as $key => $value) {
-            $ymlArray['runcmd'][] = $value;
+        foreach ($dependencyCommands as $command) {
+            $ymlArray['runcmd'][] = $command;
         }
 
         // Yaml file containing important shit!!!!!!!
@@ -158,8 +159,6 @@ class EnvironmentController extends Controller
             'vm_id' => $response->json('vmid'),
             'user_id' => Auth::id(),
         ]);
-
-        // Create a yml file from the dependencies included in the request
 
         return redirect()->route('dashboard')->with('message', 'Environment created successfully');
     }

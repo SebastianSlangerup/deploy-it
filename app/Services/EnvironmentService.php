@@ -27,16 +27,16 @@ class EnvironmentService
             $environments = Environment::all();
 
             $apiArray = [];
-            // foreach ($json as $node) {
-            //     foreach ($node['vm_ids'] as $vm) {
-            //         // Convert the uptime in seconds into a more human-readable format, before saving
-            //         $apiArray['vmid'] = $vm['vmid'];
-            //         $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
-            //         $apiArray['status'] = $vm['status'];
+            foreach ($json as $node) {
+                foreach ($node['vm_ids'] as $vm) {
+                    // Convert the uptime in seconds into a more human-readable format, before saving
+                    $apiArray['vmid'] = $vm['vmid'];
+                    $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+                    $apiArray['status'] = $vm['status'];
 
-            //         $this->apiVms[] = $apiArray;
-            //     }
-            // }
+                    $this->apiVms[] = $apiArray;
+                }
+            }
 
             $vmArray = [];
             foreach ($environments as $environment) {
@@ -51,17 +51,19 @@ class EnvironmentService
             }
         }
 
-        return $this->environmentVms;
+        return $this->mergeValues($this->environmentVms, $this->apiVms);
     }
 
-    public function mergeValues(array $to, array $from): void {
-        for ($x = 0; $x > count($to); $x++) {
-            for ($y = 0; $y > count($from); $y++) {
+    public function mergeValues(array $to, array $from): array {
+        for ($x = 0; $x < count($to); $x++) {
+            for ($y = 0; $y < count($from); $y++) {
                 if ($to[$x]['vmid'] === $from[$y]['vmid']) {
                     $to[$x]['status'] = $from[$y]['status'];
                     $to[$x]['uptime'] = $from[$y]['uptime'];
                 }
             }
         }
+
+        return $to;
     }
 }

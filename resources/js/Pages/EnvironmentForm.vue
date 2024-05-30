@@ -37,6 +37,11 @@ function grabDependencies(template) {
         })
 }
 
+function toggleDependency(dependency) {
+    // Swap the condition around on the dependency
+    form.dependencies[dependency] = ! form.dependencies[dependency];
+}
+
 </script>
 
 <template>
@@ -131,13 +136,14 @@ function grabDependencies(template) {
                         </div>
 
                         <div class="font-medium text-sm text-gray-700 dark:text-gray-300">
-                            <p>Additional dependencies</p>
+                            <p>Dependencies</p>
                             <div class="grid grid-cols-2 w-64 gap-y-2">
                                 <div class="flex space-x-2 place-items-center">
                                     <CheckboxInput
                                         id="nodejs"
                                         type="checkbox"
                                         class="rounded-sm"
+                                        v-on:change="toggleDependency('nodejs')"
                                         :checked="form.dependencies.nodejs"
                                         :v-model="form.dependencies.nodejs"
                                     />
@@ -148,6 +154,7 @@ function grabDependencies(template) {
                                         id="python"
                                         type="checkbox"
                                         class="rounded-sm"
+                                        v-on:change="toggleDependency('python')"
                                         :checked="form.dependencies.python"
                                         :v-model="form.dependencies.python"
                                     />
@@ -158,6 +165,7 @@ function grabDependencies(template) {
                                         id="php"
                                         type="checkbox"
                                         class="rounded-sm"
+                                        v-on:change="toggleDependency('php')"
                                         :checked="form.dependencies.php"
                                         :v-model="form.dependencies.php"
                                     />
@@ -168,6 +176,7 @@ function grabDependencies(template) {
                                         id="mysql"
                                         type="checkbox"
                                         class="rounded-sm"
+                                        v-on:change="toggleDependency('mysql')"
                                         :checked="form.dependencies.mysql"
                                         :v-model="form.dependencies.mysql"
                                     />
@@ -178,6 +187,7 @@ function grabDependencies(template) {
                                         id="postgresql"
                                         type="checkbox"
                                         class="rounded-sm"
+                                        v-on:change="toggleDependency('postgresql')"
                                         :checked="form.dependencies.postgresql"
                                         :v-model="form.dependencies.postgresql"
                                     />
