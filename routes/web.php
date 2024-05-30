@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified', UserIsNotActivated::class])->group(functi
     Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
     Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
     Route::get('/admin/users/deactivate/{id}', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
+    Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
 });
 
 Route::get('/dependencies/template/{template}', function (string $template) {
