@@ -6,6 +6,7 @@ use App\Models\Node;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Notifications\UserActivated;
+use App\Services\EnvironmentService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Carbon\CarbonInterval;
@@ -52,8 +53,17 @@ class AdminController extends Controller
                 $nodeArray[] = $node['node'];
             }
 
-            // ['pve', 'node1', 'node2',
-            // Node::query()->
+            // ['pve', 'node1', 'node2']
+            $node_db = Node::query()->whereIn('hostname',$nodeArray)->get(['display_name', 'hostname']);
+
+            foreach ($nodes as $key => $value) {
+                foreach ($node_db as $db_node) {
+                    if ($value['node'] === $db_node['hostname']) {
+                        $nodes[$key]['display_name'] = $db_node['display_name'];
+                    }
+                }
+            }
+
             $nodes = array_map([$this, 'formatNodeData'], $nodes);
 
             return $nodes;
