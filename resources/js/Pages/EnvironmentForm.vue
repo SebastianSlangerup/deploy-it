@@ -4,7 +4,6 @@ import {Head, useForm} from '@inertiajs/vue3';
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import CheckboxInput from "@/Components/CheckboxInput.vue";
-import {ref} from "vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputError from "@/Components/InputError.vue";
 

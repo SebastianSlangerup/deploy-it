@@ -2,7 +2,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import VmList from "@/Pages/Profile/Partials/VmList.vue";
-import InputError from "@/Components/InputError.vue";
 import {ref} from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
 
