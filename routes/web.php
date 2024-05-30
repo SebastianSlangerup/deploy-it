@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified', UserIsNotActivated::class])->group(functi
     Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
 
     Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
+    Route::get('/admin/users/detail/{user}', [AdminController::class, 'edit'])->name('Admin.users.detail');
     Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
     Route::get('/admin/users/deactivate/{id}', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
     Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
@@ -57,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/public-key', [ProfileController::class, 'download'])->name('profile.public_key');
 });
 
 require __DIR__.'/auth.php';

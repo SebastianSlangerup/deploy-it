@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,6 +23,16 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);
+    }
+
+    public function download(Request $request)
+    {
+        $path = $request->input('path');
+        
+        if (!Storage::exists($path)) {
+            return response()->json(['message' => 'File not found.'], 404);
+        }
+        return Storage::download($path);
     }
 
     /**

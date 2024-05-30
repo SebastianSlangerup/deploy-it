@@ -52,11 +52,4 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
         ];
     }
-
-    protected function publicKey(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string $path) => Storage::get($path),
-        );
-    }
 }
