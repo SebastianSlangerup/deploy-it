@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Node;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->unsignedSmallInteger('vm_id');
-            $table->string('node');
+            $table->foreignIdFor(Node::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained('users');
             $table->tinyInteger('cores');
             $table->string('memory');
