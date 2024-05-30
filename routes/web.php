@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\EnvironmentController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\UserIsNotActivated;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -18,8 +20,11 @@ Route::get('/', function () {
 Route::get('/dashboard', [EnvironmentController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/awaiting-approval', function () {
+    return Inertia::render('Guest');
+})->middleware(['auth'])->name('awaiting_approval');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', UserIsNotActivated::class])->group(function () {
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
 
     Route::get('/userpath', function () {
@@ -37,6 +42,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('environment.details');
 
     Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
+
+    Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
+    Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
+    Route::get('/admin/users/deactivate/{id}', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
+    Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
 });
 
 Route::get('/dependencies/template/{template}', function (string $template) {

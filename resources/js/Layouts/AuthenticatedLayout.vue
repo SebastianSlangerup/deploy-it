@@ -35,6 +35,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('environment.new')" :active="route().current('environment.new')">
                                     Create new environment
                                 </NavLink>
+                                <NavLink :href="route('Admin')" :active="route().current('Admin')">
+                                    Admin Page
+                                </NavLink>
                             </div>
                         </div>
 
@@ -120,6 +123,9 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('environment.new')" :active="route().current('environment.new')">
                             Create new environment
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('Admin')" :active="route().current('Admin')">
+                            Admin page
                         </ResponsiveNavLink>
                     </div>
 
