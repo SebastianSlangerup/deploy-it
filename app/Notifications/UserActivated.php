@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class UserActivated extends Notification
 {
@@ -29,6 +30,7 @@ class UserActivated extends Notification
         return ['mail'];
     }
 
+
     /**
      * Get the mail representation of the notification.
      */
@@ -38,6 +40,7 @@ class UserActivated extends Notification
                     ->line('The introduction to the notification.')
                     ->action('Notification Action', route('dashboard'))
                     ->line('Thank you for using our application!');
+
     }
 
     /**
@@ -51,4 +54,16 @@ class UserActivated extends Notification
             //
         ];
     }
+
+    /**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        // Attachment::fromPath($this->path),
+    ];
+}
 }

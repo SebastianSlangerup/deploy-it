@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
+use App\Notifications\UserSendOpenVpnConf;
 
 class ProfileController extends Controller
 {
@@ -27,14 +30,64 @@ class ProfileController extends Controller
 
     public function download(Request $request)
     {
-        $path = $request->input('path');
-        
-        if (!Storage::exists($path)) {
-            return response()->json(['message' => 'File not found.'], 404);
-        }
+        $path = $request->query('path');
+
         return Storage::download($path);
     }
 
+    public function userSendOpenVpnConf(Request $request)
+    {
+        $filePath = $this->getOpenVpnConfig($request);
+        if ($filePath) {
+            $request->user()->notify(new UserSendOpenVpnConf($filePath));
+            return redirect()->route('dashboard')->with(['message' => "Configuration file sent successfully."]);
+        } else {
+            return redirect()->route('dashboard')->with(['message' => "Failed to generate and send the configuration file."]);
+        }
+    }
+
+    private function getOpenVpnConfig(Request $request)
+    {
+        try {
+            $username = $request->user()->name;
+            $url = "http://192.168.1.20:8000/openvpn/generate_config";
+    
+            // Including the query parameter directly in the URL
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'accept' => 'application/json',
+                ])
+                ->post("{$url}?username={$username}", []);
+            
+            // Check if the response is successful and contains JSON
+            if ($response->successful() && $response->header('Content-Type') == 'application/json') {
+                $responseData = $response->json();
+
+                dd($responseData);
+    
+                // Assuming the file content is returned in the JSON response
+                if (isset($responseData['file_content']) && isset($responseData['file_name'])) {
+                    $fileName = $responseData['file_name'];
+                    $fileContent = base64_decode($responseData['file_content']); // Assuming the file content is base64 encoded
+    
+                    $filePath = "openvpn_configs/{$fileName}";
+    
+                    // Ensure the directory exists
+                    Storage::makeDirectory('openvpn_configs');
+    
+                    // Save the file content
+                    Storage::put($filePath, $fileContent);
+    
+                    // Return the path to the saved file
+                    return $filePath;
+                }
+            }
+    
+            return null; // Indicate failure
+        } catch (ConnectionException $e) {
+            return null; // Indicate failure
+        }
+    }
     /**
      * Update the user's profile information.
      */

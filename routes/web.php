@@ -58,7 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/public-key', [ProfileController::class, 'download'])->name('profile.public_key');
+    Route::get('/profile/public-key', [ProfileController::class, 'download'])->name('profile.public_key');
+    Route::post('/openvpn/generate_config', [ProfileController::class, 'userSendOpenVpnConf'])
+    ->middleware('throttle:6,1')
+    ->name('openVpnConfig.send');
 });
 
 require __DIR__.'/auth.php';

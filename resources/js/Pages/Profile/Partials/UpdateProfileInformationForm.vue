@@ -32,7 +32,7 @@ const is_not_same_user = usePage().props.auth.user != props.user
 </script>
 
 <template>
-    <section class="w-1/2">
+    <section class="flex-1">
         <header>
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Profile Information</h2>
 
@@ -88,21 +88,23 @@ const is_not_same_user = usePage().props.auth.user != props.user
             </form>
         </div>
     </section>
-    <section class="w-1/2">
+    <section class="flex-1 pl-4">
         <div id="Custom_info">
-            <div class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                <h2 class="text-2xl font-semibold mb-4">Download Your File</h2>
-                <form @submit.prevent="downloadForm.post(route('profile.public_key'))">
-                    <div class="mb-4">
-                        <label for="path" class="block text-sm font-medium text-gray-700">Public Key</label>
-                        <input id="path" :v-model="downloadForm.path" type="file"></input>
-                    </div>
-                    <button type="submit">
-                        Download
-                    </button>
-                </form>
-                <div v-if="errorMessage" class="mt-4 text-red-600">
-                    {{ errorMessage }}
+            <div class="divide-y dark:divide-gray-600 overflow-scroll h-72 text-lg font-medium text-gray-900 dark:text-gray-100">
+                <div class="pt-2 pb-4">
+                    <h2 class="text-2xl font-semibold mb-4">Download Your File</h2>
+                    <a :href="route('profile.public_key', { path: downloadForm.path })" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                        Download File
+                    </a>
+                </div>
+                <div class="pt-2 pb-4">
+                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
+                        Your email address is unverified.
+                        <Link :href="route('openVpnConfig.send')" method="post" as="button"
+                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                            Send openvpn configuration to your email
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>
