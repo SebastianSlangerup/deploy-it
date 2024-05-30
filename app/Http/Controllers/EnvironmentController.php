@@ -94,7 +94,7 @@ class EnvironmentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'required|string|max:255',
-            'node' => 'required|string',
+            'node' => 'required',
             'cores' => 'required|digits_between:1,4',
             'memory' => 'required',
             'template' => 'required',
@@ -117,7 +117,7 @@ class EnvironmentController extends Controller
             $ymlArray['runcmd'][] = $command;
         }
 
-        // Yaml file containing important shit!!!!!!!
+        // Yaml file containing installation instructions for dependencies!!
         $ymlFile = Yaml::dump($ymlArray);
 
         try {
@@ -159,6 +159,17 @@ class EnvironmentController extends Controller
             'vm_id' => $response->json('vmid'),
             'user_id' => Auth::id(),
         ]);
+
+
+        $newResponse = Http::timeout(3)
+            ->withQueryParameters([
+                'node' => $validated['node'],
+                'vmid' => $response->json('vmid')
+            ])
+            ->attach('file', $ymlFile)
+            ->post(config('app.api.endpoint').'/vm/execute-commands');
+
+        dd($newResponse);
 
         return redirect()->route('dashboard')->with('message', 'Environment created successfully');
     }
