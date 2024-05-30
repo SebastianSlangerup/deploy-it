@@ -22,4 +22,9 @@ class Environment extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function node(): BelongsTo
+    {
+        return $this->belongsTo(Node::class);
+    }
 }

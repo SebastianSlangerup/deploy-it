@@ -60,7 +60,8 @@ const filteredUsers = computed(() => {
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Node Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div v-for="node in props.node_info" :key="node.id" class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-md ">
-                                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ node.node }}</h4>
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ node.display_name }}</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Hostname: {{ node.node }}</p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Status: {{ node.status }}</p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">ID: {{ node.id }}</p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">CPU: {{ node.cpu }}</p>
