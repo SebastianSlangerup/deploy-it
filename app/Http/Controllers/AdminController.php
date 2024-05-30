@@ -20,7 +20,7 @@ class AdminController extends Controller
 
         $network_info = $this->GetNetwork();
         $node_info = $this->listNodes();
-    
+
         return Inertia::render('Admin/index', [
             'non_activated_users' => $non_activated_users,
             'activated_users' => $activated_users,
@@ -28,7 +28,7 @@ class AdminController extends Controller
             'node_info' => $node_info,
         ]);
     }
-    
+
     public function GetNetwork()
     {
         try {
@@ -40,24 +40,29 @@ class AdminController extends Controller
         }
 
     }
- 
+
     public function listNodes()
     {
         try {
             $res = Http::timeout(3)->get(config('app.api.endpoint') . "/list_nodes");
-    
+
             $nodes = $res->json();
-            dd($nodes);
+            $nodeArray = [];
+            foreach ($nodes as $node) {
+                $nodeArray[] = $node['node'];
+            }
+
+            // ['pve', 'node1', 'node2',
             // Node::query()->
             $nodes = array_map([$this, 'formatNodeData'], $nodes);
-    
+
             return $nodes;
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['message' => "Connection Failed..."]);
         }
     }
 
-    
+
     private function bytesToGigabytes($bytes)
     {
         return round($bytes / 1024 / 1024 / 1024, 2) . ' GB';
