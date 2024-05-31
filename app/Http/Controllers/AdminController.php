@@ -63,6 +63,12 @@ class AdminController extends Controller
             $res = Http::timeout(3)->get(config('app.api.endpoint') . "/list_nodes");
 
             $nodes = $res->json();
+
+            if(!$res->ok()){
+                $nodes = [];
+                return $nodes;
+            }
+
             $nodeArray = [];
             foreach ($nodes as $node) {
                 $nodeArray[] = $node['node'];

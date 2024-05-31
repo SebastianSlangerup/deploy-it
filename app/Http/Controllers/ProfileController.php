@@ -53,22 +53,18 @@ class ProfileController extends Controller
             $username = $request->user()->name;
             $url = "http://192.168.1.20:8000/openvpn/generate_config/";
     
-            // Including the query parameter directly in the URL
             $response = Http::timeout(10)
                 ->withHeaders([
                     'accept' => 'application/json',
                 ])
                 ->post("{$url}?username={$username}", []);
-            
-            // dd($response->body());
-            // Check if the response is successful and contains JSON
+        
             if ($response->ok() && $response->header('Content-Type') != 'application/json') {
                 $responseData = $response->body();
                 $header = $response->getHeader('Content-Disposition');
                 $filename = Str::after($header[0],'filename="');
                 $filename = rtrim($filename,'"');
 
-                // dd([$responseData,$filename]);
                 $path = "openvpn_configs/".$filename;
 
                 Storage::put($path, $response->body());
@@ -76,9 +72,9 @@ class ProfileController extends Controller
                 return $path;
             }
     
-            return null; // Indicate failure
+            return null; 
         } catch (ConnectionException $e) {
-            return null; // Indicate failure
+            return null;
         }
     }
     /**
