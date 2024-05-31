@@ -14,6 +14,7 @@ use Inertia\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use App\Notifications\UserSendOpenVpnConf;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -50,7 +51,7 @@ class ProfileController extends Controller
     {
         try {
             $username = $request->user()->name;
-            $url = "http://192.168.1.20:8000/openvpn/generate_config";
+            $url = "http://192.168.1.20:8000/openvpn/generate_config/";
     
             // Including the query parameter directly in the URL
             $response = Http::timeout(10)
@@ -59,28 +60,20 @@ class ProfileController extends Controller
                 ])
                 ->post("{$url}?username={$username}", []);
             
+            // dd($response->body());
             // Check if the response is successful and contains JSON
-            if ($response->successful() && $response->header('Content-Type') == 'application/json') {
-                $responseData = $response->json();
+            if ($response->ok() && $response->header('Content-Type') != 'application/json') {
+                $responseData = $response->body();
+                $header = $response->getHeader('Content-Disposition');
+                $filename = Str::after($header[0],'filename="');
+                $filename = rtrim($filename,'"');
 
-                dd($responseData);
-    
-                // Assuming the file content is returned in the JSON response
-                if (isset($responseData['file_content']) && isset($responseData['file_name'])) {
-                    $fileName = $responseData['file_name'];
-                    $fileContent = base64_decode($responseData['file_content']); // Assuming the file content is base64 encoded
-    
-                    $filePath = "openvpn_configs/{$fileName}";
-    
-                    // Ensure the directory exists
-                    Storage::makeDirectory('openvpn_configs');
-    
-                    // Save the file content
-                    Storage::put($filePath, $fileContent);
-    
-                    // Return the path to the saved file
-                    return $filePath;
-                }
+                // dd([$responseData,$filename]);
+                $path = "openvpn_configs/".$filename;
+
+                Storage::put($path, $response->body());
+
+                return $path;
             }
     
             return null; // Indicate failure
