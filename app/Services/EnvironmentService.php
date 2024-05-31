@@ -19,7 +19,7 @@ class EnvironmentService
      */
     public function getEnvironments(): array
     {
-        $response = Http::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
+        $response = HttpService::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
 
         if (! $response->failed()) {
             $json = $response->json();

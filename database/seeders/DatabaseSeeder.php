@@ -21,7 +21,14 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Sebastian Møller',
             'email' => 'seba7271@edu.sde.dk',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
+        ]);
+        User::factory()->create([
+            'name' => 'Martin Egeskov',
+            'email' => 'mart337i@gmail.com',
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
         ]);
 
         $templates = Template::factory()
