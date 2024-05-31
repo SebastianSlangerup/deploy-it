@@ -35,7 +35,7 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('environment.new')" :active="route().current('environment.new')">
                                     Create new environment
                                 </NavLink>
-                                <NavLink :href="route('Admin')" :active="route().current('Admin')">
+                                <NavLink v-if="$page.props.auth.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
                                     Admin Page
                                 </NavLink>
                             </div>
@@ -124,7 +124,7 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('environment.new')" :active="route().current('environment.new')">
                             Create new environment
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('Admin')" :active="route().current('Admin')">
+                        <ResponsiveNavLink v-if="$page.props.auth.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
                             Admin page
                         </ResponsiveNavLink>
                     </div>

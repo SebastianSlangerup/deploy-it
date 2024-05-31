@@ -99,7 +99,8 @@ const is_not_same_user = usePage().props.auth.user != props.user
                 </div>
                 <div class="pt-2 pb-4">
                     <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        Your email address is unverified.
+                        Have you lost you config? or do you need a new one?
+                        Press the link below to resive a open config via mail:
                         <Link :href="route('openVpnConfig.send')" method="post" as="button"
                             class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                             Send openvpn configuration to your email
