@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\InstallEnvironmentDependenciesJob;
 use App\Models\Dependency;
 use App\Models\Environment;
+use App\Models\Node;
 use App\Models\Template;
 use App\Services\EnvironmentService;
+use App\Services\TokenService;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -114,13 +120,15 @@ class EnvironmentController extends Controller
 
         // Validate the user's input from the request
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|ascii|max:100',
             'description' => 'required|string|max:255',
-            'node' => 'required',
+            'node_id' => 'required|integer',
             'cores' => 'required|digits_between:1,4',
             'memory' => 'required',
             'template' => 'required',
         ]);
+
+        $node = Node::findOrFail($validated['node_id']);
 
         // Grab only the dependencies that have been selected by the user
         $dependencies = collect($request->get('dependencies'));
@@ -147,10 +155,10 @@ class EnvironmentController extends Controller
                     return true;
                 })
                 ->withQueryParameters([
-                    'node' => $validated['node'],
-                    'sshkeys' => Auth::user()->public_key
+                    'node' => $node->hostname,
+                    'sshkeys' => Auth::user()->publicKeyContents()
                 ])
-                ->post(config('app.api.endpoint').'/vm/create-vm-pre-config', [
+                ->post(config('app.api.endpoint').'/cnc/vm/create-vm-pre-config', [
                     // Wrap the request inputs in a new array to satisfy the API's expectations
                     'config' => $this->getPreConfigValues($request)
                 ]);
@@ -158,24 +166,18 @@ class EnvironmentController extends Controller
             if ($response->failed()) {
                 return redirect()->back()->with('message', Environment::ERROR_CONNECTION_FAILED);
             }
-        } catch (ConnectionException) {
+        } catch (ConnectionException $e) {
             return redirect()->route('dashboard')->with('message', Environment::ERROR_CONNECTION_FAILED);
         }
 
-        Environment::query()->create([
+        $environment = Environment::query()->create([
             ...$validated,
             'vm_id' => $response->json('vmid'),
             'user_id' => Auth::id(),
         ]);
 
-        // Send the bash commands to the VM to begin installing the dependencies
-        $newResponse = Http::timeout(3)
-            ->withQueryParameters([
-                'node' => $validated['node'],
-                'vmid' => $response->json('vmid')
-            ])
-            ->attach('file', $yamlFile)
-            ->post(config('app.api.endpoint').'/vm/execute-commands');
+        // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
+        InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile);
 
         return redirect()->route('dashboard')->with('message', 'Environment created successfully');
     }
@@ -280,6 +282,7 @@ class EnvironmentController extends Controller
             'scsihw',
             'serial0',
             'vga',
+            'start'
         );
     }
 
@@ -304,6 +307,7 @@ class EnvironmentController extends Controller
             'scsihw' => 'virtio-scsi-pci',
             'serial0' => 'socket',
             'vga' => 'serial0',
+            'start' => '1',
         ]);
     }
 }

@@ -52,4 +52,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
         ];
     }
+
+    /**
+     * Get the contents of the user's public key
+     *
+     * @return string
+     */
+    public function publicKeyContents(): string
+    {
+        return Storage::get($this->public_key);
+    }
 }

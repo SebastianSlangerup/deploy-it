@@ -10,7 +10,7 @@ import InputError from "@/Components/InputError.vue";
 const form = useForm({
     name: '',
     description: '',
-    node: '',
+    node_id: '',
     cores: 1,
     memory: 2048,
     template: '',
@@ -55,6 +55,7 @@ function toggleDependency(dependency) {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <form @submit.prevent="form.post('/environment/create')" class="p-6 space-y-6">
+                        <InputError v-if="$page.props.flash.message" :message="$page.props.flash.message" class="mb-2"/>
                         <div>
                             <InputLabel for="name" value="Name" />
                             <TextInput
@@ -85,12 +86,12 @@ function toggleDependency(dependency) {
 
                         <div>
                             <InputLabel for="node" value="Choose Node to deploy VM to" />
-                            <select v-model="form.node" id="node" name="node" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option disabled value="">Please select one</option>
-                                <option selected value="pve">Development Node</option>
-                                <option value="node1">Testing Node</option>
-                                <option value="node2">Staging Node</option>
-                                <option value="node3">Production Node</option>
+                            <select v-model="form.node_id" id="node" name="node" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option disabled selected value="">Please select one</option>
+                                <option value="1">Development Node</option>
+                                <option value="2">Testing Node</option>
+                                <option value="3">Staging Node</option>
+                                <option value="4">Production Node</option>
                             </select>
 
                             <InputError :message="form.errors.node" class="mt-2"/>
@@ -198,8 +199,6 @@ function toggleDependency(dependency) {
                         <div>
                             <PrimaryButton :disabled="form.processing" type="submit">Create</PrimaryButton>
                         </div>
-
-                        <InputError v-if="$page.props.flash.message" :message="$page.props.flash.message" class="mt-2"/>
                     </form>
                 </div>
             </div>

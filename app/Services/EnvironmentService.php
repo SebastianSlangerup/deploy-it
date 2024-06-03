@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\Environment;
 use Carbon\CarbonInterval;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -53,6 +56,7 @@ class EnvironmentService
 
             $vmArray = [];
             foreach ($environments as $environment) {
+                $vmArray['id'] = $environment->id;
                 $vmArray['name'] = $environment->name;
                 $vmArray['vmid'] = $environment->vm_id;
                 $vmArray['node'] = $environment->node;

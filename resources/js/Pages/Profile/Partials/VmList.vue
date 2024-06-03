@@ -14,7 +14,7 @@
                         <svg v-if="vm.uptime !== '0 seconds'" viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
                             <circle cx="1" cy="1" r="1" />
                         </svg>
-                        <p class="truncate">Node: {{ nodes[vm.node] }}</p>
+                        <p class="truncate">Node: {{ vm.node.display_name }}</p>
                         <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
                             <circle cx="1" cy="1" r="1" />
                         </svg>
@@ -80,13 +80,6 @@ Echo.private('environments')
     .listen('EnvironmentStatusEvent', (event) => {
         vmArrayMut.value = event.vms;
     });
-
-const nodes = {
-    pve: 'Development Node',
-    node1: 'Testing Node',
-    node2: 'Staging Node',
-    node3: 'Production Node',
-}
 
 const statuses = {
     running: 'text-green-700 bg-green-50 ring-green-600/20',

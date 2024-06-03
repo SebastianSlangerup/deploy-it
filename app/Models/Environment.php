@@ -12,7 +12,7 @@ class Environment extends Model
     protected $fillable = [
         'name',
         'vm_id',
-        'node',
+        'node_id',
         'user_id',
         'cores',
         'memory',
