@@ -5,9 +5,17 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+
+const props = defineProps({
+    user: {
+        type: Object,
+        default: () => usePage().props.auth.user, 
+    },
+});
+
 </script>
 
 <template>
@@ -35,7 +43,7 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('environment.new')" :active="route().current('environment.new')">
                                     Create new environment
                                 </NavLink>
-                                <NavLink v-if="$page.props.auth.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
+                                <NavLink v-if="props.user.is_admin == true" :href="route('Admin')" :active="route().current('Admin')">
                                     Admin Page
                                 </NavLink>
                             </div>
@@ -124,7 +132,7 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('environment.new')" :active="route().current('environment.new')">
                             Create new environment
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink v-if="$page.props.auth.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
+                        <ResponsiveNavLink v-if="props.user.is_admin == true" :href="route('Admin')" :active="route().current('Admin')">
                             Admin page
                         </ResponsiveNavLink>
                     </div>
