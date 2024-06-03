@@ -19,7 +19,20 @@ class EnvironmentService
      */
     public function getEnvironments(): array
     {
-        $response = HttpService::timeout(3)->get(config('app.api.endpoint').'/vm/list_all_vm_ids');
+        $response = Http::timeout(3)
+            ->withToken(TokenService::get())
+            // Retry callback in case the request fails
+            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return false;
+                }
+
+                $request->withToken(TokenService::new());
+
+                return true;
+            })
+            ->get(config('app.api.endpoint').'/cnc/vm/list_all_vm_ids');
 
         if (! $response->failed()) {
             $json = $response->json();

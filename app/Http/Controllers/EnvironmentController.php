@@ -38,10 +38,25 @@ class EnvironmentController extends Controller
     public function control(Environment $environment, string $option)
     {
         try {
-            Http::timeout(3)->withQueryParameters([
-                'node' => $environment->node,
-                'vmid' => $environment->vm_id,
-            ])->post(config('app.api.endpoint')."/vm/{$option}_vm");
+            Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
+                ->withQueryParameters([
+                    'node' => $environment->node->hostname,
+                    'vmid' => $environment->vm_id,
+                ])
+                ->post(config('app.api.endpoint')."/cnc/vm/{$option}_vm");
+
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['message' => Environment::ERROR_CONNECTION_FAILED]);
         }
@@ -52,10 +67,24 @@ class EnvironmentController extends Controller
     public function delete(Environment $environment)
     {
         try {
-            Http::timeout(3)->withQueryParameters([
-                'node' => $environment->node,
-                'vmid' => $environment->vm_id,
-            ])->delete(config('app.api.endpoint')."/vm/delete_vm");
+            Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, a 401 status code, or a 422 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
+                ->withQueryParameters([
+                    'node' => $environment->node->hostname,
+                    'vmid' => $environment->vm_id,
+                ])
+                ->delete(config('app.api.endpoint')."/cnc/vm/delete_vm");
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
@@ -105,6 +134,18 @@ class EnvironmentController extends Controller
         // Create the VM with the pre-configured values
         try {
             $response = Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
                 ->withQueryParameters([
                     'node' => $validated['node'],
                     'sshkeys' => Auth::user()->public_key
