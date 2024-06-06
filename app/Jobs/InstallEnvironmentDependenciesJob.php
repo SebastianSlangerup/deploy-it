@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Environment;
+use App\Services\EnvironmentService;
 use App\Services\TokenService;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -13,6 +14,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class InstallEnvironmentDependenciesJob implements ShouldQueue
 {
@@ -26,32 +28,7 @@ class InstallEnvironmentDependenciesJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Repeatedly ask the API whether the VM is up and running, before sending the installation instructions to it
-        do {
-            $response = Http::timeout(3)
-                ->withToken(TokenService::get())
-                // Retry callback in case the request fails
-                ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
-                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                        return false;
-                    }
-
-                    $request->withToken(TokenService::new());
-
-                    return true;
-                })
-                ->withQueryParameters([
-                    'node' => $this->environment->node->hostname,
-                    'vmid' => $this->environment->vm_id,
-                ])
-                ->get(config('app.api.endpoint').'/cnc/vm/get_vm_status');
-
-            // Delay execution
-            sleep(2);
-        } while ($response->json('status') === 'stopped');
-
-        Http::timeout(3)
+        $response = Http::timeout(3)
             ->withToken(TokenService::get())
             // Retry callback in case the request fails
             ->retry(2, 10, function (Exception $exception, PendingRequest $request) {

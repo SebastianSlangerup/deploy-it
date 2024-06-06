@@ -3,7 +3,8 @@
 use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Middleware\UserIsNotActivated;
+use App\Http\Middleware\UserIsActivated;
+use App\Http\Middleware\UserIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -24,7 +25,7 @@ Route::get('/awaiting-approval', function () {
     return Inertia::render('Guest');
 })->middleware(['auth'])->name('awaiting_approval');
 
-Route::middleware(['auth', 'verified', UserIsNotActivated::class])->group(function () {
+Route::middleware(['auth', 'verified', UserIsActivated::class])->group(function () {
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
 
     Route::get('/userpath', function () {
@@ -32,9 +33,10 @@ Route::middleware(['auth', 'verified', UserIsNotActivated::class])->group(functi
     });
 
     Route::get('/environment/new', function () {
-        return Inertia::render('EnvironmentForm');
+        return Inertia::render('Environment/Create');
     })->name('environment.new');
     Route::post('/environment/create', [EnvironmentController::class, 'create'])->name('environment.create');
+    Route::get('/environment/created', [EnvironmentController::class, 'created'])->name('environment.created');
     Route::get('/environment/control/{environment}/{option}', [EnvironmentController::class, 'control'])->name('environment.control');
     Route::get('/environment/delete/{environment}', [EnvironmentController::class, 'delete'])->name('environment.delete');
     Route::get('/environment/details/{environment}', function (int $id) {

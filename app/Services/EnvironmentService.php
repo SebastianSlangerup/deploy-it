@@ -83,4 +83,66 @@ class EnvironmentService
 
         return $to;
     }
+
+    /**
+     * Call API to get status of given environment
+     *
+     * @param  Environment  $environment
+     * @return string
+     * @throws ConnectionException
+     */
+    public static function getStatus(Environment $environment): string
+    {
+        $response = Http::timeout(3)
+            ->withToken(TokenService::get())
+            // Retry callback in case the request fails
+            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return false;
+                }
+
+                $request->withToken(TokenService::new());
+
+                return true;
+            })
+            ->withQueryParameters([
+                'node' => $environment->node->hostname,
+                'vmid' => $environment->vm_id,
+            ])
+            ->get(config('app.api.endpoint').'/cnc/vm/get_vm_status');
+
+        return $response->json('status');
+    }
+
+    /**
+     * Call the API to get the IPv4 address for the given environment
+     *
+     * @param  Environment  $environment
+     * @return string
+     * @throws ConnectionException
+     */
+    public static function getIpv4(Environment $environment): string
+    {
+        $response = Http::timeout(3)
+            ->withToken(TokenService::get())
+            // Retry callback in case the request fails
+            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return false;
+                }
+
+                $request->withToken(TokenService::new());
+
+                return true;
+            })
+            ->withQueryParameters([
+                'node' => $environment->node->hostname,
+                'vmid' => $environment->vm_id,
+            ])
+            ->get(config('app.api.endpoint').'/cnc/vm/get_vm_ipv4');
+
+        return $response->json('ipv4');
+    }
 }

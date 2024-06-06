@@ -64,20 +64,25 @@ class EnvironmentController extends Controller
                 ->post(config('app.api.endpoint')."/cnc/vm/{$option}_vm");
 
         } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with(['message' => Environment::ERROR_CONNECTION_FAILED]);
+            return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
 
-        return redirect()->route('dashboard')->with(['message' => 'Performing action, please wait...']);
+        return redirect()->route('dashboard')->with(['info' => 'Performing action, please wait...']);
     }
 
     public function delete(Environment $environment)
     {
         try {
+            $status = EnvironmentService::getStatus($environment);
+            if ($status === 'running') {
+                return redirect()->back()->with(['warning' => 'Turn VM off before deleting']);
+            }
+
             Http::timeout(3)
                 ->withToken(TokenService::get())
                 // Retry callback in case the request fails
                 ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
-                    // If we are not getting a Request Exception, a 401 status code, or a 422 status code, dont bother retrying the request
+                    // If we are not getting a Request Exception, a 401 status code, dont bother retrying the request
                     if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                         return false;
                     }
@@ -91,6 +96,8 @@ class EnvironmentController extends Controller
                     'vmid' => $environment->vm_id,
                 ])
                 ->delete(config('app.api.endpoint')."/cnc/vm/delete_vm");
+
+            $environment->delete();
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
@@ -164,10 +171,10 @@ class EnvironmentController extends Controller
                 ]);
 
             if ($response->failed()) {
-                return redirect()->back()->with('message', Environment::ERROR_CONNECTION_FAILED);
+                return redirect()->back()->with('error', Environment::ERROR_CONNECTION_FAILED);
             }
         } catch (ConnectionException $e) {
-            return redirect()->route('dashboard')->with('message', Environment::ERROR_CONNECTION_FAILED);
+            return redirect()->route('dashboard')->with('error', Environment::ERROR_CONNECTION_FAILED);
         }
 
         $environment = Environment::query()->create([
@@ -177,9 +184,11 @@ class EnvironmentController extends Controller
         ]);
 
         // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
-        InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile);
+        $this->control($environment, 'start');
+        InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile)
+            ->delay(now()->addMinutes(3)); // TODO: Put on another queue
 
-        return redirect()->route('dashboard')->with('message', 'Environment created successfully');
+        return redirect()->route('environment.created', $environment);
     }
 
     /**
@@ -307,7 +316,6 @@ class EnvironmentController extends Controller
             'scsihw' => 'virtio-scsi-pci',
             'serial0' => 'socket',
             'vga' => 'serial0',
-            'start' => '1',
         ]);
     }
 }
