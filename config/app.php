@@ -127,6 +127,11 @@ return [
         'endpoint' => env('API_ENDPOINT', ''),
         'cipassword' => env('API_CIPASSWORD', 'password'),
         'ciuser' => env('API_CIUSER', 'ubuntu'),
+        'jwt' => [
+            'username' => env('API_JWT_USERNAME', ''),
+            'hostname' => env('API_JWT_HOSTNAME', ''),
+            'password' => env('API_JWT_PASSWORD', ''),
+        ],
     ],
 
 ];

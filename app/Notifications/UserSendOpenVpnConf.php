@@ -3,19 +3,19 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class UserActivated extends Notification
+class UserSendOpenVpnConf extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
+    private $filePath;
+
+    public function __construct($filePath)
     {
-        //
+        $this->filePath = $filePath;
     }
 
     /**
@@ -31,13 +31,15 @@ class UserActivated extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', route('dashboard'))
-            ->line('Thank you for using our application!');
+        $getThisFile = storage_path('app/'.$this->filePath);
 
+        return (new MailMessage)
+            ->subject('Download Ready')
+            ->line('Some texts')
+            ->line('Thank you!')
+            ->attach($getThisFile);
     }
 
     /**
@@ -59,8 +61,10 @@ class UserActivated extends Notification
      */
     public function attachments(): array
     {
+        dd(Attachment::fromStorage($this->filePath));
+
         return [
-            // Attachment::fromPath($this->path),
+            Attachment::fromStorage($this->filePath),
         ];
     }
 }

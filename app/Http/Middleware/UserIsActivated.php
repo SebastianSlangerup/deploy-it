@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserIsNotActivated
+class UserIsActivated
 {
     /**
      * Handle an incoming request.
@@ -17,9 +17,9 @@ class UserIsNotActivated
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::user()->is_active) {
-            return redirect()->route('awaiting_approval');    
+            return redirect()->route('awaiting_approval');
         }
-        
+
         return $next($request);
     }
 }

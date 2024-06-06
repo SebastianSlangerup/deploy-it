@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\InstallEnvironmentDependenciesJob;
 use App\Models\Dependency;
 use App\Models\Environment;
+use App\Models\Node;
 use App\Models\Template;
 use App\Services\EnvironmentService;
+use App\Services\TokenService;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
@@ -34,27 +41,63 @@ class EnvironmentController extends Controller
         ]);
     }
 
-    public function control(string $node, int $vmid, string $option)
+    public function control(Environment $environment, string $option)
     {
         try {
-            Http::timeout(3)->withQueryParameters([
-                'node' => $node,
-                'vmid' => $vmid,
-            ])->post(config('app.api.endpoint')."/vm/{$option}_vm");
+            Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
+                ->withQueryParameters([
+                    'node' => $environment->node->hostname,
+                    'vmid' => $environment->vm_id,
+                ])
+                ->post(config('app.api.endpoint')."/cnc/vm/{$option}_vm");
+
         } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with(['message' => Environment::ERROR_CONNECTION_FAILED]);
+            return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
 
-        return redirect()->route('dashboard')->with(['message' => 'Performing action, please wait...']);
+        return redirect()->route('dashboard')->with(['info' => 'Performing action, please wait...']);
     }
 
-    public function delete(string $node, int $vmid)
+    public function delete(Environment $environment)
     {
         try {
-            Http::timeout(3)->withQueryParameters([
-                'node' => $node,
-                'vmid' => $vmid,
-            ])->delete(config('app.api.endpoint')."/vm/delete_vm");
+            $status = EnvironmentService::getStatus($environment);
+            if ($status === 'running') {
+                return redirect()->back()->with(['warning' => 'Turn VM off before deleting']);
+            }
+
+            Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, a 401 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
+                ->withQueryParameters([
+                    'node' => $environment->node->hostname,
+                    'vmid' => $environment->vm_id,
+                ])
+                ->delete(config('app.api.endpoint').'/cnc/vm/delete_vm');
+
+            $environment->delete();
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
@@ -62,6 +105,9 @@ class EnvironmentController extends Controller
         return redirect()->route('dashboard');
     }
 
+    /**
+     * @return Dependency[]|\Illuminate\Database\Eloquent\HigherOrderBuilderProxy|\Illuminate\Support\HigherOrderCollectionProxy|\LaravelIdea\Helper\App\Models\_IH_Dependency_C|mixed
+     */
     public function getDependencies(int $templateId)
     {
         $template = Template::query()->findOrFail($templateId);
@@ -76,91 +122,72 @@ class EnvironmentController extends Controller
     {
         // Merge extra information for the API
         // that the user does not need to know about or interact with
-        $request->merge([
-            'agent' => 'enabled=1',
-            'boot' => 'order=scsi0;ide2',
-            'cicustom' => 'vendor=local:snippets/base_ubuntu.yml',
-            'cipassword' => config('app.api.cipassword'),
-            'ciuser' => config('app.api.ciuser'),
-            'ide2' => 'local:cloudinit',
-            'ipconfig0' => 'ip=dhcp',
-            'net0' => 'virtio,bridge=vmbr0',
-            'scsi0' => 'local:0,import-from=/root/jammy-server-cloudimg-amd64.img',
-            'scsihw' => 'virtio-scsi-pci',
-            'serial0' => 'socket',
-            'vga' => 'serial0',
-        ]);
+        $this->addPreConfigValues($request);
 
+        // Validate the user's input from the request
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|ascii|max:100',
             'description' => 'required|string|max:255',
-            'node' => 'required|string',
+            'node_id' => 'required|integer',
             'cores' => 'required|digits_between:1,4',
             'memory' => 'required',
             'template' => 'required',
         ]);
 
+        $node = Node::findOrFail($validated['node_id']);
+
+        // Grab only the dependencies that have been selected by the user
         $dependencies = collect($request->get('dependencies'));
         $dependencies = $dependencies->filter(function ($value) {
             return $value === true;
         });
 
-        $dependencyCommands = collect();
-        foreach ($dependencies as $key => $value) {
-            $dependency = Dependency::query()->where('name', $key)->first();
-            $dependencyCommands->push($dependency->command);
-            $dependencies->pull($key);
-        }
+        // Generate a yaml file containing bash commands for installing the selected dependencies
+        $yamlFile = $this->writeYamlFile($dependencies);
 
-        $ymlArray = [];
-        foreach ($dependencyCommands as $command) {
-            $ymlArray['runcmd'][] = $command;
-        }
-
-        // Yaml file containing important shit!!!!!!!
-        $ymlFile = Yaml::dump($ymlArray);
-
+        // Create the VM with the pre-configured values
         try {
             $response = Http::timeout(3)
+                ->withToken(TokenService::get())
+                // Retry callback in case the request fails
+                ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
+                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return false;
+                    }
+
+                    $request->withToken(TokenService::new());
+
+                    return true;
+                })
                 ->withQueryParameters([
-                    'node' => $validated['node'],
-                    'sshkeys' => Auth::user()->public_key
+                    'node' => $node->hostname,
+                    'sshkeys' => Auth::user()->publicKeyContents(),
                 ])
-                ->post(config('app.api.endpoint').'/vm/create-vm-pre-config', [
+                ->post(config('app.api.endpoint').'/cnc/vm/create-vm-pre-config', [
                     // Wrap the request inputs in a new array to satisfy the API's expectations
-                    'config' => $request->only(
-                        'agent',
-                        'boot',
-                        'cicustom',
-                        'cipassword',
-                        'ciuser',
-                        'ide2',
-                        'ipconfig0',
-                        'cores',
-                        'memory',
-                        'name',
-                        'net0',
-                        'scsi0',
-                        'scsihw',
-                        'serial0',
-                        'vga',
-                    ),
+                    'config' => $this->getPreConfigValues($request),
                 ]);
 
             if ($response->failed()) {
-                return redirect()->back()->with('message', Environment::ERROR_CONNECTION_FAILED);
+                return redirect()->back()->with('error', Environment::ERROR_CONNECTION_FAILED);
             }
-        } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with('message', Environment::ERROR_CONNECTION_FAILED);
+        } catch (ConnectionException $e) {
+            return redirect()->route('dashboard')->with('error', Environment::ERROR_CONNECTION_FAILED);
         }
 
-        Environment::query()->create([
+        $environment = Environment::query()->create([
             ...$validated,
             'vm_id' => $response->json('vmid'),
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('dashboard')->with('message', 'Environment created successfully');
+        // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
+        $this->control($environment, 'start');
+        InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile)
+            ->delay(now()->addMinutes(3)); // TODO: Put on another queue
+
+        return redirect()->route('environment.created', $environment);
     }
 
     /**
@@ -201,5 +228,83 @@ class EnvironmentController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Convert the collection of dependencies into a new collection of the command for said dependency
+     */
+    private function getDependencyCommands(array|Collection $dependencies): array|Collection
+    {
+        $dependencyCommands = collect();
+        foreach ($dependencies as $key => $value) {
+            $dependency = Dependency::query()->where('name', $key)->first();
+            $dependencyCommands->push($dependency->command);
+            $dependencies->pull($key);
+        }
+
+        return $dependencyCommands;
+    }
+
+    /**
+     * Write a yaml file containing bash commands for installing dependencies
+     */
+    private function writeYamlFile(Collection $dependencies): string
+    {
+        $dependencyCommands = $this->getDependencyCommands($dependencies);
+
+        $yamlArray = [];
+        foreach ($dependencyCommands as $command) {
+            $yamlArray['runcmd'][] = $command;
+        }
+
+        return Yaml::dump($yamlArray);
+    }
+
+    /**
+     * Return the pre-configuration values that the VM-creation API expects
+     */
+    private function getPreConfigValues(Request $request): array
+    {
+        return $request->only(
+            'agent',
+            'boot',
+            'cicustom',
+            'cipassword',
+            'ciuser',
+            'ide2',
+            'ipconfig0',
+            'cores',
+            'memory',
+            'name',
+            'net0',
+            'scsi0',
+            'scsihw',
+            'serial0',
+            'vga',
+            'start'
+        );
+    }
+
+    /**
+     * Add the pre-configuration values that the VM-createion API expects
+     *
+     * @return void
+     */
+    private function addPreConfigValues(Request $request)
+    {
+        $request->merge([
+            'agent' => 'enabled=1',
+            'boot' => 'order=scsi0;ide2',
+            'cicustom' => 'vendor=local:snippets/base_ubuntu.yml',
+            'cipassword' => config('app.api.cipassword'),
+            'ciuser' => config('app.api.ciuser'),
+            'ide2' => 'local:cloudinit',
+            'ipconfig0' => 'ip=dhcp',
+            'net0' => 'virtio,bridge=vmbr0',
+            'scsi0' => 'local:0,import-from=/root/jammy-server-cloudimg-amd64.img',
+            'scsihw' => 'virtio-scsi-pci',
+            'serial0' => 'socket',
+            'vga' => 'serial0',
+        ]);
     }
 }

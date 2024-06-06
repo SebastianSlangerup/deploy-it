@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Dependency;
+use App\Models\Node;
 use App\Models\Template;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -20,7 +21,23 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Sebastian Møller',
             'email' => 'seba7271@edu.sde.dk',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
+            'is_admin' => 1,
+        ]);
+        User::factory()->create([
+            'name' => 'Martin Egeskov',
+            'email' => 'mart337i@gmail.com',
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
+            'is_admin' => 1,
+        ]);
+        User::factory()->create([
+            'name' => 'TestUser',
+            'email' => 'mail@mail.com',
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
+            'is_admin' => 0,
         ]);
 
         $templates = Template::factory()
@@ -46,5 +63,15 @@ class DatabaseSeeder extends Seeder
         foreach ($dependencies as $dependency) {
             $dependency->templates()->attach($templates[rand(0, 2)]);
         }
+
+        Node::factory()
+            ->count(4)
+            ->state(new Sequence(
+                ['display_name' => 'Development Node', 'hostname' => 'pve', 'ip' => '192.168.1.10'],
+                ['display_name' => 'Testing Node', 'hostname' => 'node1', 'ip' => '192.168.1.50'],
+                ['display_name' => 'Staging Node', 'hostname' => 'node2', 'ip' => '192.168.1.51'],
+                ['display_name' => 'Production Node', 'hostname' => 'node3', 'ip' => '192.168.1.52'],
+            ))
+            ->create();
     }
 }
