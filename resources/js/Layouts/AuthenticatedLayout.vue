@@ -5,7 +5,24 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { toast } from "vue3-toastify";
+import 'vue3-toastify/dist/index.css';
+
+const flash = usePage().props.flash;
+
+if (flash.success) {
+    toast.success(flash.success);
+}
+if (flash.info) {
+    toast.info(flash.info);
+}
+if (flash.warning) {
+    toast.warning(flash.warning);
+}
+if (flash.error) {
+    toast.error(flash.error);
+}
 
 const showingNavigationDropdown = ref(false);
 </script>
