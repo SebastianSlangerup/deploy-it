@@ -36,8 +36,6 @@ class AdminController extends Controller
 
     public function edit(User $user)
     {
-        
-        // dd($user);
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -128,12 +126,6 @@ class AdminController extends Controller
             'is_active' => true,
         ]);
 
-        // $file = Http::post('openvpn/generate_config')...
-        // $path = Storage::put($file);
-        // $user->ovpn_path = $path;
-
-
-        // new UserActivated($user->ovpn_path)
         $user->notify(new UserActivated());
 
         return redirect()->back();
