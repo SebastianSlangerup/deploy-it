@@ -23,13 +23,23 @@ class DatabaseSeeder extends Seeder
             'email' => 'seba7271@edu.sde.dk',
             'password' => Hash::make('Admin1234'),
             'is_active' => 1,
+            'is_admin' => 1,
         ]);
         User::factory()->create([
             'name' => 'Martin Egeskov',
             'email' => 'mart337i@gmail.com',
             'password' => Hash::make('Admin1234'),
             'is_active' => 1,
+            'is_admin' => 1,
         ]);
+        User::factory()->create([
+            'name' => 'TestUser',
+            'email' => 'mail@mail.com',
+            'password' => Hash::make('Admin1234'),
+            'is_active' => 1,
+            'is_admin' => 0,
+        ]);
+
 
         $templates = Template::factory()
             ->count(3)
