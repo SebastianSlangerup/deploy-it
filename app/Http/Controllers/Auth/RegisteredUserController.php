@@ -34,12 +34,16 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'public_key' => 'required|file|extensions:pub',
         ]);
+
+        $publicKeyPath = $request->file('public_key')->store('publicKeys');
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'public_key' => $publicKeyPath,
         ]);
 
         event(new Registered($user));

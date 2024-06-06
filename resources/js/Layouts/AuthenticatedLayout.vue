@@ -5,9 +5,34 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { toast } from "vue3-toastify";
+import 'vue3-toastify/dist/index.css';
+
+const flash = usePage().props.flash;
+
+if (flash.success) {
+    toast.success(flash.success);
+}
+if (flash.info) {
+    toast.info(flash.info);
+}
+if (flash.warning) {
+    toast.warning(flash.warning);
+}
+if (flash.error) {
+    toast.error(flash.error);
+}
 
 const showingNavigationDropdown = ref(false);
+
+const props = defineProps({
+    user: {
+        type: Object,
+        default: () => usePage().props.auth.user,
+    },
+});
+
 </script>
 
 <template>
@@ -31,6 +56,12 @@ const showingNavigationDropdown = ref(false);
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
+                                </NavLink>
+                                <NavLink :href="route('environment.new')" :active="route().current('environment.new')">
+                                    Create new environment
+                                </NavLink>
+                                <NavLink v-if="props.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
+                                    Admin Page
                                 </NavLink>
                             </div>
                         </div>
@@ -114,6 +145,12 @@ const showingNavigationDropdown = ref(false);
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('environment.new')" :active="route().current('environment.new')">
+                            Create new environment
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="props.user.is_admin === true" :href="route('Admin')" :active="route().current('Admin')">
+                            Admin page
                         </ResponsiveNavLink>
                     </div>
 
