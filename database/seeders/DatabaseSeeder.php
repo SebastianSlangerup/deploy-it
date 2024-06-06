@@ -40,7 +40,6 @@ class DatabaseSeeder extends Seeder
             'is_admin' => 0,
         ]);
 
-
         $templates = Template::factory()
             ->count(3)
             ->state(new Sequence(

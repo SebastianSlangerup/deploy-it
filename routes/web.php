@@ -1,12 +1,9 @@
 <?php
 
-use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\UserIsActivated;
-use App\Http\Middleware\UserIsAdmin;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,7 +26,7 @@ Route::middleware(['auth', 'verified', UserIsActivated::class])->group(function 
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
 
     Route::get('/userpath', function () {
-       return response()->json([\Illuminate\Support\Facades\Auth::user()->public_key]);
+        return response()->json([\Illuminate\Support\Facades\Auth::user()->public_key]);
     });
 
     Route::get('/environment/new', function () {
@@ -62,8 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile/public-key', [ProfileController::class, 'download'])->name('profile.public_key');
     Route::post('/openvpn/generate_config', [ProfileController::class, 'userSendOpenVpnConf'])
-    ->middleware('throttle:6,1')
-    ->name('openVpnConfig.send');
+        ->middleware('throttle:6,1')
+        ->name('openVpnConfig.send');
 });
 
 require __DIR__.'/auth.php';

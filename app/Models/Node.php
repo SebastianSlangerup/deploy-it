@@ -9,7 +9,8 @@ class Node extends Model
 {
     use HasFactory;
 
-    public function environments(){
+    public function environments()
+    {
         return $this->hasMany(Environment::class);
     }
 }

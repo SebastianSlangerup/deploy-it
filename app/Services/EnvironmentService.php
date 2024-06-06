@@ -8,13 +8,12 @@ use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class EnvironmentService
 {
     public array $environmentVms = [];
+
     public array $apiVms = [];
 
     /**
@@ -71,7 +70,8 @@ class EnvironmentService
         return $this->mergeValues($this->environmentVms, $this->apiVms);
     }
 
-    public function mergeValues(array $to, array $from): array {
+    public function mergeValues(array $to, array $from): array
+    {
         for ($x = 0; $x < count($to); $x++) {
             for ($y = 0; $y < count($from); $y++) {
                 if ($to[$x]['vmid'] === $from[$y]['vmid']) {
@@ -87,8 +87,6 @@ class EnvironmentService
     /**
      * Call API to get status of given environment
      *
-     * @param  Environment  $environment
-     * @return string
      * @throws ConnectionException
      */
     public static function getStatus(Environment $environment): string
@@ -118,8 +116,6 @@ class EnvironmentService
     /**
      * Call the API to get the IPv4 address for the given environment
      *
-     * @param  Environment  $environment
-     * @return string
      * @throws ConnectionException
      */
     public static function getIpv4(Environment $environment): string

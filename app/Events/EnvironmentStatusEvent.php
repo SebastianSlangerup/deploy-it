@@ -14,12 +14,13 @@ class EnvironmentStatusEvent implements ShouldBroadcast
 
     public function __construct(
         public array $vms
-    ) {}
+    ) {
+    }
 
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('environments')
+            new PrivateChannel('environments'),
         ];
     }
 }

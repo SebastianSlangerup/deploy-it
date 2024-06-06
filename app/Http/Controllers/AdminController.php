@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Node;
-use Inertia\Inertia;
 use App\Models\User;
 use App\Notifications\UserActivated;
-use App\Services\EnvironmentService;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException;
 use Carbon\CarbonInterval;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
 
 class AdminController extends Controller
 {
-
     public function index()
     {
         $non_activated_users = User::where('is_active', 0)->get();
@@ -39,18 +34,19 @@ class AdminController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
     public function GetNetwork()
     {
         try {
-            $res = Http::timeout(3)->get(config('app.api.endpoint')."/map_hostname_and_ip");
+            $res = Http::timeout(3)->get(config('app.api.endpoint').'/map_hostname_and_ip');
+
             return $res->json();
 
         } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with(['message' => "Connection Failed..."]);
+            return redirect()->route('dashboard')->with(['message' => 'Connection Failed...']);
         }
 
     }
@@ -58,12 +54,13 @@ class AdminController extends Controller
     public function listNodes()
     {
         try {
-            $res = Http::timeout(3)->get(config('app.api.endpoint') . "/list_nodes");
+            $res = Http::timeout(3)->get(config('app.api.endpoint').'/list_nodes');
 
             $nodes = $res->json();
 
-            if(!$res->ok()){
+            if (! $res->ok()) {
                 $nodes = [];
+
                 return $nodes;
             }
 
@@ -73,7 +70,7 @@ class AdminController extends Controller
             }
 
             // ['pve', 'node1', 'node2']
-            $node_db = Node::query()->whereIn('hostname',$nodeArray)->get(['display_name', 'hostname']);
+            $node_db = Node::query()->whereIn('hostname', $nodeArray)->get(['display_name', 'hostname']);
 
             foreach ($nodes as $key => $value) {
                 foreach ($node_db as $db_node) {
@@ -87,19 +84,18 @@ class AdminController extends Controller
 
             return $nodes;
         } catch (ConnectionException) {
-            return redirect()->route('dashboard')->with(['message' => "Connection Failed..."]);
+            return redirect()->route('dashboard')->with(['message' => 'Connection Failed...']);
         }
     }
 
-
     private function bytesToGigabytes($bytes)
     {
-        return round($bytes / 1024 / 1024 / 1024, 2) . ' GB';
+        return round($bytes / 1024 / 1024 / 1024, 2).' GB';
     }
 
     private function formatCpuUsage($cpu)
     {
-        return round($cpu * 100, 2) . '%';
+        return round($cpu * 100, 2).'%';
     }
 
     private function secondsToHumanReadable($seconds)
@@ -115,6 +111,7 @@ class AdminController extends Controller
         $node['maxmem'] = $this->bytesToGigabytes($node['maxmem']);
         $node['uptime'] = $this->secondsToHumanReadable($node['uptime']);
         $node['cpu'] = $this->formatCpuUsage($node['cpu']);
+
         return $node;
     }
 
@@ -142,5 +139,3 @@ class AdminController extends Controller
         return redirect()->back();
     }
 }
-
-

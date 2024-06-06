@@ -11,8 +11,8 @@ use App\Services\EnvironmentService;
 use App\Services\TokenService;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -95,7 +95,7 @@ class EnvironmentController extends Controller
                     'node' => $environment->node->hostname,
                     'vmid' => $environment->vm_id,
                 ])
-                ->delete(config('app.api.endpoint')."/cnc/vm/delete_vm");
+                ->delete(config('app.api.endpoint').'/cnc/vm/delete_vm');
 
             $environment->delete();
         } catch (ConnectionException) {
@@ -106,7 +106,6 @@ class EnvironmentController extends Controller
     }
 
     /**
-     * @param  int  $templateId
      * @return Dependency[]|\Illuminate\Database\Eloquent\HigherOrderBuilderProxy|\Illuminate\Support\HigherOrderCollectionProxy|\LaravelIdea\Helper\App\Models\_IH_Dependency_C|mixed
      */
     public function getDependencies(int $templateId)
@@ -163,11 +162,11 @@ class EnvironmentController extends Controller
                 })
                 ->withQueryParameters([
                     'node' => $node->hostname,
-                    'sshkeys' => Auth::user()->publicKeyContents()
+                    'sshkeys' => Auth::user()->publicKeyContents(),
                 ])
                 ->post(config('app.api.endpoint').'/cnc/vm/create-vm-pre-config', [
                     // Wrap the request inputs in a new array to satisfy the API's expectations
-                    'config' => $this->getPreConfigValues($request)
+                    'config' => $this->getPreConfigValues($request),
                 ]);
 
             if ($response->failed()) {
@@ -233,9 +232,6 @@ class EnvironmentController extends Controller
 
     /**
      * Convert the collection of dependencies into a new collection of the command for said dependency
-     *
-     * @param  array|Collection  $dependencies
-     * @return array|Collection
      */
     private function getDependencyCommands(array|Collection $dependencies): array|Collection
     {
@@ -251,9 +247,6 @@ class EnvironmentController extends Controller
 
     /**
      * Write a yaml file containing bash commands for installing dependencies
-     *
-     * @param  Collection  $dependencies
-     * @return string
      */
     private function writeYamlFile(Collection $dependencies): string
     {
@@ -269,9 +262,6 @@ class EnvironmentController extends Controller
 
     /**
      * Return the pre-configuration values that the VM-creation API expects
-     *
-     * @param  Request  $request
-     * @return array
      */
     private function getPreConfigValues(Request $request): array
     {
@@ -298,7 +288,6 @@ class EnvironmentController extends Controller
     /**
      * Add the pre-configuration values that the VM-createion API expects
      *
-     * @param  Request  $request
      * @return void
      */
     private function addPreConfigValues(Request $request)

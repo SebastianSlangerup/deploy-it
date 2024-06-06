@@ -9,8 +9,6 @@ class TokenService
 {
     /**
      * Get the current JSON Web Token
-     *
-     * @return string
      */
     public static function get(): string
     {
@@ -23,8 +21,6 @@ class TokenService
 
     /**
      * Generate a new JSON Web Token
-     *
-     * @return string
      */
     public static function new(): string
     {

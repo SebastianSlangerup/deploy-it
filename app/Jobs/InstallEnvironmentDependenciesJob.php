@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Environment;
-use App\Services\EnvironmentService;
 use App\Services\TokenService;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -14,7 +13,6 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class InstallEnvironmentDependenciesJob implements ShouldQueue
 {

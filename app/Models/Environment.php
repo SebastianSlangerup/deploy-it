@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Environment extends Model
 {
-    const ERROR_CONNECTION_FAILED = "Failed to connect to API";
+    const ERROR_CONNECTION_FAILED = 'Failed to connect to API';
 
     protected $fillable = [
         'name',
