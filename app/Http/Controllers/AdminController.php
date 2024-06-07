@@ -5,18 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Node;
 use App\Models\User;
 use App\Notifications\UserActivated;
+use App\Services\HttpService;
 use Carbon\CarbonInterval;
+use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        $non_activated_users = User::where('is_active', 0)->get();
-        $activated_users = User::where('is_active', 1)->get(); // This should be 1 for activated users
+        $non_activated_users = User::query()->where('is_active', 0)->get();
+        $activated_users = User::query()->where('is_active', 1)->get(); // This should be 1 for activated users
 
         $network_info = $this->GetNetwork();
         $node_info = $this->listNodes();
@@ -29,7 +33,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function edit(User $user)
+    public function edit(User $user): Response
     {
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
@@ -41,7 +45,8 @@ class AdminController extends Controller
     public function GetNetwork()
     {
         try {
-            $res = Http::timeout(3)->get(config('app.api.endpoint').'/map_hostname_and_ip');
+            $res = HttpService::prepareRequest()
+                ->get(config('app.api.endpoint').'/cnc/map_hostname_and_ip');
 
             return $res->json();
 
@@ -51,17 +56,16 @@ class AdminController extends Controller
 
     }
 
-    public function listNodes()
+    public function listNodes(): array|RedirectResponse
     {
         try {
-            $res = Http::timeout(3)->get(config('app.api.endpoint').'/list_nodes');
+            $res = HttpService::prepareRequest()
+                ->get(config('app.api.endpoint').'/cnc/list_nodes');
 
             $nodes = $res->json();
 
             if (! $res->ok()) {
-                $nodes = [];
-
-                return $nodes;
+                return [];
             }
 
             $nodeArray = [];
@@ -80,27 +84,31 @@ class AdminController extends Controller
                 }
             }
 
-            $nodes = array_map([$this, 'formatNodeData'], $nodes);
-
-            return $nodes;
+            return array_map([$this, 'formatNodeData'], $nodes);
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['message' => 'Connection Failed...']);
         }
     }
 
-    private function bytesToGigabytes($bytes)
+    private function bytesToGigabytes($bytes): string
     {
         return round($bytes / 1024 / 1024 / 1024, 2).' GB';
     }
 
-    private function formatCpuUsage($cpu)
+    private function formatCpuUsage($cpu): string
     {
         return round($cpu * 100, 2).'%';
     }
 
-    private function secondsToHumanReadable($seconds)
+    private function secondsToHumanReadable($seconds): string|bool
     {
-        return CarbonInterval::seconds($seconds)->cascade()->forHumans();
+        try {
+            return CarbonInterval::seconds($seconds)->cascade()->forHumans();
+        } catch (Exception $e) {
+            Log::error($e);
+
+            return false;
+        }
     }
 
     private function formatNodeData($node)
@@ -115,9 +123,9 @@ class AdminController extends Controller
         return $node;
     }
 
-    public function activate(int $id)
+    public function activate(int $id): RedirectResponse
     {
-        $user = User::findOrFail($id);
+        $user = User::query()->findOrFail($id);
 
         $user->update([
             'is_active' => true,
@@ -128,9 +136,9 @@ class AdminController extends Controller
         return redirect()->back();
     }
 
-    public function deactivate(int $id)
+    public function deactivate(int $id): RedirectResponse
     {
-        $user = User::findOrFail($id);
+        $user = User::query()->findOrFail($id);
 
         $user->update([
             'is_active' => false,

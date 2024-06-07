@@ -9,6 +9,7 @@ import InputError from "@/Components/InputError.vue";
 
 const form = useForm({
     name: '',
+    password: '',
     description: '',
     node_id: '',
     cores: 1,
@@ -69,6 +70,20 @@ function toggleDependency(dependency) {
                             />
 
                             <InputError :message="form.errors.name" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <InputLabel for="password" value="Password" />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                class="mt-1 block w-full"
+                                v-model="form.password"
+                                required
+                                autofocus
+                            />
+
+                            <InputError :message="form.errors.password" class="mt-2"/>
                         </div>
 
                         <div>
