@@ -11,11 +11,13 @@ class Environment extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'vm_id',
         'node_id',
         'user_id',
         'cores',
         'memory',
+        'ip',
     ];
 
     public function user(): BelongsTo

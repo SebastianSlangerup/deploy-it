@@ -12,7 +12,7 @@ class TokenService
      */
     public static function get(): string
     {
-        if (Token::exists()) {
+        if (Token::query()->exists()) {
             return Token::query()->first()->value;
         } else {
             return self::new();

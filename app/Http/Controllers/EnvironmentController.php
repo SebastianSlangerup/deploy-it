@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\InstallEnvironmentDependenciesJob;
+use App\Jobs\FinishEnvironmentSetupJob;
 use App\Models\Dependency;
 use App\Models\Environment;
 use App\Models\Node;
 use App\Models\Template;
 use App\Services\EnvironmentService;
-use App\Services\TokenService;
-use Exception;
+use App\Services\HttpService;
+use Illuminate\Database\Eloquent\HigherOrderBuilderProxy;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\HigherOrderCollectionProxy;
 use Inertia\Inertia;
+use Inertia\Response;
+use LaravelIdea\Helper\App\Models\_IH_Dependency_C;
 use Symfony\Component\Yaml\Yaml;
 
 class EnvironmentController extends Controller
@@ -25,7 +26,7 @@ class EnvironmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
         try {
             $vms = (new EnvironmentService)->getEnvironments();
@@ -41,22 +42,10 @@ class EnvironmentController extends Controller
         ]);
     }
 
-    public function control(Environment $environment, string $option)
+    public function control(Environment $environment, string $option): \Illuminate\Http\Client\Response|RedirectResponse
     {
         try {
-            Http::timeout(3)
-                ->withToken(TokenService::get())
-                // Retry callback in case the request fails
-                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
-                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                        return false;
-                    }
-
-                    $request->withToken(TokenService::new());
-
-                    return true;
-                })
+            HttpService::prepareRequest()
                 ->withQueryParameters([
                     'node' => $environment->node->hostname,
                     'vmid' => $environment->vm_id,
@@ -67,10 +56,10 @@ class EnvironmentController extends Controller
             return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
 
-        return redirect()->route('dashboard')->with(['info' => 'Performing action, please wait...']);
+        return redirect()->back()->with(['info' => 'Performing action, please wait...']);
     }
 
-    public function delete(Environment $environment)
+    public function delete(Environment $environment): RedirectResponse
     {
         try {
             $status = EnvironmentService::getStatus($environment);
@@ -78,19 +67,7 @@ class EnvironmentController extends Controller
                 return redirect()->back()->with(['warning' => 'Turn VM off before deleting']);
             }
 
-            Http::timeout(3)
-                ->withToken(TokenService::get())
-                // Retry callback in case the request fails
-                ->retry(2, 10, function (Exception $exception, PendingRequest $request) {
-                    // If we are not getting a Request Exception, a 401 status code, dont bother retrying the request
-                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                        return false;
-                    }
-
-                    $request->withToken(TokenService::new());
-
-                    return true;
-                })
+            HttpService::prepareRequest()
                 ->withQueryParameters([
                     'node' => $environment->node->hostname,
                     'vmid' => $environment->vm_id,
@@ -98,15 +75,16 @@ class EnvironmentController extends Controller
                 ->delete(config('app.api.endpoint').'/cnc/vm/delete_vm');
 
             $environment->delete();
+
         } catch (ConnectionException) {
             return redirect()->route('dashboard')->with(['error' => Environment::ERROR_CONNECTION_FAILED]);
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->back()->with(['success' => 'VM has been deleted']);
     }
 
     /**
-     * @return Dependency[]|\Illuminate\Database\Eloquent\HigherOrderBuilderProxy|\Illuminate\Support\HigherOrderCollectionProxy|\LaravelIdea\Helper\App\Models\_IH_Dependency_C|mixed
+     * @return Dependency[]|HigherOrderBuilderProxy|HigherOrderCollectionProxy|_IH_Dependency_C|mixed
      */
     public function getDependencies(int $templateId)
     {
@@ -120,21 +98,22 @@ class EnvironmentController extends Controller
      */
     public function create(Request $request)
     {
-        // Merge extra information for the API
-        // that the user does not need to know about or interact with
-        $this->addPreConfigValues($request);
-
         // Validate the user's input from the request
         $validated = $request->validate([
-            'name' => 'required|string|ascii|max:100',
-            'description' => 'required|string|max:255',
+            'name' => 'required|alpha_num:ascii|max:100',
+            'password' => 'required|max:100',
+            'description' => 'required|string|max:60000',
             'node_id' => 'required|integer',
             'cores' => 'required|digits_between:1,4',
             'memory' => 'required',
             'template' => 'required',
         ]);
 
-        $node = Node::findOrFail($validated['node_id']);
+        // Merge extra information for the API
+        // that the user does not need to know about or interact with
+        $this->addPreConfigValues($request, $validated);
+
+        $node = Node::query()->findOrFail($validated['node_id']);
 
         // Grab only the dependencies that have been selected by the user
         $dependencies = collect($request->get('dependencies'));
@@ -147,19 +126,7 @@ class EnvironmentController extends Controller
 
         // Create the VM with the pre-configured values
         try {
-            $response = Http::timeout(3)
-                ->withToken(TokenService::get())
-                // Retry callback in case the request fails
-                ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
-                    // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                        return false;
-                    }
-
-                    $request->withToken(TokenService::new());
-
-                    return true;
-                })
+            $response = HttpService::prepareRequest()
                 ->withQueryParameters([
                     'node' => $node->hostname,
                     'sshkeys' => Auth::user()->publicKeyContents(),
@@ -172,9 +139,10 @@ class EnvironmentController extends Controller
             if ($response->failed()) {
                 return redirect()->back()->with('error', Environment::ERROR_CONNECTION_FAILED);
             }
-        } catch (ConnectionException $e) {
+        } catch (ConnectionException) {
             return redirect()->route('dashboard')->with('error', Environment::ERROR_CONNECTION_FAILED);
         }
+
 
         $environment = Environment::query()->create([
             ...$validated,
@@ -184,51 +152,31 @@ class EnvironmentController extends Controller
 
         // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
         $this->control($environment, 'start');
-        InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile)
-            ->delay(now()->addMinutes(3))
-            ->onQueue('setups');
+        FinishEnvironmentSetupJob::dispatch($environment, $yamlFile)
+            ->delay(now()->addMinutes(3)); // TODO: Put on another queue
 
-        return redirect()->route('environment.created', $environment);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return redirect()->route('dashboard')->with(['success' => "VM has been created!\nIt may take up to 5 minutes to finish setting up your VM"]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Environment $environment)
     {
-        //
-    }
+        $response = HttpService::prepareRequest()
+            ->withQueryParameters([
+                'node' => $environment->node->hostname,
+                'vmid' => $environment->vm_id,
+            ])
+            ->get(config('app.api.endpoint').'/cnc/vm/get_vm_status');
+        $environmentStatus = $response->json();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // Merge more details values from the endpoint with our environment model
+        $environment = array_merge($environment->toArray(), $environmentStatus);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return Inertia::render('Environment/Show', [
+            'environment' => $environment
+        ]);
     }
 
     /**
@@ -288,17 +236,15 @@ class EnvironmentController extends Controller
 
     /**
      * Add the pre-configuration values that the VM-createion API expects
-     *
-     * @return void
      */
-    private function addPreConfigValues(Request $request)
+    private function addPreConfigValues(Request $request, array $validated = null): void
     {
         $request->merge([
             'agent' => 'enabled=1',
             'boot' => 'order=scsi0;ide2',
             'cicustom' => 'vendor=local:snippets/base_ubuntu.yml',
-            'cipassword' => config('app.api.cipassword'),
-            'ciuser' => config('app.api.ciuser'),
+            'cipassword' => $validated['password'] ?? config('app.api.cipassword'),
+            'ciuser' => $validated['name'] ?? config('app.api.ciuser'),
             'ide2' => 'local:cloudinit',
             'ipconfig0' => 'ip=dhcp',
             'net0' => 'virtio,bridge=vmbr0',

@@ -58,7 +58,7 @@ class ProfileController extends Controller
                 ->withHeaders([
                     'accept' => 'application/json',
                 ])
-                ->post("{$url}?username={$username}", []);
+                ->post("$url?username=$username");
 
             if ($response->ok() && $response->header('Content-Type') != 'application/json') {
                 $responseData = $response->body();

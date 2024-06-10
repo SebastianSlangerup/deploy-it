@@ -11,9 +11,9 @@ class UserSendOpenVpnConf extends Notification
 {
     use Queueable;
 
-    private $filePath;
+    private string $filePath;
 
-    public function __construct($filePath)
+    public function __construct(string $filePath)
     {
         $this->filePath = $filePath;
     }
@@ -57,7 +57,7 @@ class UserSendOpenVpnConf extends Notification
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
