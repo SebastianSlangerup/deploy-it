@@ -7,8 +7,10 @@ use App\Services\EnvironmentService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class GetEnvironmentsJob implements ShouldQueue
 {
@@ -20,7 +22,11 @@ class GetEnvironmentsJob implements ShouldQueue
 
     public function handle(): array
     {
-        $vms = (new EnvironmentService())->getEnvironments();
+        try {
+            $vms = (new EnvironmentService())->getEnvironments();
+        } catch (ConnectionException $e) {
+            Log::error($e);
+        }
 
         // Dispatch our event to update the front-end with new information
         EnvironmentStatusEvent::dispatch($vms);

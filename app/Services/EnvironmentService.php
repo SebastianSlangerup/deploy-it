@@ -6,9 +6,8 @@ use App\Models\Environment;
 use Carbon\CarbonInterval;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EnvironmentService
 {
@@ -21,32 +20,25 @@ class EnvironmentService
      */
     public function getEnvironments(): array
     {
-        $response = Http::timeout(3)
-            ->withToken(TokenService::get())
-            // Retry callback in case the request fails
-            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
-                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                    return false;
-                }
-
-                $request->withToken(TokenService::new());
-
-                return true;
-            })
+        $response = HttpService::prepareRequest()
             ->get(config('app.api.endpoint').'/cnc/vm/list_all_vm_ids');
 
         if (! $response->failed()) {
             $json = $response->json();
 
-            $environments = Environment::all();
+            $user = Auth::user();
+            $environments = Environment::where('user_id', $user->id)->get();
 
             $apiArray = [];
             foreach ($json as $node) {
                 foreach ($node['vm_ids'] as $vm) {
                     // Convert the uptime in seconds into a more human-readable format, before saving
                     $apiArray['vmid'] = $vm['vmid'];
-                    $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+                    try {
+                        $apiArray['uptime'] = CarbonInterval::seconds($vm['uptime'])->cascade()->forHumans();
+                    } catch (Exception $e) {
+                        Log::error($e);
+                    }
                     $apiArray['status'] = $vm['status'];
 
                     $this->apiVms[] = $apiArray;
@@ -91,19 +83,7 @@ class EnvironmentService
      */
     public static function getStatus(Environment $environment): string
     {
-        $response = Http::timeout(3)
-            ->withToken(TokenService::get())
-            // Retry callback in case the request fails
-            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
-                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                    return false;
-                }
-
-                $request->withToken(TokenService::new());
-
-                return true;
-            })
+        $response = HttpService::prepareRequest()
             ->withQueryParameters([
                 'node' => $environment->node->hostname,
                 'vmid' => $environment->vm_id,
@@ -120,19 +100,7 @@ class EnvironmentService
      */
     public static function getIpv4(Environment $environment): string
     {
-        $response = Http::timeout(3)
-            ->withToken(TokenService::get())
-            // Retry callback in case the request fails
-            ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
-                // If we are not getting a Request Exception, or a 401 status code, dont bother retrying the request
-                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
-                    return false;
-                }
-
-                $request->withToken(TokenService::new());
-
-                return true;
-            })
+        $response = HttpService::prepareRequest()
             ->withQueryParameters([
                 'node' => $environment->node->hostname,
                 'vmid' => $environment->vm_id,

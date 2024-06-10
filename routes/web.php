@@ -4,6 +4,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\UserIsActivated;
+use App\Http\Middleware\UserIsAdmin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,27 +28,26 @@ Route::middleware(['auth', 'verified', UserIsActivated::class])->group(function 
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
 
     Route::get('/userpath', function () {
-        return response()->json([\Illuminate\Support\Facades\Auth::user()->public_key]);
+        return response()->json([Auth::user()->public_key]);
     });
 
     Route::get('/environment/new', function () {
         return Inertia::render('Environment/Create');
     })->name('environment.new');
     Route::post('/environment/create', [EnvironmentController::class, 'create'])->name('environment.create');
-    Route::get('/environment/created', [EnvironmentController::class, 'created'])->name('environment.created');
     Route::get('/environment/control/{environment}/{option}', [EnvironmentController::class, 'control'])->name('environment.control');
     Route::get('/environment/delete/{environment}', [EnvironmentController::class, 'delete'])->name('environment.delete');
-    Route::get('/environment/details/{environment}', function (int $id) {
-        $vm = Http::get('http://192.168.1.20/cnc/');
-    })->name('environment.details');
+    Route::get('/environment/show/{environment}', [EnvironmentController::class, 'show'])->name('environment.show');
 
     Route::get('/dependencies/template/{templateId}', [EnvironmentController::class, 'getDependencies'])->name('dependencies.get');
 
-    Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
-    Route::get('/admin/users/detail/{user}', [AdminController::class, 'edit'])->name('Admin.users.detail');
-    Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
-    Route::get('/admin/users/deactivate/{id}', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
-    Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
+    Route::middleware([UserIsAdmin::class])->group(function () {
+        Route::get('/admin', [AdminController::class, 'index'])->name('Admin');
+        Route::get('/admin/users/detail/{user}', [AdminController::class, 'edit'])->name('Admin.users.detail');
+        Route::get('/admin/users/activate/{id}', [AdminController::class, 'activate'])->name('admin.users.activate');
+        Route::get('/admin/users/deactivate/{id}', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
+        Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
+    });
 });
 
 Route::get('/dependencies/template/{template}', function (string $template) {

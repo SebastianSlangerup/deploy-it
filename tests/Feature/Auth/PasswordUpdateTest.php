@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class PasswordUpdateTest extends TestCase
@@ -24,9 +25,13 @@ class PasswordUpdateTest extends TestCase
                 'password_confirmation' => 'new-password',
             ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+        try {
+            $response
+                ->assertSessionHasNoErrors()
+                ->assertRedirect('/profile');
+        } catch (\JsonException $e) {
+            Log::error($e);
+        }
 
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }

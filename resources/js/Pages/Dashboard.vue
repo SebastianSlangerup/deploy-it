@@ -2,7 +2,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import VmList from "@/Pages/Profile/Partials/VmList.vue";
-import InputError from "@/Components/InputError.vue";
 import {ref} from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
 
@@ -15,7 +14,7 @@ const filter = ref('pve');
 
 // TODO: Find a way to filter the vms in the dashboard
 function updateFilter(filter) {
-    vmsMut.value = props.vms.filter((vm) => vm.node === filter);
+    vmsMut.value = props.vms.filter((vm) => vm.node.hostname === filter);
 }
 </script>
 

@@ -1,7 +1,7 @@
 <template>
     <ul role="list" class="divide-y divide-gray-100">
         <li v-for="vm in vmArrayMut" :key="vm.vmid">
-            <a :href="route('environment.details', vm.vmid)" class="hover:bg-gray-50 flex items-center justify-between gap-x-6 px-5 py-5">
+            <a :href="route('environment.show', vm.id)" class="hover:bg-gray-50 flex items-center justify-between gap-x-6 px-5 py-5">
                 <div class="min-w-0">
                     <div class="flex items-start gap-x-3">
                         <p class="text-sm font-semibold leading-6 text-gray-900">{{ vm.name }}</p>
