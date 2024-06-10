@@ -49,10 +49,6 @@ Route::middleware(['auth', 'verified', UserIsActivated::class])->group(function 
     Route::get('/admin/server/network/', [AdminController::class, 'deactivate'])->name('admin.users.deactivate');
 });
 
-Route::get('/dependencies/template/{template}', function (string $template) {
-    // TODO
-})->middleware(['auth']);
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

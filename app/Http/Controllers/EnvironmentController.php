@@ -185,7 +185,8 @@ class EnvironmentController extends Controller
         // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
         $this->control($environment, 'start');
         InstallEnvironmentDependenciesJob::dispatch($environment, $yamlFile)
-            ->delay(now()->addMinutes(3)); // TODO: Put on another queue
+            ->delay(now()->addMinutes(3))
+            ->onQueue('setups');
 
         return redirect()->route('environment.created', $environment);
     }
