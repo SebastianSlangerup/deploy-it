@@ -26,8 +26,12 @@ class EnvironmentService
         if (! $response->failed()) {
             $json = $response->json();
 
-            $user = Auth::user();
-            $environments = Environment::where('user_id', $user->id)->get();
+            if (Auth::check()) {
+                $user = Auth::user();
+                $environments = Environment::where('user_id', $user->id)->get();
+            } else {
+                $environments = Environment::all();
+            }
 
             $apiArray = [];
             foreach ($json as $node) {
