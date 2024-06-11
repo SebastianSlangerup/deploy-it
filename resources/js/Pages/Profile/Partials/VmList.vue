@@ -1,10 +1,10 @@
 <template>
     <ul role="list" class="divide-y divide-gray-100">
         <li v-for="vm in vmArray" :key="vm.vmid">
-            <a :href="route('environment.show', vm.id)" class="hover:bg-gray-50 flex items-center justify-between gap-x-6 px-5 py-5">
+            <a :href="route('environment.show', vm.id)" class="hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg flex items-center justify-between gap-x-6 px-5 py-5">
                 <div class="min-w-0">
                     <div class="flex items-start gap-x-3">
-                        <p class="text-sm font-semibold leading-6 text-gray-900">{{ vm.name }}</p>
+                        <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">{{ vm.name }}</p>
                         <p :class="[statuses[vm.status], 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">{{ vm.status }}</p>
                     </div>
                     <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
@@ -22,19 +22,19 @@
                     </div>
                 </div>
                 <div class="flex flex-none items-center gap-x-4">
-                    <a v-if="vm.status === 'stopped'" :href="route('environment.control', { environment: vm.id, option: 'start' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'stopped'" :href="route('environment.control', { environment: vm.id, option: 'start' })" class="hidden rounded-md bg-white dark:bg-gray-700 px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-300 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-400 dark:hover:ring-gray-400 dark:hover:bg-gray-600 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                         </svg>
                         <span class="sr-only">Start Environment</span>
                     </a>
-                    <a v-if="vm.status === 'running'" :href="route('environment.control', { environment: vm.id, option: 'stop' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'running'" :href="route('environment.control', { environment: vm.id, option: 'stop' })" class="hidden rounded-md bg-white dark:bg-gray-700 px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-300 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-400 dark:hover:ring-gray-400 dark:hover:bg-gray-600 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
                         </svg>
                         <span class="sr-only">Stop Environment</span>
                     </a>
-                    <a v-if="vm.status === 'running'" :href="route('environment.control', { environment: vm.id, option: 'reboot' })" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                    <a v-if="vm.status === 'running'" :href="route('environment.control', { environment: vm.id, option: 'reboot' })" class="hidden rounded-md bg-white dark:bg-gray-700 px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-300 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-400 dark:hover:ring-gray-400 dark:hover:bg-gray-600 sm:block">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
@@ -73,7 +73,7 @@ import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 const props = defineProps(['vmArray']);
 
 const statuses = {
-    running: 'text-green-700 bg-green-50 ring-green-600/20',
-    stopped: 'text-red-600 bg-red-50 ring-red-500/10',
+    running: 'text-green-700 bg-green-50 ring-green-600/20 dark:bg-green-900 dark:ring-green-300/20 dark:text-green-400',
+    stopped: 'text-red-600 bg-red-50 ring-red-500/10 dark:bg-red-900 dark:ring-red-300/20 dark:text-red-400',
 }
 </script>

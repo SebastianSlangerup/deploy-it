@@ -16,7 +16,7 @@ console.log(props.environment);
 
         <div class="py-8">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="p-8 bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg divide-y">
+                <div class="p-8 bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg divide-y dark:text-gray-200">
                     <div class="text-md pb-4">
                         <div class="flex justify-between">
                             <h3 class="text-3xl mb-4">Environment: <b>{{ environment.name }}</b></h3>
@@ -30,7 +30,7 @@ console.log(props.environment);
                         <p>IP address: <b>{{ environment.ip ?? 'not configured yet, please wait...' }} </b></p>
                         <p>CPU Core(s): <b>{{ environment.cores }}</b></p>
                         <p>RAM size: <b>{{ environment.memory }}MB</b></p>
-                        <p>Description: {{ environment.description }}</p>
+                        <p>Description: <b>{{ environment.description }}</b></p>
                     </div>
                     <div class="flex flex-col pt-4 text-md">
                         <h2 class="text-xl mb-2">How to connect to your environment</h2>
