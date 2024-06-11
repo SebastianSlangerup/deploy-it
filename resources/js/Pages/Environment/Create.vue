@@ -6,6 +6,8 @@ import TextInput from "@/Components/TextInput.vue";
 import CheckboxInput from "@/Components/CheckboxInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InputError from "@/Components/InputError.vue";
+import {ref} from "vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
 
 const form = useForm({
     name: '',
@@ -23,6 +25,8 @@ const form = useForm({
         postgresql: false,
     },
 });
+
+const step = ref(1);
 
 function grabDependencies(template) {
     axios.get('/dependencies/template/'+template)
@@ -56,163 +60,177 @@ function toggleDependency(dependency) {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <form @submit.prevent="form.post('/environment/create')" class="p-6 space-y-6">
-                        <InputError v-if="$page.props.flash.message" :message="$page.props.flash.message" class="mb-2"/>
-                        <div>
-                            <InputLabel for="name" value="Name" />
-                            <TextInput
-                                id="name"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.name"
-                                required
-                                autofocus
-                                autocomplete="name"
-                            />
+                        <div v-if="step === 1" id="stepOne" class="h-64 flex flex-col justify-between">
+                            <InputError v-if="$page.props.flash.message" :message="$page.props.flash.message" class="mb-2"/>
+                            <div>
+                                <InputLabel for="name" value="Name" />
+                                <TextInput
+                                    id="name"
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.name"
+                                    required
+                                    autofocus
+                                    autocomplete="name"
+                                />
 
-                            <InputError :message="form.errors.name" class="mt-2"/>
+                                <InputError :message="form.errors.name" class="mt-2"/>
+                            </div>
+
+                            <div>
+                                <InputLabel for="password" value="Password" />
+                                <TextInput
+                                    id="password"
+                                    type="password"
+                                    class="mt-1 block w-full"
+                                    v-model="form.password"
+                                    required
+                                    autofocus
+                                />
+
+                                <InputError :message="form.errors.password" class="mt-2"/>
+                            </div>
+
+                            <div>
+                                <InputLabel for="description" value="Description" />
+                                <TextInput
+                                    id="description"
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.description"
+                                    required
+                                />
+
+                                <InputError :message="form.errors.description" class="mt-2"/>
+                            </div>
                         </div>
 
-                        <div>
-                            <InputLabel for="password" value="Password" />
-                            <TextInput
-                                id="password"
-                                type="password"
-                                class="mt-1 block w-full"
-                                v-model="form.password"
-                                required
-                                autofocus
-                            />
+                        <div v-if="step === 2" id="stepTwo" class="h-64 flex flex-col justify-between">
+                            <div>
+                                <InputLabel for="node" value="Choose Node to deploy VM to" />
+                                <select v-model="form.node_id" id="node" name="node" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option disabled selected value="">Please select one</option>
+                                    <option value="1">Development Node</option>
+                                    <option value="2">Testing Node</option>
+                                    <option value="3">Staging Node</option>
+                                    <option value="4">Production Node</option>
+                                </select>
 
-                            <InputError :message="form.errors.password" class="mt-2"/>
+                                <InputError :message="form.errors.node" class="mt-2"/>
+                            </div>
+
+                            <div>
+                                <InputLabel for="cores" value="Cores" />
+                                <select v-model="form.cores" id="cores" name="cores" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option selected value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+
+                                <InputError :message="form.errors.cores" class="mt-2"/>
+                            </div>
+
+                            <div>
+                                <InputLabel for="memory" value="Memory" />
+                                <select v-model="form.memory" id="memory" name="memory" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option selected value="1024">1GB</option>
+                                    <option value="2048">2GB</option>
+                                    <option value="3072">3GB</option>
+                                    <option value="4096">4GB</option>
+                                    <option value="6144">6GB</option>
+                                    <option value="8192">8GB</option>
+                                </select>
+
+                                <InputError :message="form.errors.memory" class="mt-2"/>
+                            </div>
                         </div>
 
-                        <div>
-                            <InputLabel for="description" value="Description" />
-                            <TextInput
-                                id="description"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.description"
-                                required
-                            />
+                        <div v-if="step === 3" id="stepThree" class="h-64 flex flex-col justify-between">
+                            <div>
+                                <InputLabel for="template" value="Template" />
+                                <select v-model="form.template" v-on:change="grabDependencies(form.template)" id="template" name="template" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <option disabled value="">Please select one</option>
+                                    <option value="1">Web development</option>
+                                    <option value="2">Scripting</option>
+                                    <option value="3">Crypto</option>
+                                </select>
 
-                            <InputError :message="form.errors.description" class="mt-2"/>
-                        </div>
+                                <InputError :message="form.errors.template" class="mt-2"/>
+                            </div>
 
-                        <div>
-                            <InputLabel for="node" value="Choose Node to deploy VM to" />
-                            <select v-model="form.node_id" id="node" name="node" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option disabled selected value="">Please select one</option>
-                                <option value="1">Development Node</option>
-                                <option value="2">Testing Node</option>
-                                <option value="3">Staging Node</option>
-                                <option value="4">Production Node</option>
-                            </select>
-
-                            <InputError :message="form.errors.node" class="mt-2"/>
-                        </div>
-
-                        <div>
-                            <InputLabel for="cores" value="Cores" />
-                            <select v-model="form.cores" id="cores" name="cores" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option selected value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
-
-                            <InputError :message="form.errors.cores" class="mt-2"/>
-                        </div>
-
-                        <div>
-                            <InputLabel for="memory" value="Memory" />
-                            <select v-model="form.memory" id="memory" name="memory" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option selected value="1024">1GB</option>
-                                <option value="2048">2GB</option>
-                                <option value="3072">3GB</option>
-                                <option value="4096">4GB</option>
-                                <option value="6144">6GB</option>
-                                <option value="8192">8GB</option>
-                            </select>
-
-                            <InputError :message="form.errors.memory" class="mt-2"/>
-                        </div>
-
-                        <div>
-                            <InputLabel for="template" value="Template" />
-                            <select v-model="form.template" v-on:change="grabDependencies(form.template)" id="template" name="template" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option disabled value="">Please select one</option>
-                                <option value="1">Web development</option>
-                                <option value="2">Scripting</option>
-                                <option value="3">Crypto</option>
-                            </select>
-
-                            <InputError :message="form.errors.template" class="mt-2"/>
-                        </div>
-
-                        <div class="font-medium text-sm text-gray-700 dark:text-gray-300">
-                            <p>Dependencies</p>
-                            <div class="grid grid-cols-2 w-64 gap-y-2">
-                                <div class="flex space-x-2 place-items-center">
-                                    <CheckboxInput
-                                        id="nodejs"
-                                        type="checkbox"
-                                        class="rounded-sm"
-                                        v-on:change="toggleDependency('nodejs')"
-                                        :checked="form.dependencies.nodejs"
-                                        :v-model="form.dependencies.nodejs"
-                                    />
-                                    <label for="nodejs">Node.js</label>
-                                </div>
-                                <div class="flex space-x-2 place-items-center">
-                                    <CheckboxInput
-                                        id="python"
-                                        type="checkbox"
-                                        class="rounded-sm"
-                                        v-on:change="toggleDependency('python')"
-                                        :checked="form.dependencies.python"
-                                        :v-model="form.dependencies.python"
-                                    />
-                                    <label for="python">Python 3</label>
-                                </div>
-                                <div class="flex space-x-2 place-items-center">
-                                    <CheckboxInput
-                                        id="php"
-                                        type="checkbox"
-                                        class="rounded-sm"
-                                        v-on:change="toggleDependency('php')"
-                                        :checked="form.dependencies.php"
-                                        :v-model="form.dependencies.php"
-                                    />
-                                    <label for="php">PHP</label>
-                                </div>
-                                <div class="flex space-x-2 place-items-center">
-                                    <CheckboxInput
-                                        id="mysql"
-                                        type="checkbox"
-                                        class="rounded-sm"
-                                        v-on:change="toggleDependency('mysql')"
-                                        :checked="form.dependencies.mysql"
-                                        :v-model="form.dependencies.mysql"
-                                    />
-                                    <label for="mysql">MySQL</label>
-                                </div>
-                                <div class="flex space-x-2 place-items-center">
-                                    <CheckboxInput
-                                        id="postgresql"
-                                        type="checkbox"
-                                        class="rounded-sm"
-                                        v-on:change="toggleDependency('postgresql')"
-                                        :checked="form.dependencies.postgresql"
-                                        :v-model="form.dependencies.postgresql"
-                                    />
-                                    <label for="postgresql">PostgreSQL</label>
+                            <div class="font-medium text-sm text-gray-700 dark:text-gray-300">
+                                <p>Dependencies</p>
+                                <div class="grid grid-cols-2 w-64 gap-y-2">
+                                    <div class="flex space-x-2 place-items-center">
+                                        <CheckboxInput
+                                            id="nodejs"
+                                            type="checkbox"
+                                            class="rounded-sm"
+                                            v-on:change="toggleDependency('nodejs')"
+                                            :checked="form.dependencies.nodejs"
+                                            :v-model="form.dependencies.nodejs"
+                                        />
+                                        <label for="nodejs">Node.js</label>
+                                    </div>
+                                    <div class="flex space-x-2 place-items-center">
+                                        <CheckboxInput
+                                            id="python"
+                                            type="checkbox"
+                                            class="rounded-sm"
+                                            v-on:change="toggleDependency('python')"
+                                            :checked="form.dependencies.python"
+                                            :v-model="form.dependencies.python"
+                                        />
+                                        <label for="python">Python 3</label>
+                                    </div>
+                                    <div class="flex space-x-2 place-items-center">
+                                        <CheckboxInput
+                                            id="php"
+                                            type="checkbox"
+                                            class="rounded-sm"
+                                            v-on:change="toggleDependency('php')"
+                                            :checked="form.dependencies.php"
+                                            :v-model="form.dependencies.php"
+                                        />
+                                        <label for="php">PHP</label>
+                                    </div>
+                                    <div class="flex space-x-2 place-items-center">
+                                        <CheckboxInput
+                                            id="mysql"
+                                            type="checkbox"
+                                            class="rounded-sm"
+                                            v-on:change="toggleDependency('mysql')"
+                                            :checked="form.dependencies.mysql"
+                                            :v-model="form.dependencies.mysql"
+                                        />
+                                        <label for="mysql">MySQL</label>
+                                    </div>
+                                    <div class="flex space-x-2 place-items-center">
+                                        <CheckboxInput
+                                            id="postgresql"
+                                            type="checkbox"
+                                            class="rounded-sm"
+                                            v-on:change="toggleDependency('postgresql')"
+                                            :checked="form.dependencies.postgresql"
+                                            :v-model="form.dependencies.postgresql"
+                                        />
+                                        <label for="postgresql">PostgreSQL</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <PrimaryButton :disabled="form.processing" type="submit">Create</PrimaryButton>
+                        <div class="flex justify-end space-x-4">
+                            <div v-if="step !== 1">
+                                <SecondaryButton v-on:click="step--">Previous</SecondaryButton>
+                            </div>
+                            <div v-if="step !== 3">
+                                <SecondaryButton v-on:click="step++">Next</SecondaryButton>
+                            </div>
+                            <div v-if="step === 3">
+                                <PrimaryButton :disabled="form.processing" type="submit">Create</PrimaryButton>
+                            </div>
                         </div>
                     </form>
                 </div>
