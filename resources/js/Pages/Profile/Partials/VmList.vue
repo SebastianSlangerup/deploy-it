@@ -1,6 +1,6 @@
 <template>
     <ul role="list" class="divide-y divide-gray-100">
-        <li v-for="vm in vmArrayMut" :key="vm.vmid">
+        <li v-for="vm in vmArray" :key="vm.vmid">
             <a :href="route('environment.show', vm.id)" class="hover:bg-gray-50 flex items-center justify-between gap-x-6 px-5 py-5">
                 <div class="min-w-0">
                     <div class="flex items-start gap-x-3">
@@ -67,19 +67,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 
 const props = defineProps(['vmArray']);
-
-let vmArrayMut = ref([]);
-vmArrayMut.value = props.vmArray;
-
-Echo.private('environments')
-    .listen('EnvironmentStatusEvent', (event) => {
-        vmArrayMut.value = event.vms;
-    });
 
 const statuses = {
     running: 'text-green-700 bg-green-50 ring-green-600/20',

@@ -1,21 +1,28 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import {Head, usePage} from '@inertiajs/vue3';
 import VmList from "@/Pages/Profile/Partials/VmList.vue";
 import {ref} from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
 
 const props = defineProps(['vms', 'error']);
 
+const user = usePage().props.auth.user;
+
 const vmsMut = ref([]);
 vmsMut.value = props.vms;
 
-const filter = ref('pve');
+const filter = ref('');
 
-// TODO: Find a way to filter the vms in the dashboard
 function updateFilter(filter) {
     vmsMut.value = props.vms.filter((vm) => vm.node.hostname === filter);
 }
+
+Echo.private('environments')
+    .listen('EnvironmentStatusEvent', (event) => {
+        // Only grab the user's owned VMs
+        vmsMut.value = event.vms.filter((vm) => vm.created_by === user.name && (vm.node.hostname === filter.value || filter.value === ''));
+    });
 </script>
 
 <template>
@@ -31,6 +38,7 @@ function updateFilter(filter) {
                 <div class="mx-4 mb-4 sm:mx-0">
                     <InputLabel for="node" value="Choose Node to display VMs" />
                     <select v-model="filter" v-on:change="updateFilter(filter)" id="node" name="node" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                        <option selected value="">Every node</option>
                         <option value="pve">Development Node</option>
                         <option value="node1">Testing Node</option>
                         <option value="node2">Staging Node</option>
