@@ -22,7 +22,7 @@ function handleImageError() {
 <template>
 
     <Head title="Welcome" />
-    <div class="relative min-h-screen bg-[#EEEEEE] text-[#121418] dark:bg-[#121418] dark:text-[#EEEEEE]">
+    <div class="relative min-h-screen bg-[#EEEEEE] text-[#121418] dark:bg-[#0A0F24] dark:text-[#EEEEEE]">
         <div class="relative flex flex-col items-center justify-center min-h-screen z-10">
             <header class="w-full fixed top-0 left-0 right-0 bg-[#1E293B] dark:bg-[#1E293B] py-4 z-20">
                 <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
