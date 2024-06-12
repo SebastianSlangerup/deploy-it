@@ -23,24 +23,26 @@ function handleImageError() {
 
     <Head title="Welcome" />
     <div class="relative min-h-screen bg-[#EEEEEE] text-[#121418] dark:bg-[#121418] dark:text-[#EEEEEE]">
-
         <div class="relative flex flex-col items-center justify-center min-h-screen z-10">
             <header class="w-full fixed top-0 left-0 right-0 bg-[#1E293B] dark:bg-[#1E293B] py-4 z-20">
                 <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
-                    <p class="font-bold text-2xl text-[#EEEEEE]  dark:text-[#121418]">Welcome to Deploy-it</p>
+                    <div class="flex items-center">
+                        <ApplicationLogo width="8%" height="8%" class="mr-2" />
+                        <p class="font-bold text-2xl text-[#EEEEEE] dark:text-[#EEEEEE]">Welcome to Deploy-it</p>
+                    </div>
                     <nav v-if="canLogin" class="flex justify-end">
                         <Link v-if="$page.props.auth.user" :href="route('dashboard')"
                             class="rounded-md px-3 py-2 text-white ring-1 ring-transparent transition hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20]">
-                        Dashboard
+                            Dashboard
                         </Link>
                         <template v-else>
                             <Link :href="route('login')"
                                 class="rounded-md px-3 py-2 text-white ring-1 ring-transparent transition hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20]">
-                            Log in
+                                Log in
                             </Link>
                             <Link v-if="canRegister" :href="route('register')"
                                 class="rounded-md px-3 py-2 text-white ring-1 ring-transparent transition hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20]">
-                            Register
+                                Register
                             </Link>
                         </template>
                     </nav>
