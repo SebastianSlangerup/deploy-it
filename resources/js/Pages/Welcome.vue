@@ -21,12 +21,12 @@ function handleImageError() {
 <template>
 
     <Head title="Welcome" />
-    <div class="relative min-h-screen bg-[#121418] text-[#EEEEEE]">
+    <div class="relative min-h-screen bg-[#EEEEEE] text-[#121418] dark:bg-[#121418] dark:text-[#EEEEEE]">
 
         <div class="relative flex flex-col items-center justify-center min-h-screen z-10">
-            <header class="w-full fixed top-0 left-0 right-0 bg-[#1E293B] py-4 z-20">
+            <header class="w-full fixed top-0 left-0 right-0 bg-[#1E293B] dark:bg-[#1E293B] py-4 z-20">
                 <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
-                    <p class="font-bold text-2xl">Welcome to Deploy-it</p>
+                    <p class="font-bold text-2xl text-[#EEEEEE]  dark:text-[#121418]">Welcome to Deploy-it</p>
                     <nav v-if="canLogin" class="flex justify-end">
                         <Link v-if="$page.props.auth.user" :href="route('dashboard')"
                             class="rounded-md px-3 py-2 text-white ring-1 ring-transparent transition hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20]">
@@ -45,7 +45,7 @@ function handleImageError() {
                     </nav>
                 </div>
             </header>
-            <main class="bg-[#0A0F24] py-12">
+            <main class="py-12">
                 <section class="flex flex-col md:flex-row">
                     <div class="flex-1 flex flex-col items-center justify-center text-center pt-24 px-6 lg:px-24">
                         <h1 class="text-5xl font-bold mb-4">Efficient VPS Deployment for Growing Businesses</h1>
@@ -118,48 +118,42 @@ function handleImageError() {
                         </svg>
                     </div>
                 </section>
-                <section class="bg-[#0A0F24] py-24">
+                <section class="py-24">
                     <div class="container mx-auto px-8 max-w-7xl">
-                        <h2 class="text-5xl font-bold text-white text-center mb-16">Product features</h2>
+                        <h2 class="text-5xl font-bold text-center mb-16">Product features</h2>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 mb-8">
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-4">Help & Support</h3>
+                                <h3 class="text-2xl font-semibold  mb-4">Help & Support</h3>
                                 <p class="text-[#76ABAE]">
-                                    A pseudo-Latin text used in web design, layout, and printing in place of things to
-                                    emphasize
-                                    design.
+                                    Full support in accordance to the SLA
                                 </p>
                             </div>
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-8">Password Recovery</h3>
+                                <h3 class="text-2xl font-semibold  mb-8">Full crontol of the VPS</h3>
                                 <p class="text-[#76ABAE]">
-                                    A pseudo-Latin text used in web design, layout, and printing in place of things to
-                                    emphasize
-                                    design.
+                                    You will have full control over your vps instans
                                 </p>
                             </div>
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-8">Keybased Login VM Login</h3>
+                                <h3 class="text-2xl font-semibold mb-8">Keybased Login VM Login</h3>
                                 <p class="text-[#76ABAE]">
-                                    A pseudo-Latin text used in web design, layout, and printing in place of things to
-                                    emphasize
-                                    design.
+                                    Register with a ssh public key and login seamlessly to you vps
                                 </p>
                             </div>
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-8">Scalability</h3>
+                                <h3 class="text-2xl font-semibold  mb-8">Scalability</h3>
                                 <p class="text-[#76ABAE]">
                                     Ensure easy scalability of resources and environments.
                                 </p>
                             </div>
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-8">Dashboard</h3>
+                                <h3 class="text-2xl font-semibold  mb-8">Dashboard</h3>
                                 <p class="text-[#76ABAE]">
                                     A dashboard for managing various environments with ease.
                                 </p>
                             </div>
                             <div class="flex flex-col items-center text-center mb-8">
-                                <h3 class="text-2xl font-semibold text-white mb-8">Wizard</h3>
+                                <h3 class="text-2xl font-semibold  mb-8">Wizard</h3>
                                 <p class="text-[#76ABAE]">
                                     An intuitive wizard to guide users through creating environments.
                                 </p>
@@ -257,24 +251,24 @@ function handleImageError() {
                         </g>
                     </svg>
                 </section>
-                <section class="bg-[#0A0F24] py-12">
+                <section class="py-12">
 
                     <div class="container mx-auto px-4">
-                        <h2 class="text-4xl font-bold text-white text-center mb-8">How to Get in Touch</h2>
+                        <h2 class="text-4xl font-bold text-center mb-8">How to Get in Touch</h2>
                         <div class="text-center text-lg text-[#76ABAE] mb-8">
                             We would love to hear from you! Here are a few ways to get in touch with us.
                         </div>
                         <div class="flex flex-col md:flex-row justify-around items-center">
                             <div class="flex flex-col items-center mb-8 md:mb-0">
-                                <h3 class="text-xl font-bold text-white mb-2">Email Us</h3>
+                                <h3 class="text-xl font-bold mb-2">Email Us</h3>
                                 <p class="text-[#76ABAE]">info@deploy-it.dk</p>
                             </div>
                             <div class="flex flex-col items-center mb-8 md:mb-0">
-                                <h3 class="text-xl font-bold text-white mb-2">Call Us</h3>
+                                <h3 class="text-xl font-bold mb-2">Call Us</h3>
                                 <p class="text-[#76ABAE]">+45 12 34 56 78</p>
                             </div>
                             <div class="flex flex-col items-center">
-                                <h3 class="text-xl font-bold text-white mb-2">Follow Us</h3>
+                                <h3 class="text-xl font-bold mb-2">Follow Us</h3>
                                 <p class="text-[#76ABAE]">
                                     <a href="#" class="hover:underline">Facebook</a> | <a href="#"
                                         class="hover:underline">Twitter</a> | <a href="#"
