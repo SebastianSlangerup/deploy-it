@@ -3,7 +3,6 @@
     <li v-for="user in usersArray" :key="user.email" class="flex justify-between gap-x-6 py-5">
       <a :href="route('Admin.users.detail', user)" class="hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between gap-x-6 px-5 py-5">
         <div class="flex min-w-0 gap-x-4">
-          <img class="h-12 w-12 flex-none rounded-full bg-gray-50 dark:bg-gray-800" :src="user.imageUrl" alt="" />
           <div class="min-w-0 flex-auto">
             <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">{{ user.name }}</p>
             <p class="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-gray-400">{{ user.email }}</p>

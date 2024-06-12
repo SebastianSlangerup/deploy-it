@@ -25,11 +25,16 @@ class AdminController extends Controller
         $network_info = $this->GetNetwork();
         $node_info = $this->listNodes();
 
+        $combinedNodeInfo= [];
+
+        foreach ($network_info as $key => $value) {
+            $combinedNodeInfo[] = array_merge($value, $node_info[$key] ?? []);
+        }
+
         return Inertia::render('Admin/index', [
             'non_activated_users' => $non_activated_users,
             'activated_users' => $activated_users,
-            'network_info' => $network_info,
-            'node_info' => $node_info,
+            'node_info' => $combinedNodeInfo,
         ]);
     }
 
