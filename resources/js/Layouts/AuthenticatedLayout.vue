@@ -5,6 +5,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import ToogleTheme from '@/Components/ToogleTheme.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { toast } from "vue3-toastify";
 import 'vue3-toastify/dist/index.css';
@@ -101,6 +102,9 @@ const props = defineProps({
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
+                            </div>
+                            <div id="theme_switch">
+                                <ToogleTheme/>
                             </div>
                         </div>
 
