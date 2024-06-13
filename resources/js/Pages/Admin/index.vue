@@ -42,6 +42,7 @@ const computed_node_info = computed(() => {
         maxMem += parseFloat(node.maxmem);
         totalDisk += parseFloat(node.disk);
         maxDisk += parseFloat(node.maxdisk);
+        console.log(((totalCpu / maxCpu) * 100).toFixed(2));
     });
 
     return {
@@ -67,70 +68,157 @@ const computed_node_info = computed(() => {
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Admin page</h2>
         </template>
 
-        <div  class="mt-6" >
+        <div class="mt-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg">
                     <div class="dark:bg-gray-900 text-gray-800 dark:text-gray-300 ">
                         <div class="mt-6">
-                            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-300  uppercase tracking-wider">resources availability</h2>
+                            <h2
+                                class="text-xl font-semibold text-gray-800 dark:text-gray-300  uppercase tracking-wider">
+                                resources availability</h2>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
                             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                                 <h2 class="text-lg font-semibold">CPU</h2>
                                 <div class="flex items-center justify-center mt-4">
-                                    <div class="text-4xl font-bold">{{ computed_node_info.cpuUsage }}%</div>
+                                    <div class="flex items-center justify-center relative w-32 h-32">
+                                        <svg class="w-full h-full origin-center -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50%" cy="50%" r="45%" class="text-gray-200 dark:text-gray-700"
+                                                stroke-width="8" fill="none" stroke="currentColor"></circle>
+                                            <circle cx="50%" cy="50%" r="45%" class="text-green-400 " stroke-width="8"
+                                                fill="none" :stroke-dasharray="283.5"
+                                                :stroke-dashoffset="283.5 - (283.56 * 4.97 / 100)"
+                                                stroke-linecap="round" stroke="currentColor"></circle>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center text-2xl font-bold">
+                                        {{ computed_node_info.cpuUsage }}%
+                                    </div>
+                                    </div>
                                 </div>
-                                <div class="text-center text-sm">of {{ computed_node_info.maxCpu }} CPU(s)</div>
+                                <div class="text-center text-sm mt-2">of {{ computed_node_info.maxCpu }} CPU(s)</div>
                             </div>
                             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                                 <h2 class="text-lg font-semibold">Memory</h2>
                                 <div class="flex items-center justify-center mt-4">
-                                    <div class="text-4xl font-bold">{{ computed_node_info.memoryUsage }}%</div>
+                                    <div class="flex items-center justify-center relative w-32 h-32">
+                                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50%" cy="50%" r="45%"
+                                                class="bg-white text-gray-200 dark:text-gray-700" stroke-width="8"
+                                                fill="none" stroke="currentColor"></circle>
+                                            <circle cx="50%" cy="50%" r="45%" class="bg-white text-green-400"
+                                                stroke-width="8" fill="none" :stroke-dasharray="283.5"
+                                                :stroke-dashoffset="283.5 - (283.5 * computed_node_info.memoryUsage / 100)"
+                                                stroke-linecap="round" stroke="currentColor"></circle>
+                                        </svg>
+                                        <div
+                                            class="absolute inset-0 flex items-center justify-center text-2xl font-bold">
+                                            {{ computed_node_info.memoryUsage }}%
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-center text-sm">{{ computed_node_info.usedMemory }} of {{
+                                <div class="text-center text-sm mt-2">{{ computed_node_info.usedMemory }} of {{
                                     computed_node_info.maxMemory }}</div>
                             </div>
                             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                                 <h2 class="text-lg font-semibold">Storage</h2>
                                 <div class="flex items-center justify-center mt-4">
-                                    <div class="text-4xl font-bold">{{ computed_node_info.storageUsage }}%</div>
+                                    <div class="flex items-center justify-center relative w-32 h-32">
+                                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50%" cy="50%" r="45%"
+                                                class="bg-white text-gray-200 dark:text-gray-700 p-6 rounded-lg shadow"
+                                                stroke-width="8" fill="none" stroke="currentColor"></circle>
+                                            <circle cx="50%" cy="50%" r="45%"
+                                                class="bg-white text-green-400 p-6 rounded-lg shadow" stroke-width="8"
+                                                fill="none" :stroke-dasharray="283.5"
+                                                :stroke-dashoffset="283.5 - (283.5 * computed_node_info.storageUsage / 100)"
+                                                stroke-linecap="round" stroke="currentColor"></circle>
+                                        </svg>
+                                        <div
+                                            class="absolute inset-0 flex items-center justify-center text-2xl font-bold">
+                                            {{ computed_node_info.storageUsage }}%
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-center text-sm">{{ computed_node_info.usedStorage }} of {{
+                                <div class="text-center text-sm mt-2">{{ computed_node_info.usedStorage }} of {{
                                     computed_node_info.maxStorage }}</div>
                             </div>
                         </div>
-                        <div class="mt-6 "  >
-                            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-300 uppercase tracking-wider">Nodes</h2>
+                        <div class="mt-6 ">
+                            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                Nodes
+                            </h2>
                             <div class="overflow-hidden rounded-lg shadow-sm mt-4">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700  dark:bg-gray-800">
-                                <thead class="bg-white dark:bg-gray-800 rounded-t-lg">
-                                    <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Online</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Server Address</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Hostname</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">CPU Usage</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Memory Usage</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">Uptime</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    <tr v-for="(node, index) in node_info" :key="node.id" :class="{'last:rounded-b-lg': index === node_info.length - 1}">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.node }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.id }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-800  text-right flex justify-center gap-x-3">
-                                        <p :class="[statuses[node.status], 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
-                                        {{ node.status }}
-                                        </p>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.ip_adress }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.hostname }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.cpu }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.mem }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ node.uptime }}</td>
-                                    </tr>
-                                </tbody>
+                                <table
+                                    class="min-w-full divide-y divide-gray-200 dark:divide-gray-700  dark:bg-gray-800">
+                                    <thead class="bg-white dark:bg-gray-800 rounded-t-lg">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Name</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                ID</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Online</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Server Address</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Hostname</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                CPU Usage</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Memory Usage</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 uppercase tracking-wider">
+                                                Uptime</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr v-for="(node, index) in node_info" :key="node.id"
+                                            :class="{ 'last:rounded-b-lg': index === node_info.length - 1 }">
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.node }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.id }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-800  text-right flex justify-center gap-x-3">
+                                                <p
+                                                    :class="[statuses[node.status], 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
+                                                    {{ node.status }}
+                                                </p>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.ip_adress }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.hostname }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.cpu }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.mem }}</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">
+                                                {{
+                                                    node.uptime }}</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -142,10 +230,11 @@ const computed_node_info = computed(() => {
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="mt-6">
-                    <h2 class="text-xl font-semibold  text-gray-800 dark:text-gray-300  uppercase tracking-wider">User's</h2>
+                    <h2 class="text-xl font-semibold  text-gray-800 dark:text-gray-300  uppercase tracking-wider">User's
+                    </h2>
                 </div>
                 <div class="bg-white dark:bg-gray-800 overflow-visible shadow-sm sm:rounded-lg mt-4">
-                    
+
                     <div class="p-6 space-y-6">
                         <div class="bg-white dark:bg-gray-800 overflow-visible sm:rounded-lg">
                             <p v-if="$page.props.flash.message" class="text-sm text-green-600 dark:text-green-400">{{
