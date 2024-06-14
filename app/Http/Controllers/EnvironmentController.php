@@ -155,10 +155,11 @@ class EnvironmentController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
+        sleep(3);
         $this->control($environment, 'start');
+        // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
         FinishEnvironmentSetupJob::dispatch($environment, $yamlFile)
-            ->delay(now()->addMinutes(3))
+            ->delay(now()->addMinutes(5))
             ->onQueue('setups');
 
         return redirect()->route('dashboard')->with(['success' => "VM has been created!\nIt may take up to 5 minutes to finish setting up your VM"]);
