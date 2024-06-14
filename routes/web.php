@@ -26,6 +26,7 @@ Route::get('/awaiting-approval', function () {
 
 Route::middleware(['auth', 'verified', UserIsActivated::class])->group(function () {
     Route::get('/dashboard', [EnvironmentController::class, 'index'])->name('dashboard');
+    Route::get('/contact', [EnvironmentController::class, 'contact'])->name('contact');
 
     Route::get('/userpath', function () {
         return response()->json([Auth::user()->public_key]);

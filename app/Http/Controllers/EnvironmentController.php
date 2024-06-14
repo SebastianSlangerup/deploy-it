@@ -42,6 +42,11 @@ class EnvironmentController extends Controller
         ]);
     }
 
+    public function contact(): Response
+    {
+        return Inertia::render('Contact');
+    }
+
     public function control(Environment $environment, string $option): \Illuminate\Http\Client\Response|RedirectResponse
     {
         try {
