@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\FinishEnvironmentSetupJob;
+use App\Jobs\StartEnvironmentJob;
 use App\Models\Dependency;
 use App\Models\Environment;
 use App\Models\Node;
@@ -155,8 +156,7 @@ class EnvironmentController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        sleep(3);
-        $this->control($environment, 'start');
+        StartEnvironmentJob::dispatch()->delay(now()->addMinute());
         // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
         FinishEnvironmentSetupJob::dispatch($environment, $yamlFile)
             ->delay(now()->addMinutes(5))
