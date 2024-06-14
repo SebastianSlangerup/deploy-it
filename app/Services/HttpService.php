@@ -14,7 +14,7 @@ class HttpService extends Http
      */
     public static function prepareRequest(): PendingRequest
     {
-        return parent::timeout(3)
+        return parent::timeout(15)
             ->withToken(TokenService::get())
             // Retry callback in case the request fails
             ->retry(2, 0, function (Exception $exception, PendingRequest $request) {
