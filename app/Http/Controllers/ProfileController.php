@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Notifications\UserSendOpenVpnConf;
+use App\Services\HttpService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
@@ -54,11 +55,7 @@ class ProfileController extends Controller
             $username = $request->user()->name;
             $url = config('app.api.endpoint').'/openvpn/generate_config/';
 
-            $response = Http::timeout(10)
-                ->withHeaders([
-                    'accept' => 'application/json',
-                ])
-                ->post("$url?username=$username");
+            $response = HttpService::prepareRequest()->post("$url?username=$username");
 
             if ($response->ok() && $response->header('Content-Type') != 'application/json') {
                 $responseData = $response->body();
