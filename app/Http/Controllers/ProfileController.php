@@ -56,13 +56,10 @@ class ProfileController extends Controller
             $username = $request->user()->name;
             $url = config('app.api.endpoint').'/openvpn/generate_config/';
 
-            $response = HttpService::prepareRequest()
-                ->withHeaders(['accept' => 'application/json'])
-                ->post("$url?username=$username");
+            $response = HttpService::prepareRequest()->post("$url?username=$username");
 
             if ($response->ok() && $response->header('Content-Type') != 'application/json') {
                 $responseData = $response->body();
-                Log::info($responseData);
                 $header = $response->getHeader('Content-Disposition');
                 $filename = Str::after($header[0], 'filename="');
                 $filename = rtrim($filename, '"');
