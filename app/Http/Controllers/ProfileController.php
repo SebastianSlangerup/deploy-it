@@ -52,7 +52,7 @@ class ProfileController extends Controller
     {
         try {
             $username = $request->user()->name;
-            $url = 'http://192.168.1.20:8000/openvpn/generate_config/';
+            $url = config('app.api.endpoint').'/openvpn/generate_config/';
 
             $response = Http::timeout(10)
                 ->withHeaders([

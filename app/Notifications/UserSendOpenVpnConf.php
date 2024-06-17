@@ -61,8 +61,6 @@ class UserSendOpenVpnConf extends Notification
      */
     public function attachments(): array
     {
-        dd(Attachment::fromStorage($this->filePath));
-
         return [
             Attachment::fromStorage($this->filePath),
         ];
