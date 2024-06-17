@@ -43,9 +43,9 @@ class ProfileController extends Controller
         if ($filePath) {
             $request->user()->notify(new UserSendOpenVpnConf($filePath));
 
-            return redirect()->route('dashboard')->with(['message' => 'Configuration file sent successfully.']);
+            return redirect()->route('dashboard')->with(['success' => 'Configuration file sent successfully.']);
         } else {
-            return redirect()->route('dashboard')->with(['message' => 'Failed to generate and send the configuration file.']);
+            return redirect()->route('dashboard')->with(['error' => 'Failed to generate and send the configuration file.']);
         }
     }
 
