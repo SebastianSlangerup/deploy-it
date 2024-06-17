@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -59,6 +60,7 @@ class ProfileController extends Controller
 
             if ($response->ok() && $response->header('Content-Type') != 'application/json') {
                 $responseData = $response->body();
+                Log::info($responseData);
                 $header = $response->getHeader('Content-Disposition');
                 $filename = Str::after($header[0], 'filename="');
                 $filename = rtrim($filename, '"');
@@ -68,10 +70,13 @@ class ProfileController extends Controller
                 Storage::put($path, $response->body());
 
                 return $path;
+            } else {
+                Log::error('Connection was not successful');
             }
 
             return null;
         } catch (ConnectionException $e) {
+            Log::error($e);
             return null;
         }
     }
