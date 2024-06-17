@@ -156,7 +156,7 @@ class EnvironmentController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        StartEnvironmentJob::dispatch($environment)->delay(now()->addMinute());
+        StartEnvironmentJob::dispatch($environment)->delay(now()->addSeconds(10));
         // Dispatch a job with our yaml file and environment to begin installing the dependencies on the newly created VM
         FinishEnvironmentSetupJob::dispatch($environment, $yamlFile)
             ->delay(now()->addMinutes(5))
