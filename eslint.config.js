@@ -12,4 +12,23 @@ export default defineConfig([
   tseslint.configs.recommended,
   pluginVue.configs["flat/essential"],
   { files: ["**/*.vue"], languageOptions: { parserOptions: { parser: tseslint.parser } } },
+  {
+    ignores: ["resources/js/components/ui/**", "resouces/js/types/**"]
+  },
+  {
+    files: ["resources/js/**/*.{js,ts,vue}"],
+    rules: {
+      "no-unused-vars": "off",
+      "no-undef": "off",
+      "vue/multi-word-component-names": "off",
+      "vue/define-emits-declaration": ["error", "type-based"],
+      "vue/define-props-declaration": ["error", "type-based"],
+      "vue/no-undef-components": "off",
+      "vue/no-unused-refs": "error",
+      "vue/no-v-html": "off",
+      "no-console": "error",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": "allow-with-description" }],
+    },
+  },
 ]);
