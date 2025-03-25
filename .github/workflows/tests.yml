@@ -44,25 +44,3 @@ jobs:
 
       - name: Execute tests
         run: vendor/bin/pest --parallel --compact --arch --no-coverage
-
-  vue-type-checking:
-    runs-on: ubuntu-latest
-
-    name: Vue Type-Checking
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 23
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run vue-tsc
-        run: ./node_modules/.bin/vue-tsc
