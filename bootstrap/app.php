@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance']);
 
+        // Bypass Stripe webhooks
+        // Read more: https://laravel.com/docs/12.x/billing#webhooks-csrf-protection
+        $middleware->validateCsrfTokens(except: ['stripe/*']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
