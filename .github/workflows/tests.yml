@@ -11,43 +11,58 @@ on:
       - main
 
 jobs:
-  ci:
+  pest:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    name: Pest
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare application
+        uses: ./.github/actions/prepare-application
+
+      - name: Execute tests
+        run: vendor/bin/pest --parallel --compact --exclude-arch
+
+      - name: Uploade code coverage reports
+        uses: actions/upload-artifact@v4
         with:
-          php-version: 8.4
-          tools: composer:v2
-          coverage: xdebug
+          name: code-coverage-reports
+          path: ./coverage
+
+  pest-architecture:
+    runs-on: ubuntu-latest
+
+    name: Architecture Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare application
+        uses: ./.github/actions/prepare-application
+
+      - name: Execute tests
+        run: vendor/bin/pest --parallel --compact --arch --no-coverage
+
+  vue-type-checking:
+    runs-on: ubuntu-latest
+
+    name: Vue Type-Checking
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: 23
 
-      - name: Install Node Dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Copy Environment File
-        run: cp .env.example .env
-
-      - name: Generate Application Key
-        run: php artisan key:generate
-
-      - name: Publish Ziggy Configuration
-        run: php artisan ziggy:generate
-
-      - name: Build Assets
-        run: npm run build
-
-      - name: Tests
-        run: ./vendor/bin/pest
+      - name: Run vue-tsc
+        run: ./node_modules/.bin/vue-tsc

@@ -14,32 +14,45 @@ permissions:
   contents: write
 
 jobs:
-  quality:
+  eslint:
     runs-on: ubuntu-latest
+
+    name: ESLint
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup node
+        uses: actions/setup-node@v4
         with:
-          php-version: '8.4'
+          node-version: 23
 
-      - name: Install Dependencies
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run Pint
-        run: vendor/bin/pint
-
-      - name: Format Frontend
-        run: npm run format
-
-      - name: Lint Frontend
+      - name: Run ESLint
         run: npm run lint
 
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
+  prettier:
+    runs-on: ubuntu-latest
+
+    name: Prettier
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier
+        run: npm run format
