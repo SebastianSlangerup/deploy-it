@@ -5,6 +5,7 @@ import path from 'path';
 import tailwindcss from 'tailwindcss';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
+import run from 'vite-plugin-run';
 
 export default defineConfig({
     plugins: [
@@ -21,6 +22,13 @@ export default defineConfig({
                 },
             },
         }),
+        // Build Typescript types from app/Data DTOs
+        run([
+            {
+                name: 'typescript transform',
+                run: ['php', 'artisan', 'typescript:transform'],
+            }
+        ])
     ],
     resolve: {
         alias: {
