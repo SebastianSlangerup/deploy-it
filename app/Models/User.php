@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,13 +49,14 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    /**
-     * Get the columns that should receive a unique identifier.
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    public function instances(): HasMany
+    {
+        return $this->hasMany(Instance::class);
     }
 }
