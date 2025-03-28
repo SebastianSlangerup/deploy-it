@@ -17,6 +17,7 @@
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^2.10.1",
         "spatie/laravel-data": "^4.14",
+        "spatie/laravel-model-states": "^2.11",
         "spatie/laravel-typescript-transformer": "^2.5",
         "tightenco/ziggy": "^2.4"
     },
