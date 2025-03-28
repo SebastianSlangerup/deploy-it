@@ -12,5 +12,3 @@ arch('controllers are invokable classes in the App\Http\Controllers namespace an
     ->expect('App\Http\Controllers')
     ->toBeClasses()
     ->toHaveSuffix('Controller');
-
-

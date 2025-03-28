@@ -15,4 +15,3 @@ arch('data extends base data')
 arch('data has a constructor')
     ->expect('App\Data')
     ->toHaveConstructor();
-
