@@ -2,7 +2,12 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import InstanceTable from '@/components/tables/InstanceTable.vue';
+import InstanceData = App.Data.InstanceData;
+
+const props = defineProps<{
+    instances: InstanceData[]
+}>()
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -28,8 +33,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <p>HDD Usage</p>
                 </div>
             </div>
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
-                <PlaceholderPattern />
+            <h2 class="font-bold text-xl">All Instances</h2>
+            <div class="px-5 py-4 relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+                <InstanceTable :instances="instances" />
             </div>
         </div>
     </AppLayout>
