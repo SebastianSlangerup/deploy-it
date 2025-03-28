@@ -43,12 +43,16 @@ defineProps<Props>();
                 <g class="is-moving-object is-translating" data-translating-factor="280">
                     <path
                         d="M680.188 0c-23.36 69.79-58.473 98.3-105.34 85.531-70.301-19.152-189.723-21.734-252.399 91.442-62.676 113.175-144.097 167.832-215.195 118.57C59.855 262.702 24.104 287.85 0 370.988L306.184 566.41c207.164-4.242 305.67-51.612 295.52-142.11-10.152-90.497 34.533-163.55 134.054-219.16l4.512-119.609L680.188 0z"
-                        fill="url(#hero-shape-a)" transform="translate(1)"></path>
+                        fill="url(#hero-shape-a)"
+                        transform="translate(1)"
+                    ></path>
                 </g>
                 <g class="is-moving-object is-translating" data-translating-factor="100">
                     <path
                         d="M817.188 222c-23.36 69.79-58.473 98.3-105.34 85.531-70.301-19.152-189.723-21.734-252.399 91.442-62.676 113.175-144.097 167.832-215.195 118.57-47.399-32.841-83.15-7.693-107.254 75.445L443.184 788.41c207.164-4.242 305.67-51.612 295.52-142.11-10.152-90.497 34.533-163.55 134.054-219.16l4.512-119.609L817.188 222z"
-                        fill="url(#hero-shape-b)" transform="rotate(-53 507.635 504.202)"></path>
+                        fill="url(#hero-shape-b)"
+                        transform="rotate(-53 507.635 504.202)"
+                    ></path>
                 </g>
             </g>
             <g transform="translate(191 416)">
@@ -58,12 +62,15 @@ defineProps<Props>();
                 <g class="is-moving-object is-translating" data-translating-factor="80">
                     <path
                         d="M683.766 133.043c-112.048-90.805-184.688-76.302-217.92 43.508-33.23 119.81-125.471 124.8-276.722 14.972-3.156 120.356 53.893 200.09 171.149 239.203 175.882 58.67 346.695-130.398 423.777-239.203 51.388-72.536 17.96-92.03-100.284-58.48z"
-                        fill="url(#hero-shape-d)"></path>
+                        fill="url(#hero-shape-d)"
+                    ></path>
                 </g>
                 <g class="is-moving-object is-translating" data-translating-factor="100">
                     <path
                         d="M448.206 223.247c-97.52-122.943-154.274-117.426-170.26 16.55C261.958 373.775 169.717 378.766 1.222 254.77c-9.255 95.477 47.794 175.211 171.148 239.203 185.032 95.989 424.986-180.108 424.986-239.203 0-39.396-49.717-49.904-149.15-31.523z"
-                        fill="url(#hero-shape-e)" transform="matrix(-1 0 0 1 597.61 0)"></path>
+                        fill="url(#hero-shape-e)"
+                        transform="matrix(-1 0 0 1 597.61 0)"
+                    ></path>
                 </g>
             </g>
         </g>

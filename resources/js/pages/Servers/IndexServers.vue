@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
 import InstanceTable from '@/components/tables/InstanceTable.vue';
-import InstanceData = App.Data.InstanceData;
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/vue3';
+import InstanceData = App.Data.InstanceData;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 defineProps<{
-    instances: InstanceData[]
+    instances: InstanceData[];
 }>();
 </script>
 
@@ -30,4 +30,3 @@ defineProps<{
         </div>
     </AppLayout>
 </template>
-

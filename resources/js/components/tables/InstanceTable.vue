@@ -10,7 +10,7 @@ import InstanceData = App.Data.InstanceData;
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 
-const props = defineProps<{
+defineProps<{
     instances: InstanceData[];
 }>();
 </script>
