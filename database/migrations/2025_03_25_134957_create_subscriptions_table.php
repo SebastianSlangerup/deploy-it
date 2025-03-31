@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignUuid('user_id');
             $table->string('type');
             $table->string('stripe_id')->unique()->collation('utf8_bin');
             $table->string('stripe_status');
