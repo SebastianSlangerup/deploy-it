@@ -20,9 +20,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('instances/{instance:id}', [InstanceController::class, 'view'])->name('instances.detail');
 });
 
-Route::get('/billing', function (Request $request) {
-    return $request->user()->redirectToBillingPortal();
-});
+Route::get('/checkout', function (Request $request) {
+    // Has to be routed to with a regular <a> tag and not Inertia's <Link> tag to prevent CORS errors
+    return $request->user()
+        ->newSubscription('default', 'price_1R6Xup5vdXkyZpPD70MRYQGx')
+        ->checkout([
+            'success_url' => route('checkout.success'),
+            'cancel_url' => route('checkout.cancelled'),
+        ]);
+})->name('checkout');
+
+Route::get('/checkout-success', function (Request $request) {
+    return 'Thanks for your purchase!';
+})->name('checkout.success');
+
+Route::get('/checkout-cancelled', function (Request $request) {
+    return 'Sorry to see you cancel!';
+})->name('checkout.cancelled');
+
+Route::get('/billing-portal', function (Request $request) {
+    return Inertia::location($request->user()->redirectToBillingPortal());
+})->middleware(['auth', 'verified'])->name('billing');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
