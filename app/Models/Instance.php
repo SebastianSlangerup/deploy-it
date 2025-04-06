@@ -20,6 +20,8 @@ class Instance extends Model
 
     protected $fillable = [
         'name',
+        'description',
+        'created_by',
     ];
 
     /** @return array<int, string> */
