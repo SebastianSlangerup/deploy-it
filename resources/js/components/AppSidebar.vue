@@ -5,8 +5,9 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { HardDrive, Laptop, LayoutGrid } from 'lucide-vue-next';
+import { HardDrive, Container, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { hasRole } from '@/lib/hasRole';
 
 const mainNavItems: NavItem[] = [
     {
@@ -18,11 +19,12 @@ const mainNavItems: NavItem[] = [
         title: 'Servers',
         href: '/servers',
         icon: HardDrive,
+        condition: hasRole('admin'),
     },
     {
         title: 'Containers',
         href: '/containers',
-        icon: Laptop,
+        icon: Container,
     },
 ];
 

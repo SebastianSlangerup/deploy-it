@@ -2,6 +2,16 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Plus, HardDrive, Container } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import { hasRole } from '@/lib/hasRole';
 
 defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
@@ -10,13 +20,42 @@ defineProps<{
 
 <template>
     <header
-        class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4"
+        class="flex justify-between h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4"
     >
         <div class="flex items-center gap-2">
             <SidebarTrigger class="-ml-1" />
             <template v-if="breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
+        </div>
+        <div>
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button variant="default">
+                        <Plus />
+                        Create
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent class="w-56">
+                    <DropdownMenuGroup>
+                        <div v-if="hasRole('admin')">
+                            <DropdownMenuItem>
+                                <Link :href="route('instances.create',  'server')" class="flex items-center">
+                                    <HardDrive class="mr-2 h-4 w-4"/>
+                                    <span>Create new Server</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                        </div>
+                        <DropdownMenuItem>
+                            <Link :href="route('instances.create', 'container')" class="flex items-center">
+                                <Container class="mr-2 h-4 w-4"/>
+                                <span>Create new Container</span>
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     </header>
 </template>
