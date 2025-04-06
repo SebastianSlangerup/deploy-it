@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'proxmox' => [
+        'endpoint' => env('PROXMOX_API_ENDPOINT'),
+    ],
+
 ];
