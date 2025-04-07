@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InstanceController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,6 +14,12 @@ Route::get('dashboard', [InstanceController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('tokens/create', function (Request $request) {
+        $token = $request->user()?->createToken($request->token_name);
+
+        return ['token' => $token->plainTextToken];
+    });
+
     Route::get('containers', [InstanceController::class, 'containers'])->name('containers.index');
     Route::get('servers', [InstanceController::class, 'servers'])->name('servers.index');
 
