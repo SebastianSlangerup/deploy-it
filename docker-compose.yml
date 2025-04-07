@@ -11,4 +11,75 @@ services:
             PHP_OPCACHE_ENABLED: "true"
         volumes:
             - ".:/var/www/html/public"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.laravel.tls=true"
+            - "traefik.http.routers.laravel.entrypoints=websecure"
+            - "traefik.http.routers.laravel.rule=Host(`https://deploy-it.dk`)"
+            - "traefik.http.services.laravel.loadbalancer.server.port=8080"
+            - "traefik.http.services.laravel.loadbalancer.server.scheme=http"
+        networks:
+            - website
+
+    reverb:
+        image: serversideup/php:8.4-fpm-nginx
+        command: ["php", "/var/www/html/artisan", "--port=8000", "reverb:start"]
+        stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        healthcheck:
+            test: ["CMD", "healthcheck-reverb"]
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.reverb.tls=true"
+            - "traefik.http.routers.reverb.entrypoints=websecure"
+            - "traefik.http.routers.reverb.rule=Host(`https://deploy-it.dk`)"
+            - "traefik.http.services.reverb.loadbalancer.server.port=8000"
+            - "traefik.http.services.reverb.loadbalancer.server.scheme=http"
+        networks:
+            - website
+
+    horizon:
+        image: serversideup/php:8.4-fpm-nginx
+        command: ["php", "/var/www/html/artisan", "horizon"]
+        stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        healthcheck:
+            test: ["CMD", "healthcheck-horizon"]
+        networks:
+            - website
+
+    queue:
+        image: serversideup/php:8.4-fpm-nginx
+        command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+        stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        healthcheck:
+            test: ["CMD", "healthcheck-queue"]
+        networks:
+            - website
+
+    redis:
+        image: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            -   './docker/redis:/data'
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+        networks:
+            - website
+
+    mysql:
+        image: mysql/mysql-server:8.0
+        ports:
+            - '3306:3306'
+        volumes:
+            -   './docker/database:/var/lib/mysql'
+        environment:
+            MYSQL_DATABASE: 'deploy_it'
+        networks:
+            - website
+
+networks:
+    website:
+        driver: bridge
 
