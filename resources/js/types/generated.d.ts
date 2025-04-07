@@ -28,6 +28,11 @@ status: App.Enums.InstanceStatusEnum;
 label: string;
 color: string;
 };
+export type NotificationData = {
+title: string;
+description: string;
+notificationType: App.Enums.NotificationTypeEnum;
+};
 export type UserData = {
 id: string;
 name: string;
@@ -39,5 +44,6 @@ role: App.Enums.RolesEnum;
 declare namespace App.Enums {
 export type InstanceStatusEnum = 'started' | 'stopped' | 'suspended' | 'configuring';
 export type InstanceTypeEnum = 'server' | 'container';
+export type NotificationTypeEnum = 'default' | 'success' | 'info' | 'warning' | 'error';
 export type RolesEnum = 'admin' | 'user';
 }
