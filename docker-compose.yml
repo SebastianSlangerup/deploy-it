@@ -1,16 +1,14 @@
-version: "3"
 services:
     app:
         image: serversideup/php:8.4-fpm-nginx
         ports:
             - "80:8080" # Http
             - "443:8443" # Https
-            - "5173:5173" # Vite
         environment:
             AUTORUN_ENABLED: "true"
-            PHP_OPCACHE_ENABLED: "true"
+            PHP_OPCACHE_ENABLE: "1"
         volumes:
-            - ".:/var/www/html/public"
+            - ".:/var/www/html"
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.laravel.tls=true"
@@ -20,13 +18,20 @@ services:
             - "traefik.http.services.laravel.loadbalancer.server.scheme=http"
         networks:
             - website
+        depends_on:
+            mysql:
+                condition: service_healthy
 
     reverb:
         image: serversideup/php:8.4-fpm-nginx
-        command: ["php", "/var/www/html/artisan", "--port=8000", "reverb:start"]
+        command: [ "php", "/var/www/html/artisan", "--port=8000", "reverb:start" ]
+        environment:
+            PHP_OPCACHE_ENABLE: 1
         stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        volumes:
+            - ".:/var/www/html"
         healthcheck:
-            test: ["CMD", "healthcheck-reverb"]
+            test: [ "CMD", "healthcheck-reverb" ]
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.reverb.tls=true"
@@ -36,33 +41,48 @@ services:
             - "traefik.http.services.reverb.loadbalancer.server.scheme=http"
         networks:
             - website
+        depends_on:
+            app:
+                condition: service_healthy
 
     horizon:
         image: serversideup/php:8.4-fpm-nginx
-        command: ["php", "/var/www/html/artisan", "horizon"]
+        command: [ "php", "/var/www/html/artisan", "horizon" ]
+        environment:
+            PHP_OPCACHE_ENABLE: 1
         stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        volumes:
+            - ".:/var/www/html"
         healthcheck:
-            test: ["CMD", "healthcheck-horizon"]
+            test: [ "CMD", "healthcheck-horizon" ]
         networks:
             - website
+        depends_on:
+            app:
+                condition: service_healthy
 
     queue:
         image: serversideup/php:8.4-fpm-nginx
-        command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+        command: [ "php", "/var/www/html/artisan", "queue:work", "--tries=3" ]
+        environment:
+            PHP_OPCACHE_ENABLE: 1
         stop_signal: SIGTERM # Enables graceful shutdown for fpm-nginx images
+        volumes:
+            - ".:/var/www/html"
         healthcheck:
-            test: ["CMD", "healthcheck-queue"]
+            test: [ "CMD", "healthcheck-queue" ]
         networks:
             - website
+        depends_on:
+            app:
+                condition: service_healthy
 
     redis:
         image: redis
-        ports:
-            - "6379:6379"
         volumes:
-            -   './docker/redis:/data'
+            - './docker/redis:/data'
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: [ "CMD", "redis-cli", "ping" ]
             retries: 3
             timeout: 5s
         networks:
@@ -70,16 +90,18 @@ services:
 
     mysql:
         image: mysql/mysql-server:8.0
-        ports:
-            - '3306:3306'
         volumes:
-            -   './docker/database:/var/lib/mysql'
+            - './docker/database:/var/lib/mysql'
         environment:
-            MYSQL_DATABASE: 'deploy_it'
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: ${DB_DATABASE}
         networks:
             - website
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+            retries: 3
 
 networks:
-    website:
-        driver: bridge
+    website: { }
 
