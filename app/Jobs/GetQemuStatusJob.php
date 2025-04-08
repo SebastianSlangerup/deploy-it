@@ -32,7 +32,7 @@ class GetQemuStatusJob implements ShouldQueue
 
     public function handle(): void
     {
-        $response = Http::proxmox()->post(config('services.proxmox.endpoint').'/qemu-status', [
+        $response = Http::proxmox()->post('/qemu-status', [
             'qemuAgentId' => $this->qemuAgentId,
         ]);
 

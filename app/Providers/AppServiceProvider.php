@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
+use App\Data\NotificationData;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
@@ -31,12 +32,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Http::macro('proxmox', function () {
-            $token = Cache::get('token');
-            $tokenExpiration = Cache::get('token_expiration');
-
-            if ($token && $tokenExpiration && $tokenExpiration > now()) {
-                return Http::withToken(Cache::get('token'));
-            }
+            return Http::baseUrl(config('services.proxmox.endpoint'));
+        });
 
             $response = Http::withHeaders([
                 'accept' => 'application/json',

@@ -24,7 +24,9 @@ class ToStopped extends Transition
         $this->instance->status = new Stopped($this->instance);
         $this->instance->save();
 
-        Log::info("Instance [ID: {$this->instance->id}] stopped");
+        Log::info('{instance}: Instance stopped', [
+            'instance' => "[ID: {$this->instance->id}]",
+        ]);
 
         return $this->instance;
     }

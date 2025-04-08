@@ -33,12 +33,15 @@ class CheckOnTaskIdJob implements ShouldQueue
 
     public function handle(): void
     {
-        $response = Http::proxmox()->post(config('services.proxmox.endpoint').'/task', [
+        $response = Http::proxmox()->post('/task', [
             'taskId' => $this->taskId,
         ]);
 
         if (! $response->successful()) {
-            Log::warning("Job released for retry: [Id: {$this->job->getJobId()}, Name: {$this->job->getName()}]");
+            Log::warning('{job}: Response unsuccessful. Message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
+                'message' => $response->body(),
+            ]);
 
             $this->release(60);
 

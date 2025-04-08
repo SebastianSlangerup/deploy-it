@@ -24,7 +24,9 @@ class ToSuspended extends Transition
         $this->instance->status = new Started($this->instance);
         $this->instance->save();
 
-        Log::info("Instance [ID: {$this->instance->id}] suspended");
+        Log::info('{instance}: Instance suspended', [
+            'instance' => "[ID: {$this->instance->id}]",
+        ]);
 
         return $this->instance;
     }

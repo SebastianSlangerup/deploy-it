@@ -8,7 +8,7 @@ class ConfigurationController extends Controller
 {
     public function get()
     {
-        $response = Http::proxmox()->get('/v1/vm/get_all_configurations');
+        $response = Http::proxmox()->get('/get_all_configurations');
 
         $json = $response->json();
 
