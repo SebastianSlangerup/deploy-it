@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DeleteInstanceAction;
 use App\Data\ConfigurationData;
 use App\Data\InstanceData;
 use App\Enums\InstanceTypeEnum;
