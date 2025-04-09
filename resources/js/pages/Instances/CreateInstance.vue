@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import CreateContainerForm from '@/components/form/CreateContainerForm.vue';
+import CreateServerForm from '@/components/form/CreateServerForm.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import ConfigurationData = App.Data.ConfigurationData;
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
-import CreateContainerForm from '@/components/form/CreateContainerForm.vue';
-import CreateServerForm from '@/components/form/CreateServerForm.vue';
 
 const props = defineProps<{
     instanceType: InstanceTypeEnum;
@@ -13,9 +13,9 @@ const props = defineProps<{
 }>();
 
 const formComponents = {
-    'container': CreateContainerForm,
-    'server': CreateServerForm,
-}
+    container: CreateContainerForm,
+    server: CreateServerForm,
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,7 +27,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('instances.create', props.instanceType),
     },
 ];
-
 </script>
 
 <template>

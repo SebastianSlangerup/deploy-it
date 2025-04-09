@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from '@/components/ui/carousel';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import FormItem from '@/components/form/FormItem.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Input } from '@/components/ui/input';
-import { nextTick, ref, watch } from 'vue';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/vue3';
+import { nextTick, ref, watch } from 'vue';
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
 import ConfigurationData = App.Data.ConfigurationData;
 
@@ -15,21 +15,21 @@ const props = defineProps<{
     configurations?: ConfigurationData[];
 }>();
 
-const selectedConfiguration = ref<ConfigurationData | undefined>(props.configurations ? props.configurations[0] : undefined)
+const selectedConfiguration = ref<ConfigurationData | undefined>(props.configurations ? props.configurations[0] : undefined);
 
 const form = useForm<{
-    name: string,
-    description: string,
-    instance_type: InstanceTypeEnum
-    selected_configuration?: ConfigurationData,
-    docker_image?: string,
+    name: string;
+    description: string;
+    instance_type: InstanceTypeEnum;
+    selected_configuration?: ConfigurationData;
+    docker_image?: string;
 }>({
     name: '',
     description: '',
     instance_type: 'server',
     selected_configuration: selectedConfiguration.value,
-    docker_image: undefined
-})
+    docker_image: undefined,
+});
 
 const api = ref<CarouselApi>();
 function setApi(value: CarouselApi) {
@@ -37,19 +37,19 @@ function setApi(value: CarouselApi) {
 }
 const stop = watch(api, (api) => {
     if (!api) {
-        return
+        return;
     }
 
-    nextTick(() => stop())
+    nextTick(() => stop());
 
     api.on('select', () => {
         if (props.configurations) {
-            selectedConfiguration.value = props.configurations[api.selectedScrollSnap()]
+            selectedConfiguration.value = props.configurations[api.selectedScrollSnap()];
         }
-    })
-})
+    });
+});
 
-const submit = () => form.post(route('instances.store'))
+const submit = () => form.post(route('instances.store'));
 </script>
 
 <template>
@@ -77,7 +77,7 @@ const submit = () => form.post(route('instances.store'))
                 <template v-if="configurations">
                     <Separator class="my-6" label="Configuration" />
 
-                    <div class="relative w-full max-w-sm mx-auto">
+                    <div class="relative mx-auto w-full max-w-sm">
                         <Carousel @init-api="setApi">
                             <CarouselContent>
                                 <CarouselItem v-for="(configuration, index) in configurations" :key="index">
@@ -93,15 +93,9 @@ const submit = () => form.post(route('instances.store'))
                                             </CardHeader>
                                             <CardContent class="mx-6">
                                                 <ul class="list-disc">
-                                                    <li>
-                                                        {{ configuration.cores }} {{ configuration.cores > 1 ? 'cores' : 'core'}}
-                                                    </li>
-                                                    <li>
-                                                        {{ configuration.memory }}gb RAM
-                                                    </li>
-                                                    <li>
-                                                        {{ configuration.disk_space }}gb disk space
-                                                    </li>
+                                                    <li>{{ configuration.cores }} {{ configuration.cores > 1 ? 'cores' : 'core' }}</li>
+                                                    <li>{{ configuration.memory }}gb RAM</li>
+                                                    <li>{{ configuration.disk_space }}gb disk space</li>
                                                 </ul>
                                             </CardContent>
                                         </Card>
@@ -122,6 +116,4 @@ const submit = () => form.post(route('instances.store'))
     </form>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

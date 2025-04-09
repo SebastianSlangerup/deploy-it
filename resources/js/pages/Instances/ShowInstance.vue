@@ -1,52 +1,56 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import InstanceData = App.Data.InstanceData;
-import type { BreadcrumbItem, SharedData } from '@/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoaderCircle, Check, Circle, Dot } from 'lucide-vue-next';
-import { Stepper, StepperItem, StepperDescription, StepperTrigger, StepperSeparator, StepperTitle } from '@/components/ui/stepper';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui/stepper';
 import Echo from '@/echo.js';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { BreadcrumbItem, SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/vue3';
+import { Check, Dot, LoaderCircle } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
+import InstanceData = App.Data.InstanceData;
 
 const props = defineProps<{
-    instance: InstanceData,
-}>()
+    instance: InstanceData;
+}>();
 
 const page = usePage<SharedData>();
 
 type EventData = {
-    step: number,
-    instance: InstanceData,
-}
+    step: number;
+    instance: InstanceData;
+};
 
-const currentStep = ref<number>(1)
+const currentStep = ref<number>(1);
 
 onMounted(() => {
-    Echo.private('instances.' + props.instance.id)
-        .listen('InstanceStatusUpdatedEvent', (event: EventData) => {
-            currentStep.value = event.step;
-        })
-})
+    Echo.private('instances.' + props.instance.id).listen('InstanceStatusUpdatedEvent', (event: EventData) => {
+        currentStep.value = event.step;
+    });
+});
 
-const steps = [{
-    step: 1,
-    title: 'Creating server',
-    description: 'We have requested to create your server in the cloud',
-}, {
-    step: 2,
-    title: 'Get Qemu agent status',
-    description: 'Waiting to receive word from the Qemu agent',
-}, {
-    step: 3,
-    title: 'Fetch IP address',
-    description: 'Receiving an IP address from the network',
-}, {
-    step: 4,
-    title: 'Installing packages',
-    description: 'Installing your desired packages',
-}]
+const steps = [
+    {
+        step: 1,
+        title: 'Creating server',
+        description: 'We have requested to create your server in the cloud',
+    },
+    {
+        step: 2,
+        title: 'Get Qemu agent status',
+        description: 'Waiting to receive word from the Qemu agent',
+    },
+    {
+        step: 3,
+        title: 'Fetch IP address',
+        description: 'Receiving an IP address from the network',
+    },
+    {
+        step: 4,
+        title: 'Installing packages',
+        description: 'Installing your desired packages',
+    },
+];
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -58,20 +62,16 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('instances.show', props.instance),
     },
 ];
-
-
 </script>
 
 <template>
     <Head :title="instance.name" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="! instance.is_ready">
+        <div v-if="!instance.is_ready">
             <Card class="m-0 lg:m-8">
                 <CardHeader>
-                    <CardTitle>
-                        Configuring {{ instance.name }}...
-                    </CardTitle>
+                    <CardTitle> Configuring {{ instance.name }}... </CardTitle>
                     <CardDescription>
                         <p>Your server is currently being set up. This will take a few minutes.</p>
                         <p>You can follow the progress below!</p>
@@ -96,7 +96,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 <Button
                                     :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'"
                                     size="icon"
-                                    class="z-10 rounded-full shrink-0"
+                                    class="z-10 shrink-0 rounded-full"
                                     :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
                                 >
                                     <Check v-if="state === 'completed'" class="size-5" />
@@ -106,10 +106,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </StepperTrigger>
 
                             <div class="mt-5 flex flex-col items-center text-center">
-                                <StepperTitle
-                                    :class="[state === 'active' && 'text-primary']"
-                                    class="text-sm font-semibold transition lg:text-base"
-                                >
+                                <StepperTitle :class="[state === 'active' && 'text-primary']" class="text-sm font-semibold transition lg:text-base">
                                     {{ step.title }}
                                 </StepperTitle>
                                 <StepperDescription
@@ -135,9 +132,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         {{ instance.description }}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    Yo yo mr white!
-                </CardContent>
+                <CardContent> Yo yo mr white! </CardContent>
             </Card>
         </div>
     </AppLayout>

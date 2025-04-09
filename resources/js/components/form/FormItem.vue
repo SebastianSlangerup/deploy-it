@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import type { InertiaForm } from '@inertiajs/vue3'
-import { HTMLAttributes, ref, computed } from 'vue';
-import { cn } from '@/lib/utils';
-import { AsteriskIcon } from 'lucide-vue-next'
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import type { InertiaForm } from '@inertiajs/vue3';
+import { AsteriskIcon } from 'lucide-vue-next';
+import { computed, HTMLAttributes, ref } from 'vue';
 
 const props = defineProps<{
-    name: string
-    label: string
-    form: InertiaForm<any>
-    class?: HTMLAttributes['class']
-    disableErrors?: boolean
-    errorsIsArray?: boolean
-    isRequired?: boolean
-}>()
+    name: string;
+    label: string;
+    form: InertiaForm<any>;
+    class?: HTMLAttributes['class'];
+    disableErrors?: boolean;
+    errorsIsArray?: boolean;
+    isRequired?: boolean;
+}>();
 
-const errorKeys = ref<string[]>()
+const errorKeys = ref<string[]>();
 
 const hasError = computed(() => {
     if (props.disableErrors) {
-        return false
+        return false;
     }
 
     if (props.errorsIsArray) {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-        errorKeys.value = Object.keys(props.form.errors).filter((error) => error.includes(props.name))
+        errorKeys.value = Object.keys(props.form.errors).filter((error) => error.includes(props.name));
     }
 
-    return props.form.errors[props.name]
-})
+    return props.form.errors[props.name];
+});
 </script>
 
 <template>
