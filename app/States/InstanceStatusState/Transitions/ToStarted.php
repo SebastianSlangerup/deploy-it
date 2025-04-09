@@ -10,6 +10,7 @@ use Spatie\ModelStates\Transition;
 class ToStarted extends Transition
 {
     private Instance $instance;
+
     public function __construct(Instance $instance)
     {
         $this->instance = $instance;

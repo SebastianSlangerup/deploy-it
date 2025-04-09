@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Data\ConfigurationData;
-use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

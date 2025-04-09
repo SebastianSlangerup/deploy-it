@@ -45,5 +45,3 @@ abstract class InstanceStatus extends State
         ]);
     }
 }
-
-

@@ -31,5 +31,4 @@ class Configuration extends Model
     {
         return $this->hasMany(Instance::class);
     }
-
 }

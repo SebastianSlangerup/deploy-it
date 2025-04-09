@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Enums\RolesEnum;
-use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
 use App\Models\Server;

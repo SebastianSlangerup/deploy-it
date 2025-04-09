@@ -12,6 +12,7 @@ class UserIsAdminMiddleware
         if ($request->user()?->role !== 'admin') {
             return redirect()->to('dashboard');
         }
+
         return $next($request);
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-use App\Data\NotificationData;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;

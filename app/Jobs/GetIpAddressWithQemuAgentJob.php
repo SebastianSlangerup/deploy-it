@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
-use App\Models\Server;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
