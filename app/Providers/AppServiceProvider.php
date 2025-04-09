@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\RolesEnum;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
@@ -26,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict(! $this->app->isProduction());
 
         Gate::define('interact-with-servers', function (User $user) {
-            return $user->role === 'admin';
+            return $user->role === RolesEnum::Admin;
         });
 
         Http::macro('proxmox', function () {
