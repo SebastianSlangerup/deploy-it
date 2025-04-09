@@ -14,8 +14,6 @@ const props = defineProps<{
     instance: InstanceData;
 }>();
 
-const page = usePage<SharedData>();
-
 type EventData = {
     step: number;
     instance: InstanceData;
