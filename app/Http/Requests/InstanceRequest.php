@@ -23,4 +23,12 @@ class InstanceRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'selected_configuration.required_if' => 'A configuration must be selected for server instances.',
+            'docker_image.required_if' => 'A Docker image URL is required for container instances.',
+        ];
+    }
 }

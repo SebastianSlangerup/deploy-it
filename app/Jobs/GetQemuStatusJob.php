@@ -40,7 +40,7 @@ class GetQemuStatusJob implements ShouldQueue
                 ->get('/get_qemu_agent_status');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}}]",
+                'job' => "[ID: {$this->job->getJobId()}]",
                 'message' => $exception->getMessage(),
             ]);
 
@@ -57,7 +57,8 @@ class GetQemuStatusJob implements ShouldQueue
 
         $this->instance->status->transitionTo(Started::class);
 
-        // Job completed. Dispatch an event to refresh the front-end
-        InstanceStatusUpdatedEvent::dispatch(3, $this->instance);
+        // Job completed. Dispatch an event to refresh the front-end with the next step
+        $nextStep = 3;
+        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
     }
 }

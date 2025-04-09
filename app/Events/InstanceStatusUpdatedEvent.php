@@ -14,7 +14,7 @@ class InstanceStatusUpdatedEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public int $step,
+        public int $nextStep,
         public Instance $instance,
     ) {}
 

@@ -38,7 +38,7 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
                 ->withQueryParameters(['vmid' => $this->instance->vm_id])
                 ->get('/get_vm_ip');
         } catch (ConnectionException $exception) {
-            Log::error('{job}: Connection failed. Retrying in 60 seconds. Error message: {message}', [
+            Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
                 'message' => $exception->getMessage(),
             ]);
@@ -65,7 +65,8 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
         $this->instance->is_ready = 1;
         $this->instance->save();
 
-        // Job completed. Dispatch an event to refresh the front-end
-        InstanceStatusUpdatedEvent::dispatch(4, $this->instance);
+        // Job completed. Dispatch an event to refresh the front-end with the next step
+        $nextStep = 4;
+        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
     }
 }

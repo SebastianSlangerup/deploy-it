@@ -102,8 +102,8 @@ const submit = () => form.post(route('instances.store'));
                                     </div>
                                 </CarouselItem>
                             </CarouselContent>
-                            <CarouselPrevious type="button" />
-                            <CarouselNext type="button" />
+                            <CarouselPrevious type="button" aria-label="Show previous configuration" />
+                            <CarouselNext type="button" aria-label="Show next configuration" />
                         </Carousel>
                     </div>
                 </template>

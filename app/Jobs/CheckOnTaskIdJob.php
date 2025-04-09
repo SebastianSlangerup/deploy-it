@@ -41,8 +41,8 @@ class CheckOnTaskIdJob implements ShouldQueue
                 ->withQueryParameters(['upid' => $upid])
                 ->get('/get_task_status');
         } catch (ConnectionException $exception) {
-            Log::error('{job}: Connection failed. Retrying in 60 seconds. Error message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}}]",
+            Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}]",
                 'message' => $exception->getMessage(),
             ]);
 
@@ -62,7 +62,8 @@ class CheckOnTaskIdJob implements ShouldQueue
             return;
         }
 
-        // Job completed. Dispatch an event to refresh the front-end
-        InstanceStatusUpdatedEvent::dispatch(2, $this->instance);
+        // Job completed. Dispatch an event to refresh the front-end with the next step
+        $nextStep = 2;
+        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
     }
 }

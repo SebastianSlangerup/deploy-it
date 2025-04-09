@@ -15,10 +15,12 @@ use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
 use App\Models\Server;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -143,7 +145,14 @@ class InstanceController extends Controller
             Gate::authorize('interact-with-servers');
         }
 
-        app(DeleteInstanceAction::class)->execute($instance);
+        try {
+            app(DeleteInstanceAction::class)->execute($instance);
+        } catch (ConnectionException $exception) {
+            Log::error('Connection failed when attempting to delete instance: {instance}. Error message: {message}', [
+                'job' => "[ID: {$instance->id}]",
+                'message' => $exception->getMessage(),
+            ]);
+        }
 
         return redirect()->back(303);
     }

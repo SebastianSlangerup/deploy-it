@@ -46,8 +46,8 @@ class CreateServerJob implements ShouldQueue
                     'sshkeys' => 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDpZc/0UAaCbvtfz1ckZRazVlvz/iqDmHuXFPPypMhc sebastian.slangerup1@gmail.com',
                 ]);
         } catch (ConnectionException $exception) {
-            Log::error('{job}: Connection failed. Retrying in 60 seconds. Error message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}}]",
+            Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}]",
                 'message' => $exception->getMessage(),
             ]);
 

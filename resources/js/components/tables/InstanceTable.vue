@@ -33,7 +33,7 @@ defineProps<{
                 class="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
                 <Plus class="-ml-0.5 mr-1.5 size-5" aria-hidden="true" />
-                New Project
+                New Instance
             </button>
         </div>
     </div>
@@ -64,7 +64,7 @@ defineProps<{
                     >View project<span class="sr-only">, {{ instance.name }}</span></Link
                 >
                 <DropdownMenu>
-                    <DropdownMenuTrigger>
+                    <DropdownMenuTrigger aria-label="Instance actions">
                         <EllipsisVertical />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
