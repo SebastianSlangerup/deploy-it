@@ -6,12 +6,17 @@ use App\Data\ConfigurationData;
 use App\Data\InstanceData;
 use App\Enums\InstanceTypeEnum;
 use App\Http\Requests\InstanceRequest;
+use App\Jobs\CheckOnTaskIdJob;
 use App\Jobs\CreateServerJob;
+use App\Jobs\GetIpAddressWithQemuAgentJob;
+use App\Jobs\GetQemuStatusJob;
 use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
 use App\Models\Server;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -86,9 +91,16 @@ class InstanceController extends Controller
 
         $instance->save();
 
+        $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
+
         // Dispatch jobs to process the newly created server
         if ($instanceType === InstanceTypeEnum::Server) {
-            CreateServerJob::dispatch($instance)->onQueue('polling');
+            Bus::chain([
+                new CreateServerJob($instance, $selectedConfiguration),
+                new CheckOnTaskIdJob($instance),
+                new GetQemuStatusJob($instance),
+                new GetIpAddressWithQemuAgentJob($instance),
+            ])->onQueue('polling')->dispatch();
         }
 
         return redirect(route('instances.show', $instance));
@@ -122,5 +134,16 @@ class InstanceController extends Controller
         return Inertia::render('Containers/IndexContainers', [
             'instances' => InstanceData::collect($instances),
         ]);
+    }
+
+    public function destroy(Instance $instance): RedirectResponse
+    {
+        if ($instance->instanceable_type === Server::class) {
+            Gate::authorize('interact-with-servers');
+        }
+
+        app(DeleteInstanceAction::class)->execute($instance);
+
+        return redirect()->back(303);
     }
 }

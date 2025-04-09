@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class IncrementInstanceFormStepEvent implements ShouldBroadcast
+class InstanceStatusUpdatedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,10 +18,8 @@ class IncrementInstanceFormStepEvent implements ShouldBroadcast
         public Instance $instance,
     ) {}
 
-    public function broadcastOn(): array
+    public function broadcastOn(): PrivateChannel
     {
-        return [
-            new PrivateChannel("App.Models.User.{$this->instance->created_by}"),
-        ];
+        return new PrivateChannel('instances.'.$this->instance->id);
     }
 }

@@ -2,7 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Events\IncrementInstanceFormStepEvent;
+use App\Events\InstanceStatusUpdatedEvent;
+use App\Models\Instance;
 use App\Models\Server;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,24 +18,33 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * The number of times the job may be attempted
+     */
+    public int $tries = 5;
+
+    /**
+     * The number of seconds to wait before retrying the job
+     */
+    public int $backoff = 10;
+
     public function __construct(
-        public readonly Server $server,
-        public readonly int $qemuAgentId,
+        public readonly Instance $instance,
     ) {}
 
     public function handle(): void
     {
         try {
-            $response = Http::proxmox()->post('/ip-address', [
-                'qemuAgentId' => $this->qemuAgentId,
-            ]);
+            $response = Http::proxmox()
+                ->withQueryParameters(['vmid' => $this->instance->vm_id])
+                ->get('/get_vm_ip');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying in 60 seconds. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release(60);
+            $this->release();
 
             return;
         }
@@ -45,15 +55,18 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
                 'message' => $response->body(),
             ]);
 
-            $this->release(60);
+            $this->release();
 
             return;
         }
 
-        $this->server->ip = $response->json()['ip'];
-        $this->server->save();
+        $this->instance->instanceable->ip = $response->json()['ip'];
+        $this->instance->instanceable->save();
+
+        $this->instance->is_ready = 1;
+        $this->instance->save();
 
         // Job completed. Dispatch an event to refresh the front-end
-        IncrementInstanceFormStepEvent::dispatch(4, $this->server->instance->created_by);
+        InstanceStatusUpdatedEvent::dispatch(4, $this->instance);
     }
 }

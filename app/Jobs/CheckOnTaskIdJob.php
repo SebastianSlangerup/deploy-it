@@ -2,13 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Events\IncrementInstanceFormStepEvent;
+use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -19,38 +21,48 @@ class CheckOnTaskIdJob implements ShouldQueue
     /**
      * The number of times the job may be attempted
      */
-    public int $tries = 60;
+    public int $tries = 5;
 
     /**
      * The number of seconds to wait before retrying the job
      */
-    public int $backoff = 60;
+    public int $backoff = 10;
 
     public function __construct(
         public Instance $instance,
-        public int $taskId
     ) {}
 
     public function handle(): void
     {
-        $response = Http::proxmox()->post('/task', [
-            'taskId' => $this->taskId,
-        ]);
+        $upid = Cache::get("instance.{$this->instance->id}.upid");
 
-        if (! $response->successful()) {
+        try {
+            $response = Http::proxmox()
+                ->withQueryParameters(['upid' => $upid])
+                ->get('/get_task_status');
+        } catch (ConnectionException $exception) {
+            Log::error('{job}: Connection failed. Retrying in 60 seconds. Error message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}}]",
+                'message' => $exception->getMessage(),
+            ]);
+
+            $this->release();
+
+            return;
+        }
+
+        if (! $response->successful() || $response->json('exitstatus') !== 'OK') {
             Log::warning('{job}: Response unsuccessful. Message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
                 'message' => $response->body(),
             ]);
 
-            $this->release(60);
+            $this->release();
 
             return;
         }
 
         // Job completed. Dispatch an event to refresh the front-end
-        IncrementInstanceFormStepEvent::dispatch(1, $this->instance);
-
-        $this->prependToChain(new GetQemuStatusJob($this->instance->vm_id));
+        InstanceStatusUpdatedEvent::dispatch(2, $this->instance);
     }
 }

@@ -30,6 +30,7 @@ class Instance extends Model
         return [
             'created_at' => 'datetime',
             'status' => InstanceStatus::class,
+            'is_ready' => 'boolean',
         ];
     }
 
