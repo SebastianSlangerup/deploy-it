@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui/stepper';
 import Echo from '@/echo.js';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/vue3';
+import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/vue3';
 import { Check, Dot, LoaderCircle } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
