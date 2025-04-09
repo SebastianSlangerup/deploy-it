@@ -13,6 +13,9 @@ class Configuration extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
+        'name',
+        'description',
+        'proxmox_configuration_id',
         'cores',
         'memory',
         'disk_space',
@@ -28,5 +31,4 @@ class Configuration extends Model
     {
         return $this->hasMany(Instance::class);
     }
-
 }

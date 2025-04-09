@@ -4,12 +4,14 @@ namespace App\States\InstanceStatusState\Transitions;
 
 use App\Models\Instance;
 use App\States\InstanceStatusState\Started;
+use App\States\InstanceStatusState\Suspended;
 use Illuminate\Support\Facades\Log;
 use Spatie\ModelStates\Transition;
 
 class ToSuspended extends Transition
 {
     private Instance $instance;
+
     public function __construct(Instance $instance)
     {
         $this->instance = $instance;
@@ -21,10 +23,12 @@ class ToSuspended extends Transition
         $this->instance->stopped_at = null;
         $this->instance->suspended_at = now();
 
-        $this->instance->status = new Started($this->instance);
+        $this->instance->status = new Suspended($this->instance);
         $this->instance->save();
 
-        Log::info("Instance [ID: {$this->instance->id}] suspended");
+        Log::info('{instance}: Instance suspended', [
+            'instance' => "[ID: {$this->instance->id}]",
+        ]);
 
         return $this->instance;
     }

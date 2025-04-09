@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\User;
-use App\States\InstanceStatusState\Stopped;
+use App\States\InstanceStatusState\Configuring;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,10 +12,17 @@ return new class extends Migration
         Schema::create('instances', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->text('description');
             $table->foreignUuid('created_by')->references('id')->on('users');
 
+            // Virtual Machine settings received from API endpoint. Will be set later in the creation state
+            $table->unsignedInteger('vm_id')->nullable();
+            $table->string('vm_username')->nullable();
+            $table->string('vm_password')->nullable();
+
             // State related information
-            $table->string('status')->default(Stopped::class);
+            $table->boolean('is_ready')->default(false);
+            $table->string('status')->default(Configuring::class);
             $table->timestamp('started_at')->nullable();
             $table->timestamp('stopped_at')->nullable();
             $table->timestamp('suspended_at')->nullable();

@@ -10,6 +10,7 @@ use Spatie\ModelStates\Transition;
 class ToStarted extends Transition
 {
     private Instance $instance;
+
     public function __construct(Instance $instance)
     {
         $this->instance = $instance;
@@ -24,7 +25,9 @@ class ToStarted extends Transition
         $this->instance->status = new Started($this->instance);
         $this->instance->save();
 
-        Log::info("Instance [ID: {$this->instance->id}] started");
+        Log::info('{instance}: Instance started', [
+            'instance' => "[ID: {$this->instance->id}]",
+        ]);
 
         return $this->instance;
     }

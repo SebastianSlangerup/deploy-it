@@ -20,6 +20,8 @@ class Instance extends Model
 
     protected $fillable = [
         'name',
+        'description',
+        'created_by',
     ];
 
     /** @return array<int, string> */
@@ -28,6 +30,7 @@ class Instance extends Model
         return [
             'created_at' => 'datetime',
             'status' => InstanceStatus::class,
+            'is_ready' => 'boolean',
         ];
     }
 

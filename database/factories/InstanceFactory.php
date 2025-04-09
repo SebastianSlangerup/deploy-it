@@ -18,6 +18,7 @@ class InstanceFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
+            'description' => $this->faker->text(),
             'status' => $this->faker->randomElement([Started::class, Stopped::class, Suspended::class]),
             'created_by' => User::factory(),
             'started_at' => Carbon::now(),
