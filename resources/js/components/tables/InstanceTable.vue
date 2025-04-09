@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Badge, BadgeVariants } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SharedData, User } from '@/types';
-import { usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { EllipsisVertical, HardDrive, Plus } from 'lucide-vue-next';
 import InstanceData = App.Data.InstanceData;
 
@@ -59,19 +58,23 @@ defineProps<{
                 </div>
             </div>
             <div class="flex flex-none items-center gap-x-4">
-                <a
+                <Link
                     :href="route('instances.show', instance.id)"
                     class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
-                    >View project<span class="sr-only">, {{ instance.name }}</span></a
+                    >View project<span class="sr-only">, {{ instance.name }}</span></Link
                 >
-                <Popover>
-                    <PopoverTrigger as-child>
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
                         <EllipsisVertical />
-                    </PopoverTrigger>
-                    <PopoverContent class="w-80">
-                        <div class="grid gap-4"><Input id="start" type="button" class="h-8 hover:bg-gray-300 dark:hover:bg-gray-700" />Start</div>
-                    </PopoverContent>
-                </Popover>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>View</DropdownMenuItem>
+                        <DropdownMenuItem>Rename</DropdownMenuItem>
+                        <Link :href="route('instances.destroy', instance.id)" method="delete" class="w-full">
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                        </Link>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </li>
     </ul>
