@@ -7,13 +7,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LoaderCircle, Check, Circle, Dot } from 'lucide-vue-next';
 import { Stepper, StepperItem, StepperDescription, StepperTrigger, StepperSeparator, StepperTitle } from '@/components/ui/stepper';
 import { Button } from '@/components/ui/button';
-import Echo from '@/echo'
+import Echo from '@/echo.js';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
     instance: InstanceData,
 }>()
 
 const page = usePage<SharedData>();
+
+type EventData = {
+    step: number,
+    instance: InstanceData,
+}
+
+const currentStep = ref<number>(1)
+
+onMounted(() => {
+    Echo.private('instances.' + props.instance.id)
+        .listen('InstanceStatusUpdatedEvent', (event: EventData) => {
+            currentStep.value = event.step;
+        })
+})
 
 const steps = [{
     step: 1,
@@ -63,7 +78,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Stepper class="flex w-full items-start gap-2">
+                    <Stepper class="flex w-full items-start gap-2" v-model="currentStep">
                         <StepperItem
                             v-for="step in steps"
                             :key="step.step"
