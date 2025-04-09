@@ -32,22 +32,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Http::macro('proxmox', function () {
-            return Http::baseUrl(config('services.proxmox.endpoint'));
-        });
-
-            $response = Http::withHeaders([
-                'accept' => 'application/json',
-            ])->post(config('services.proxmox.endpoint'));
-
-            if ($response->successful()) {
-                $token = $response->json()['token'];
-                $tokenExpiration = $response->json()['expires_at'];
-                // TODO: Figure out TTL based on the tokenExpiration
-
-                // TODO: Cache::put('token', $token, $ttl);
-            }
-
-            return Http::withToken($token);
+            return Http::baseUrl(config('services.proxmox.endpoint'))->withQueryParameters(['node' => 'node1']);
         });
     }
 }
