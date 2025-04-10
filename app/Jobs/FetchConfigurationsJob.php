@@ -9,6 +9,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Ramsey\Uuid\Rfc4122\UuidV4;
+use Ramsey\Uuid\Uuid;
 
 class FetchConfigurationsJob implements ShouldQueue
 {
@@ -20,22 +22,20 @@ class FetchConfigurationsJob implements ShouldQueue
     {
         $response = Http::proxmox()->get('/get_all_configurations');
 
-        $json = $response->json();
+        $configurations = $response->json();
 
         // Get all configurationIds that already exist with the same proxmox_configuration_id as the one returned from our response
         $existingConfigurationIds = Configuration::query()
-            ->whereIn('proxmox_configuration_id', array_keys($json))
-            ->pluck('proxmox_configuration_id')
-            ->toArray();
+            ->whereIn('proxmox_configuration_id', array_keys($configurations))
+            ->pluck('proxmox_configuration_id');
 
         $configurationsToCreate = collect();
 
-        foreach ($json as $configurationId => $configuration) {
-            if (in_array($configurationId, $existingConfigurationIds, true)) {
-                continue;
-            }
+        // Reject configurations that already exist
+        $configurations = collect($configurations)->reject(fn (array $value, int $key) => $existingConfigurationIds->contains($key));
 
-            $configurationsToCreate->add([
+        foreach ($configurations as $configurationId => $configuration) {
+            Configuration::query()->create([
                 'name' => $configuration['name'],
                 'description' => $configuration['desc'],
                 'cores' => $configuration['hardware']['cores'],
@@ -43,10 +43,6 @@ class FetchConfigurationsJob implements ShouldQueue
                 'disk_space' => $configuration['hardware']['disksize'],
                 'proxmox_configuration_id' => $configurationId,
             ]);
-        }
-
-        if ($configurationsToCreate->isNotEmpty()) {
-            Configuration::query()->insert($configurationsToCreate->toArray());
         }
     }
 }
