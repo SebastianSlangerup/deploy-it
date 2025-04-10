@@ -21,8 +21,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('instances/create/{instance_type}', [InstanceController::class, 'create'])->name('instances.create');
     Route::post('instances/store', [InstanceController::class, 'store'])->name('instances.store');
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy'])->name('instances.destroy');
-
-    Route::get('configurations', [ConfigurationController::class, 'get'])->name('configurations.show');
 });
 
 require __DIR__.'/settings.php';
