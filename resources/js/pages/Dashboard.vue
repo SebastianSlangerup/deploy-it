@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Heading from '@/components/Heading.vue';
 import InstanceTable from '@/components/tables/InstanceTable.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -21,20 +22,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <p>CPU Usage</p>
-                </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <p>RAM Usage</p>
-                </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <p>HDD Usage</p>
-                </div>
-            </div>
-            <h2 class="text-xl font-bold">All Instances</h2>
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-5 py-4 dark:border-sidebar-border md:min-h-min">
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl px-5 py-6">
+            <Heading title="Dashboard" description="Manage all your instances here" />
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-4 dark:border-sidebar-border md:min-h-min">
                 <InstanceTable :instances="instances" />
             </div>
         </div>

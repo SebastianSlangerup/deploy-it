@@ -10,6 +10,7 @@ use Spatie\ModelStates\Transition;
 class ToStopped extends Transition
 {
     private Instance $instance;
+
     public function __construct(Instance $instance)
     {
         $this->instance = $instance;
@@ -24,7 +25,9 @@ class ToStopped extends Transition
         $this->instance->status = new Stopped($this->instance);
         $this->instance->save();
 
-        Log::info("Instance [ID: {$this->instance->id}] stopped");
+        Log::info('{instance}: Instance stopped', [
+            'instance' => "[ID: {$this->instance->id}]",
+        ]);
 
         return $this->instance;
     }

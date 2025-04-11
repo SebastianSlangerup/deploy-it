@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('servers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('ip');
+            $table->string('ip')->nullable();
             $table->foreignUuid('configuration_id');
             $table->timestamps();
             $table->softDeletes();
