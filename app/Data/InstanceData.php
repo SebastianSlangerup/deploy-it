@@ -12,8 +12,10 @@ class InstanceData extends Data
     public function __construct(
         public string $id,
         public string $name,
+        public string $description,
         public UserData $created_by,
 
+        public bool $is_ready,
         #[WithCast(InstanceStatusStateCast::class)]
         public InstanceStatusData $status,
         public ?Carbon $started_at,

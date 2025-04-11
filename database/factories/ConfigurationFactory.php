@@ -13,9 +13,12 @@ class ConfigurationFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => $this->faker->name(),
+            'description' => $this->faker->text(),
             'cores' => $this->faker->randomNumber('1'),
             'memory' => $this->faker->randomNumber(),
-            'disk_space' => $this->faker->word(),
+            'disk_space' => $this->faker->randomNumber(2),
+            'proxmox_configuration_id' => $this->faker->randomNumber(4),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

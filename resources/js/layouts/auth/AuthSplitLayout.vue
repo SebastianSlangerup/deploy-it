@@ -17,7 +17,7 @@ defineProps<{
         <div class="relative hidden h-full flex-col items-center justify-center bg-muted p-10 text-white dark:border-r lg:flex">
             <div class="absolute inset-0 bg-sky-950" />
             <Link :href="route('home')" class="relative z-20 flex flex-col items-center text-3xl font-medium">
-                <AppLogoIcon class="mb-10 mr-2 size-[38rem] fill-current text-white" />
+                <AppLogoIcon class="mb-10 mr-2 size-[30rem] fill-current text-white" />
                 {{ name }}
             </Link>
             <div v-if="quote" class="relative z-20 mt-auto">
