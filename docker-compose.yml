@@ -15,7 +15,7 @@ services:
             - "traefik.http.routers.laravel.entrypoints=websecure"
             - "traefik.http.routers.laravel.rule=Host(`https://deploy-it.dk`)"
             - "traefik.http.services.laravel.loadbalancer.server.port=8080"
-            - "traefik.http.services.laravel.loadbalancer.server.scheme=http"
+            - "traefik.http.services.laravel.loadbalancer.server.scheme=https"
         networks:
             - website
         depends_on:
@@ -38,7 +38,7 @@ services:
             - "traefik.http.routers.reverb.entrypoints=websecure"
             - "traefik.http.routers.reverb.rule=Host(`https://deploy-it.dk`)"
             - "traefik.http.services.reverb.loadbalancer.server.port=8000"
-            - "traefik.http.services.reverb.loadbalancer.server.scheme=http"
+            - "traefik.http.services.reverb.loadbalancer.server.scheme=https"
         networks:
             - website
         depends_on:
@@ -78,9 +78,7 @@ services:
                 condition: service_healthy
 
     redis:
-        image: redis
-        volumes:
-            - './docker/redis:/data'
+        image: redis:alpine
         healthcheck:
             test: [ "CMD", "redis-cli", "ping" ]
             retries: 3
@@ -90,8 +88,6 @@ services:
 
     mysql:
         image: mysql/mysql-server:8.0
-        volumes:
-            - './docker/database:/var/lib/mysql'
         environment:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_HOST: '%'
@@ -99,7 +95,7 @@ services:
         networks:
             - website
         healthcheck:
-            test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+            test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
             retries: 3
 
 networks:
