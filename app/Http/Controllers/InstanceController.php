@@ -6,7 +6,7 @@ use App\Actions\DeleteInstanceAction;
 use App\Data\ConfigurationData;
 use App\Data\InstanceData;
 use App\Enums\InstanceTypeEnum;
-use App\Http\Requests\InstanceRequest;
+use App\Http\Requests\CreateInstanceRequest;
 use App\Jobs\CheckOnTaskIdJob;
 use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
@@ -62,7 +62,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function store(InstanceRequest $request)
+    public function store(CreateInstanceRequest $request)
     {
         $instanceType = $request->safe()->enum('instance_type', InstanceTypeEnum::class);
 
