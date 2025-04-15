@@ -6,10 +6,12 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import ConfigurationData = App.Data.ConfigurationData;
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
+import PackageData = App.Data.PackageData;
 
 const props = defineProps<{
     instanceType: InstanceTypeEnum;
     configurations?: ConfigurationData[];
+    packages?: PackageData[];
 }>();
 
 const formComponents = {
@@ -33,6 +35,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Create instance" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <component :is="formComponents[instanceType]" :configurations="configurations" />
+        <component :is="formComponents[instanceType]" :configurations="configurations" :packages="packages" />
     </AppLayout>
 </template>

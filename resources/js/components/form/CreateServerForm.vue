@@ -10,25 +10,42 @@ import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
 import ConfigurationData = App.Data.ConfigurationData;
+import PackageData = App.Data.PackageData;
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 const props = defineProps<{
-    configurations?: ConfigurationData[];
+    configurations: ConfigurationData[];
+    packages: PackageData[];
 }>();
 
-const selectedConfiguration = ref<ConfigurationData | undefined>(props.configurations ? props.configurations[0] : undefined);
+const selectedConfiguration = ref<ConfigurationData>(props.configurations[0]);
+const selectedPackages = ref<PackageData[]>([]);
+
+const handlePackageChecked = (pkg: PackageData, isChecked: boolean) => {
+    if (isChecked) {
+        // Check if package already exists in our array
+        if (!selectedPackages.value.some((p) => p.id === pkg.id)) {
+            selectedPackages.value.push(pkg);
+        }
+    } else {
+        // Remove the package from our array
+        selectedPackages.value = selectedPackages.value.filter((p) => p.id !== pkg.id);
+    }
+};
 
 const form = useForm<{
     name: string;
     description: string;
     instance_type: InstanceTypeEnum;
-    selected_configuration?: ConfigurationData;
-    docker_image?: string;
+    selected_configuration: ConfigurationData;
+    selected_packages: PackageData[];
 }>({
     name: '',
     description: '',
     instance_type: 'server',
     selected_configuration: selectedConfiguration.value,
-    docker_image: undefined,
+    selected_packages: selectedPackages.value,
 });
 
 const api = ref<CarouselApi>();
@@ -49,7 +66,11 @@ const stop = watch(api, (api) => {
     });
 });
 
-const submit = () => form.post(route('instances.store'));
+const submit = () => form.transform((data) => ({
+    ...data,
+    selected_configuration: selectedConfiguration.value,
+    selected_packages: selectedPackages.value,
+})).post(route('instances.store'));
 </script>
 
 <template>
@@ -62,13 +83,13 @@ const submit = () => form.post(route('instances.store'));
             <CardContent>
                 <Separator class="mb-6" label="Basic information" />
 
-                <FormItem name="name" label="Name" :form class="mb-2">
+                <FormItem name="name" label="Name" :form class="mb-2" is-required>
                     <template #input>
                         <Input type="text" placeholder="Name" v-model="form.name" />
                     </template>
                 </FormItem>
 
-                <FormItem name="description" label="Description" :form class="mb-2">
+                <FormItem name="description" label="Description" :form class="mb-2" is-required>
                     <template #input>
                         <Textarea placeholder="Description" v-model="form.description" />
                     </template>
@@ -107,10 +128,31 @@ const submit = () => form.post(route('instances.store'));
                         </Carousel>
                     </div>
                 </template>
+
+                <Separator class="my-6" label="Packages" />
+
+                <ul class="list-none space-y-2">
+                    <li v-for="(pkg, key) in packages" :key="key">
+                        <div class="flex items-center space-x-2">
+                            <Checkbox
+                                :id="'package-' + pkg.name"
+                                :name="'package-' + pkg.name"
+                                :checked="selectedPackages.some((p) => p.id === pkg.id)"
+                                @update:checked="(isChecked) => handlePackageChecked(pkg, isChecked)"
+                            />
+
+                            <Label
+                                :for="'package-' + pkg.name"
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >{{ pkg.name }}</Label
+                            >
+                        </div>
+                    </li>
+                </ul>
             </CardContent>
             <CardFooter class="flex justify-between px-6 pb-6">
                 <Button type="button" variant="outline">Cancel</Button>
-                <Button type="submit">Create</Button>
+                <Button type="submit" :disabled="form.processing">Create</Button>
             </CardFooter>
         </Card>
     </form>

@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Actions\DeleteInstanceAction;
 use App\Data\ConfigurationData;
 use App\Data\InstanceData;
+use App\Data\PackageData;
 use App\Enums\InstanceTypeEnum;
 use App\Http\Requests\CreateInstanceRequest;
 use App\Jobs\CheckOnTaskIdJob;
 use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
 use App\Jobs\GetQemuStatusJob;
+use App\Jobs\InstallPackagesJob;
 use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
+use App\Models\Package;
 use App\Models\Server;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
@@ -55,9 +58,11 @@ class InstanceController extends Controller
         }
 
         $configurations = Configuration::all();
+        $packages = Package::all();
 
         return Inertia::render('Instances/CreateInstance', [
             'configurations' => ConfigurationData::collect($configurations),
+            'packages' => PackageData::collect($packages),
             'instanceType' => $instanceType->value,
         ]);
     }
@@ -95,6 +100,7 @@ class InstanceController extends Controller
         $instance->save();
 
         $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
+        $selectedPackages = $request->collect('selected_packages');
 
         // Dispatch jobs to process the newly created server
         if ($instanceType === InstanceTypeEnum::Server) {
@@ -103,6 +109,7 @@ class InstanceController extends Controller
                 new CheckOnTaskIdJob($instance),
                 new GetQemuStatusJob($instance),
                 new GetIpAddressWithQemuAgentJob($instance),
+                new InstallPackagesJob($instance, $selectedPackages),
             ])->onQueue('polling')->dispatch();
         }
 
