@@ -15,7 +15,7 @@ class PackageFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'package_name' => $this->faker->word(),
+            'command' => $this->faker->word(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
