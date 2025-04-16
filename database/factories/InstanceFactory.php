@@ -20,6 +20,7 @@ class InstanceFactory extends Factory
             'name' => $this->faker->name(),
             'description' => $this->faker->text(),
             'status' => $this->faker->randomElement([Started::class, Stopped::class, Suspended::class]),
+            'is_ready' => 1,
             'created_by' => User::factory(),
             'started_at' => Carbon::now(),
             'created_at' => Carbon::now(),
