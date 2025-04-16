@@ -62,9 +62,6 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
         $this->instance->instanceable->ip = $response->json()['ip'];
         $this->instance->instanceable->save();
 
-        $this->instance->is_ready = 1;
-        $this->instance->save();
-
         // Job completed. Dispatch an event to refresh the front-end with the next step
         $nextStep = 4;
         InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
