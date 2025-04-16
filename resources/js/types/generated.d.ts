@@ -16,6 +16,7 @@ name: string;
 description: string;
 created_by: App.Data.UserData;
 is_ready: boolean;
+type: App.Enums.InstanceTypeEnum;
 status: App.Data.InstanceStatusData;
 started_at: any | null;
 stopped_at: any | null;
