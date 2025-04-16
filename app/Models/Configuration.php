@@ -27,8 +27,8 @@ class Configuration extends Model
         return ['id'];
     }
 
-    public function instances(): HasMany
+    public function servers(): HasMany
     {
-        return $this->hasMany(Instance::class);
+        return $this->hasMany(Server::class);
     }
 }

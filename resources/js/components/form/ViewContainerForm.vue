@@ -25,7 +25,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('instances.show', props.instance),
     },
 ];
-console.log(props.instance)
 </script>
 
 <template>

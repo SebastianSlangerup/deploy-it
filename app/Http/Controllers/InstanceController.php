@@ -46,8 +46,13 @@ class InstanceController extends Controller
     {
         $instance->load('created_by');
 
+        if ($instance->type === InstanceTypeEnum::Server) {
+            $configuration = $instance->instanceable->configuration;
+        }
+
         return Inertia::render('Instances/ShowInstance', [
             'instance' => InstanceData::from($instance),
+            'configuration' => $configuration ?? null,
         ]);
     }
 

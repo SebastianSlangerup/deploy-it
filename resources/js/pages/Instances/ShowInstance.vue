@@ -7,9 +7,11 @@ import InstanceData = App.Data.InstanceData;
 import StepperForm from '@/components/form/StepperForm.vue';
 import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
 import ViewServerForm from '@/components/form/ViewServerForm.vue';
+import ConfigurationData = App.Data.ConfigurationData;
 
 const props = defineProps<{
     instance: InstanceData;
+    configuration: ConfigurationData
 }>();
 
 const stepperComponents = {
@@ -41,6 +43,6 @@ console.log(props.instance)
     
     <AppLayout :breadcrumbs="breadcrumbs">
         <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance"/>
-        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance"/>
+        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance":configuration="configuration"/>
     </AppLayout>
 </template>
