@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('package_name');
+            $table->text('command');
             $table->timestamps();
             $table->softDeletes();
         });
