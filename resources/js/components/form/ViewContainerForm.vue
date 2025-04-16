@@ -5,21 +5,14 @@ import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import InstanceData = App.Data.InstanceData;
 import StepperForm from '@/components/form/StepperForm.vue';
-import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
-import ViewServerForm from '@/components/form/ViewServerForm.vue';
 
 const props = defineProps<{
     instance: InstanceData;
 }>();
 
-const stepperComponents = {
+const formComponents = {
     container: StepperForm,
     server: StepperForm,
-};
-
-const detailComponents = {
-    container: ViewContainerForm,
-    server: ViewServerForm,
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -36,11 +29,5 @@ console.log(props.instance)
 </script>
 
 <template>
-
-    <Head :title="instance.name" />
-    
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance"/>
-        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance"/>
-    </AppLayout>
+    <p>Container</p>
 </template>
