@@ -50,7 +50,7 @@ class Instance extends Model
     public function type(): Attribute
     {
         return Attribute::make(
-            get: fn (Model $model) => InstanceTypeEnum::getType($model->instanceable)
+            get: fn () => InstanceTypeEnum::getType(get_class($this->instanceable))
         );
     }
 

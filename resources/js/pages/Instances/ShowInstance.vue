@@ -129,6 +129,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <CardDescription>
                         {{ instance.description }}
                     </CardDescription>
+                    <CardDescription>
+                        {{ instance.type }}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent> Yo yo mr white! </CardContent>
             </Card>
