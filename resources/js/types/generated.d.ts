@@ -13,6 +13,11 @@ updated_at: any;
 export type InstanceData = {
 id: string;
 name: string;
+tecnical_name: string;
+node: string;
+vm_id: number | null;
+vm_username: string | null;
+vm_password: string | null;
 description: string;
 created_by: App.Data.UserData;
 is_ready: boolean;

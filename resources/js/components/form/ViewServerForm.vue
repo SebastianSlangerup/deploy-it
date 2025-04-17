@@ -115,11 +115,11 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Hostname:</span>
-                            <span class="text-xs font-mono">{{ instance.name }}</span>
+                            <span class="text-xs font-mono">{{ instance.tecnical_name }}.deploy-it.dk</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Username:</span>
-                            <span class="text-xs font-mono">{{ '<hostname>.deploy-it.dk' }}</span>
+                            <span class="text-xs font-mono">{{ 'sysadmin' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
@@ -199,11 +199,7 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Name:</span>
-                            <span class="text-xs font-mono">{{ instance.name }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Type:</span>
-                            <Badge variant="outline">{{ instance.type }}</Badge>
+                            <span class="text-xs font-mono">{{ instance.tecnical_name }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Instantiated:</span>
@@ -217,7 +213,11 @@ const formatDate = (date: any) => {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Proxmox Node:</span>
-                            <span class="text-xs font-mono">{{ 'Node1' }}</span>
+                            <span class="text-xs font-mono">{{ instance.node }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Vm id:</span>
+                            <span class="text-xs font-mono">{{ instance.vm_id }}</span>
                         </div>
                     </div>
                 </CardContent>
