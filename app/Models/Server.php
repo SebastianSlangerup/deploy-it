@@ -29,7 +29,7 @@ class Server extends Model
     {
         return $this->belongsTo(Configuration::class);
     }
-    
+
     public function instance(): MorphOne
     {
         return $this->morphOne(Instance::class, 'instanceable')->chaperone();
