@@ -37,7 +37,7 @@ notificationType: App.Enums.NotificationTypeEnum;
 export type PackageData = {
 id: string;
 name: string;
-package_name: string;
+command: string;
 created_at: any;
 };
 export type UserData = {
