@@ -10,14 +10,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
 Route::post('register', function (Request $request) {
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-        'role' => ['required', Rule::enum(RolesEnum::class)],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
     ]);
 
@@ -45,11 +43,9 @@ Route::post('login', function (Request $request) {
         'password' => ['required'],
     ]);
 
-    $user = User::query()->where('email', '=', $request->string('email'))
-        ->where('password', '=', Hash::make($request->string('password')))
-        ->first();
+    $user = User::query()->where('email', '=', $request->string('email'))->first();
 
-    if (is_null($user)) {
+    if ($user && ! Hash::check($request->string('password'), $user->password)) {
         return new JsonResponse(
             data: [
                 'message' => 'User not found',
@@ -70,8 +66,12 @@ Route::post('login', function (Request $request) {
     );
 });
 
-Route::get('instances', function () {
-    $instances = Instance::all();
+Route::get('instances', function (Request $request) {
+    $user = $request->user();
+
+    $instances = Instance::query()
+        ->where('created_by', '=', $user->id)
+        ->get();
 
     return new JsonResponse(
         data: InstanceData::collect($instances)->toArray(),
