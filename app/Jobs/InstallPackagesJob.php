@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 
 class InstallPackagesJob implements ShouldQueue
 {
@@ -85,5 +86,14 @@ class InstallPackagesJob implements ShouldQueue
 
         $nextStep = 5;
         InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        $this->instance->delete();
+
+        Log::error('Job failed. Instance has been deleted. Message: {message}', [
+            'message' => $exception?->getMessage(),
+        ]);
     }
 }

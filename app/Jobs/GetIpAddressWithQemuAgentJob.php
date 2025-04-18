@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GetIpAddressWithQemuAgentJob implements ShouldQueue
 {
@@ -65,5 +66,14 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
         // Job completed. Dispatch an event to refresh the front-end with the next step
         $nextStep = 4;
         InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        $this->instance->delete();
+
+        Log::error('Job failed. Instance has been deleted. Message: {message}', [
+            'message' => $exception?->getMessage(),
+        ]);
     }
 }
