@@ -110,7 +110,7 @@ class ApiController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = $request->user();
@@ -131,6 +131,15 @@ class ApiController extends Controller
 
     public function status(Instance $instance): JsonResponse
     {
+        if (empty($instance->vm_id)) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'Instance does not have a vm_id',
+                ],
+                status: JsonResponse::HTTP_BAD_REQUEST,
+            );
+        }
+
         try {
             $response = Http::proxmox()
                 ->withQueryParameters(['vmid' => $instance->vm_id])
