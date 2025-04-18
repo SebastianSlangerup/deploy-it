@@ -14,14 +14,6 @@ Route::get('dashboard', [InstanceController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('tokens/create', function (Request $request) {
-        $token = $request->user()?->createToken($request->token_name);
-
-        return ['token' => $token->plainTextToken];
-    });
-});
-
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('containers', [InstanceController::class, 'containers'])->name('containers.index');
     Route::get('servers', [InstanceController::class, 'servers'])->name('servers.index');
