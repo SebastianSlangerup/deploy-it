@@ -13,9 +13,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description');
+            $table->string('tecnical_name')->unique();
             $table->foreignUuid('created_by')->references('id')->on('users');
 
             // Virtual Machine settings received from API endpoint. Will be set later in the creation state
+            $table->string('node');
             $table->unsignedInteger('vm_id')->nullable();
             $table->string('vm_username')->nullable();
             $table->string('vm_password')->nullable();
