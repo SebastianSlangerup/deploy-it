@@ -42,7 +42,7 @@ class ApiController extends Controller
         return new JsonResponse(
             data: [
                 'message' => 'User created successfully',
-                'data' => UserData::from($user)->toArray(),
+                'user' => UserData::from($user)->toArray(),
                 'token' => $token->plainTextToken,
             ],
             status: JsonResponse::HTTP_CREATED,
@@ -73,6 +73,7 @@ class ApiController extends Controller
         return new JsonResponse(
             data: [
                 'message' => 'User logged in',
+                'user' => UserData::from($user)->toArray(),
                 'token' => $token->plainTextToken,
             ],
             status: JsonResponse::HTTP_OK,
