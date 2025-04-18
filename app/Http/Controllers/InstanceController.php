@@ -168,7 +168,8 @@ class InstanceController extends Controller
         if ($request->expectsJson()) {
             return new JsonResponse(
                 data: [
-                    'message' => 'Instance deleted Successfully'
+                    'message' => 'Instance deleted Successfully',
+                    'id' => $instance->id,
                 ],
                 status: JsonResponse::HTTP_OK,
             );

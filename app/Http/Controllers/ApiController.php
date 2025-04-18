@@ -4,14 +4,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\ConfigurationData;
 use App\Data\InstanceData;
 use App\Data\UserData;
 use App\Enums\RolesEnum;
+use App\Models\Configuration;
 use App\Models\Instance;
 use App\Models\User;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Number;
 use Illuminate\Validation\Rules;
 
 class ApiController extends Controller
@@ -31,10 +37,13 @@ class ApiController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        $token = $user->createToken('access-token', ['*'], now()->addWeek());
+
         return new JsonResponse(
             data: [
                 'message' => 'User created successfully',
                 'data' => UserData::from($user)->toArray(),
+                'token' => $token->plainTextToken,
             ],
             status: JsonResponse::HTTP_CREATED,
         );
@@ -85,12 +94,23 @@ class ApiController extends Controller
         );
     }
 
+    public function configurations(): JsonResponse
+    {
+        $configurations = Configuration::all();
+
+        return new JsonResponse(
+            data: ConfigurationData::collect($configurations)->toArray(),
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
     public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = $request->user();
@@ -104,6 +124,59 @@ class ApiController extends Controller
         return new JsonResponse(
             data: [
                 'message' => 'User updated successfully',
+            ],
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
+    public function status(Instance $instance): JsonResponse
+    {
+        try {
+            $response = Http::proxmox()
+                ->withQueryParameters(['vmid' => $instance->vm_id])
+                ->get('/get_vm_status');
+        } catch (ConnectionException $exception) {
+            Log::error('{controller}: Connection failed. Error message: {message}', [
+                'controller' => self::class,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return new JsonResponse(
+                data: [
+                    'message' => 'Could not connect to proxmox api. Error message: ' . $exception->getMessage(),
+                ],
+                status: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        if (! $response->successful()) {
+            Log::warning('{controller}: Response unsuccessful. Message: {message}', [
+                'controller' => self::class,
+                'message' => $response->body(),
+            ]);
+
+            return new JsonResponse(
+                data: [
+                    'message' => 'Could not connect to proxmox api. Error message: ' . $response->body(),
+                ],
+                status: JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        $data = $response->json();
+
+        $cpuUsage = Number::percentage($data['cpu']);
+        $totalMemory = Number::fileSize($data['maxmem']);
+        $usedMemory = Number::fileSize($data['mem']);
+        $totalStorage = Number::fileSize($data['maxdisk']);
+
+        return new JsonResponse(
+            data: [
+                'message' => 'Status fetched successfully',
+                'cpuUsage' => $cpuUsage,
+                'totalMemory' => $totalMemory,
+                'usedMemory' => $usedMemory,
+                'totalStorage' => $totalStorage,
             ],
             status: JsonResponse::HTTP_OK,
         );
