@@ -58,7 +58,7 @@ class ApiController extends Controller
 
         $user = User::query()->where('email', '=', $request->string('email'))->first();
 
-        if (!$user || ! Hash::check($request->string('password'), $user->password)) {
+        if (! $user || ! Hash::check($request->string('password'), $user->password)) {
             return new JsonResponse(
                 data: [
                     'message' => 'User not found',
@@ -152,7 +152,7 @@ class ApiController extends Controller
 
             return new JsonResponse(
                 data: [
-                    'message' => 'Could not connect to proxmox api. Error message: ' . $exception->getMessage(),
+                    'message' => 'Could not connect to proxmox api. Error message: '.$exception->getMessage(),
                 ],
                 status: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
             );
@@ -166,7 +166,7 @@ class ApiController extends Controller
 
             return new JsonResponse(
                 data: [
-                    'message' => 'Could not connect to proxmox api. Error message: ' . $response->body(),
+                    'message' => 'Could not connect to proxmox api. Error message: '.$response->body(),
                 ],
                 status: JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
             );
