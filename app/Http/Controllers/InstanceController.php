@@ -9,6 +9,7 @@ use App\Data\PackageData;
 use App\Enums\InstanceTypeEnum;
 use App\Http\Requests\CreateInstanceRequest;
 use App\Jobs\CheckOnTaskIdJob;
+use App\Jobs\CreateDockerImageJob;
 use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
 use App\Jobs\GetQemuStatusJob;
@@ -87,35 +88,11 @@ class InstanceController extends Controller
         ]);
 
         if ($instanceType === InstanceTypeEnum::Server) {
-            $model = Server::query()->create([
-                'configuration_id' => $request->safe()->array('selected_configuration')['id'],
-            ]);
+            $this->setupServer($instance, $request);
         }
 
         if ($instanceType === InstanceTypeEnum::Container) {
-            $model = Container::query()->create([
-                'docker_image' => $request->safe()->string('docker_image'),
-            ]);
-        }
-
-        if (isset($model)) {
-            $instance->instanceable()->associate($model);
-        }
-
-        $instance->save();
-
-        $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
-        $selectedPackages = $request->collect('selected_packages');
-
-        // Dispatch jobs to process the newly created server
-        if ($instanceType === InstanceTypeEnum::Server) {
-            Bus::chain([
-                new CreateServerJob($instance, $selectedConfiguration),
-                new CheckOnTaskIdJob($instance),
-                new GetQemuStatusJob($instance),
-                new GetIpAddressWithQemuAgentJob($instance),
-                new InstallPackagesJob($instance, $selectedPackages),
-            ])->onQueue('polling')->dispatch();
+            $this->setupContainer($instance, $request);
         }
 
         return redirect(route('instances.show', $instance));
@@ -167,5 +144,40 @@ class InstanceController extends Controller
         }
 
         return redirect()->back(303);
+    }
+
+    public function setupServer(Instance $instance, Request $request): void
+    {
+        $model = Server::query()->create([
+            'configuration_id' => $request->safe()->array('selected_configuration')['id'],
+        ]);
+
+        $instance->instanceable()->associate($model);
+
+        $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
+        $selectedPackages = $request->collect('selected_packages');
+
+        // Dispatch jobs to process the newly created server
+        Bus::chain([
+            new CreateServerJob($instance, $selectedConfiguration),
+            new CheckOnTaskIdJob($instance),
+            new GetQemuStatusJob($instance),
+            new GetIpAddressWithQemuAgentJob($instance),
+            new InstallPackagesJob($instance, $selectedPackages),
+        ])->onQueue('polling')->dispatch();
+    }
+
+    public function setupContainer(Instance $instance, Request $request): void
+    {
+        $model = Container::query()->create([
+            'docker_image' => $request->safe()->string('docker_image'),
+        ]);
+
+        $instance->instanceable()->associate($model);
+
+        $dockerImage = $request->safe()->string('docker_image');
+
+        // Dispatch job to process the newly created container
+        CreateDockerImageJob::dispatch($instance, $dockerImage)->onQueue('polling');
     }
 }

@@ -10,9 +10,9 @@ enum InstanceTypeEnum: string
     case Server = 'server';
     case Container = 'container';
 
-    public static function getType(string $model): self
+    public static function getType(string $className): self
     {
-        return match ($model) {
+        return match ($className) {
             Server::class => self::Server,
             Container::class => self::Container,
         };
