@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('user_id');
             $table->string('type');
-            $table->string('stripe_id')->unique()->collation('utf8_bin');
+            $table->string('stripe_id')->unique();
             $table->string('stripe_status');
             $table->string('stripe_price')->nullable();
             $table->integer('quantity')->nullable();
@@ -25,6 +26,10 @@ return new class extends Migration
 
             $table->index(['user_id', 'stripe_status']);
         });
+
+        if (config('database.default') === 'mysql') {
+            DB::statement('ALTER TABLE subscriptions MODIFY stripe_id VARCHAR(255) COLLATE uft8_bin');
+        }
     }
 
     /**
