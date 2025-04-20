@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\InstanceTypeEnum;
 use App\States\InstanceStatusState\InstanceStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,6 +45,13 @@ class Instance extends Model
     public function instanceable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function type(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => InstanceTypeEnum::getType(get_class($this->instanceable))
+        );
     }
 
     public function created_by(): BelongsTo

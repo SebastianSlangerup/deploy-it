@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::shouldBeStrict(! $this->app->isProduction());
+        // Model::shouldBeStrict(! $this->app->isProduction());
 
         Gate::define('interact-with-servers', function (User $user) {
             return $user->role === RolesEnum::Admin;

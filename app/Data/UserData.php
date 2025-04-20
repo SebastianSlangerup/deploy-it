@@ -13,7 +13,7 @@ class UserData extends Data
         public string $id,
         public string $name,
         public string $email,
-        /** @param Collection<int, Instance> $instances */
+        /** @var Collection<int, Instance> $instances */
         public ?Collection $instances,
         public RolesEnum $role,
     ) {}
