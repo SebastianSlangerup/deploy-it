@@ -1,22 +1,21 @@
 <script setup lang="ts">
-
-import { useForm } from '@inertiajs/vue3';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import FormItem from '@/components/form/FormItem.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { useForm } from '@inertiajs/vue3';
 
 const form = useForm<{
-    name: string,
-    description: string,
-    docker_image: string,
+    name: string;
+    description: string;
+    docker_image: string;
 }>({
     name: '',
     description: '',
     docker_image: '',
-})
+});
 
 const submit = () => form.post(route('instances.store'));
 </script>

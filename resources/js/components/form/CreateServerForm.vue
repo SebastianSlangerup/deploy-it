@@ -3,7 +3,9 @@ import FormItem from '@/components/form/FormItem.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/vue3';
@@ -11,8 +13,6 @@ import { nextTick, ref, watch } from 'vue';
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
 import ConfigurationData = App.Data.ConfigurationData;
 import PackageData = App.Data.PackageData;
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 
 const props = defineProps<{
     configurations: ConfigurationData[];
@@ -66,11 +66,14 @@ const stop = watch(api, (api) => {
     });
 });
 
-const submit = () => form.transform((data) => ({
-    ...data,
-    selected_configuration: selectedConfiguration.value,
-    selected_packages: selectedPackages.value,
-})).post(route('instances.store'));
+const submit = () =>
+    form
+        .transform((data) => ({
+            ...data,
+            selected_configuration: selectedConfiguration.value,
+            selected_packages: selectedPackages.value,
+        }))
+        .post(route('instances.store'));
 </script>
 
 <template>
