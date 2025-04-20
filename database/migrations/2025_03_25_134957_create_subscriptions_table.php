@@ -28,7 +28,7 @@ return new class extends Migration
         });
 
         if (config('database.default') === 'mysql') {
-            DB::statement('ALTER TABLE subscriptions MODIFY stripe_id VARCHAR(255) COLLATE uft8_bin');
+            DB::statement('ALTER TABLE subscriptions MODIFY stripe_id VARCHAR(255) COLLATE utf8_bin');
         }
     }
 
