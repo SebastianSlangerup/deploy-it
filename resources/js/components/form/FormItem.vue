@@ -36,7 +36,7 @@ const hasError = computed(() => {
         <Label v-if="!$slots.label" :for="name" :class="{ 'text-destructive': hasError }" class="align-middle">
             {{ label }}
             <template v-if="isRequired">
-                <AsteriskIcon class="inline size-4 text-amber-700" />
+                <AsteriskIcon class="inline size-4 text-destructive" />
             </template>
         </Label>
 

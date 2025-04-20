@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\InstanceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,8 +21,6 @@ Route::middleware(['auth', 'verified', 'admin', 'subscribed'])->group(function (
     Route::get('instances/create/{instance_type}', [InstanceController::class, 'create'])->name('instances.create');
     Route::post('instances/store', [InstanceController::class, 'store'])->name('instances.store');
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy'])->name('instances.destroy');
-
-    Route::get('configurations', [ConfigurationController::class, 'get'])->name('configurations.show');
 });
 
 Route::get('/checkout', function (Request $request) {

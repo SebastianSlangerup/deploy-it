@@ -16,6 +16,7 @@ declare namespace App.Data {
         description: string;
         created_by: App.Data.UserData;
         is_ready: boolean;
+        type: App.Enums.InstanceTypeEnum;
         status: App.Data.InstanceStatusData;
         started_at: any | null;
         stopped_at: any | null;
@@ -33,11 +34,17 @@ declare namespace App.Data {
         description: string;
         notificationType: App.Enums.NotificationTypeEnum;
     };
+    export type PackageData = {
+        id: string;
+        name: string;
+        command: string;
+        created_at: any;
+    };
     export type UserData = {
         id: string;
         name: string;
         email: string;
-        instances: any | null;
+        instances: { [key: number]: any } | null;
         role: App.Enums.RolesEnum;
     };
 }

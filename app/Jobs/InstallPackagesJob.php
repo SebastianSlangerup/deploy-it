@@ -4,18 +4,21 @@ namespace App\Jobs;
 
 use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
-use App\States\InstanceStatusState\Started;
+use App\Models\Package;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 
-class GetQemuStatusJob implements ShouldQueue
+class InstallPackagesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,19 +32,35 @@ class GetQemuStatusJob implements ShouldQueue
      */
     public int $backoff = 10;
 
+    /**
+     * @param  Collection<int, Package>  $selectedPackages
+     */
     public function __construct(
         public Instance $instance,
+        public Collection $selectedPackages,
     ) {}
 
     public function handle(): void
     {
+        $file = Storage::disk('local')->get('package-installation-template.sh');
+
+        # Create a fluent string to manipulate contents
+        $installScript = Str::of($file);
+
+        # Pass $installScript by reference
+        $this->selectedPackages->each(function ($package) use (&$installScript) {
+            $installScript = $installScript->newLine()->append($package->command);
+        });
+
+        // Time to send the instructions to our virtual machine!
         try {
             $response = Http::proxmox()
                 ->withQueryParameters(['vmid' => $this->instance->vm_id])
-                ->get('/get_qemu_agent_status');
+                ->attach('config_file', $installScript, 'package-installation-script.sh')
+                ->post('/configure_vm_custom');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}]",
+                'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
                 'message' => $exception->getMessage(),
             ]);
 
@@ -50,16 +69,22 @@ class GetQemuStatusJob implements ShouldQueue
             return;
         }
 
-        if (! $response->successful() || $response->json('status') !== 'Running') {
+        if (! $response->successful()) {
+            Log::warning('{job}: Response unsuccessful. Message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
+                'message' => $response->body(),
+            ]);
+
             $this->release();
 
             return;
         }
 
-        $this->instance->status->transitionTo(Started::class);
+        // Final step in the chain. Instance is now ready to be used by end user
+        $this->instance->is_ready;
+        $this->instance->save();
 
-        // Job completed. Dispatch an event to refresh the front-end with the next step
-        $nextStep = 3;
+        $nextStep = 5;
         InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
     }
 

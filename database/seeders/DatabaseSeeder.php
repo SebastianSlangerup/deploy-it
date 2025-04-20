@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use App\Enums\RolesEnum;
 use App\Models\Container;
 use App\Models\Instance;
+use App\Models\Package;
 use App\Models\Server;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -42,5 +43,7 @@ class DatabaseSeeder extends Seeder
                 'instanceable_type' => Container::class,
             ]);
         });
+
+        Package::factory()->count(10)->create();
     }
 }

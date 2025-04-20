@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Laravel\Cashier\Billable;
 
 use function Illuminate\Events\queueable;
@@ -18,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use Billable,
+        HasApiTokens,
         HasFactory,
         HasUuids,
         Notifiable;

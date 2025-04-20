@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -22,6 +23,11 @@ class Server extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    public function configuration(): BelongsTo
+    {
+        return $this->belongsTo(Configuration::class);
     }
 
     public function instance(): MorphOne

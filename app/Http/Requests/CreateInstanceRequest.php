@@ -6,7 +6,7 @@ use App\Enums\InstanceTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class InstanceRequest extends FormRequest
+class CreateInstanceRequest extends FormRequest
 {
     public function rules(): array
     {
@@ -21,6 +21,7 @@ class InstanceRequest extends FormRequest
                 'required_if:instance_type,'.InstanceTypeEnum::Container->value,
                 'url',
             ],
+            'selected_packages' => ['array'],
         ];
     }
 

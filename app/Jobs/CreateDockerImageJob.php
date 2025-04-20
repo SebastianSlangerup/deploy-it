@@ -2,43 +2,37 @@
 
 namespace App\Jobs;
 
-use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
-use App\States\InstanceStatusState\Started;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class GetQemuStatusJob implements ShouldQueue
+class CreateDockerImageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The number of times the job may be attempted
-     */
-    public int $tries = 5;
-
-    /**
-     * The number of seconds to wait before retrying the job
-     */
-    public int $backoff = 10;
-
     public function __construct(
         public Instance $instance,
+        public string $dockerImage,
     ) {}
 
     public function handle(): void
     {
         try {
             $response = Http::proxmox()
-                ->withQueryParameters(['vmid' => $this->instance->vm_id])
-                ->get('/get_qemu_agent_status');
+                ->timeout(30)
+                ->withQueryParameters([
+                    'vmid' => $this->instance->vm_id,
+                    'image_name' => $this->dockerImage,
+                ])
+                ->post('/pull_docker_image');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",
@@ -50,17 +44,17 @@ class GetQemuStatusJob implements ShouldQueue
             return;
         }
 
-        if (! $response->successful() || $response->json('status') !== 'Running') {
-            $this->release();
+        if (! $response->successful()) {
+            Log::warning('{job}: Response unsuccessful. Message: {message}', [
+                'job' => "[ID: {$this->job->getJobId()}]",
+                'message' => $response->body(),
+            ]);
 
-            return;
+            $this->release();
         }
 
-        $this->instance->status->transitionTo(Started::class);
-
-        // Job completed. Dispatch an event to refresh the front-end with the next step
-        $nextStep = 3;
-        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
+        $this->instance->is_ready = true;
+        $this->instance->save();
     }
 
     public function failed(?Throwable $exception): void
