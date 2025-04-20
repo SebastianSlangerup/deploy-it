@@ -20,6 +20,7 @@ use App\Models\Instance;
 use App\Models\Package;
 use App\Models\Server;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
@@ -73,7 +74,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function store(CreateInstanceRequest $request)
+    public function store(CreateInstanceRequest $request): RedirectResponse | JsonResponse
     {
         $instanceType = $request->safe()->enum('instance_type', InstanceTypeEnum::class);
 
@@ -93,6 +94,16 @@ class InstanceController extends Controller
 
         if ($instanceType === InstanceTypeEnum::Container) {
             $this->setupContainer($instance, $request);
+        }
+
+        if ($request->expectsJson()) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'Instance Created Successfully. Jobs dispatched',
+                    'data' => InstanceData::from($instance)->toArray(),
+                ],
+                status: JsonResponse::HTTP_CREATED,
+            );
         }
 
         return redirect(route('instances.show', $instance));
@@ -128,7 +139,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function destroy(Instance $instance): RedirectResponse
+    public function destroy(Request $request, Instance $instance): RedirectResponse | JsonResponse
     {
         if ($instance->instanceable_type === Server::class) {
             Gate::authorize('interact-with-servers');
@@ -141,6 +152,16 @@ class InstanceController extends Controller
                 'job' => "[ID: {$instance->id}]",
                 'message' => $exception->getMessage(),
             ]);
+        }
+
+        if ($request->expectsJson()) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'Instance deleted Successfully',
+                    'id' => $instance->id,
+                ],
+                status: JsonResponse::HTTP_OK,
+            );
         }
 
         return redirect()->back(303);
