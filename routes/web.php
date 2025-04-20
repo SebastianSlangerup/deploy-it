@@ -34,7 +34,7 @@ Route::get('/checkout', function (Request $request) {
             'success_url' => route('checkout.success'),
             'cancel_url' => route('checkout.cancelled'),
         ]);
-})->name('checkout');
+})->middleware(['auth', 'verified'])->name('checkout');
 
 Route::get('/checkout-success', function (Request $request) {
     return 'Thanks for your purchase!';
