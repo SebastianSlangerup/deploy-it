@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,7 @@ class ApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', Rules\Password::defaults()],
         ]);
 
         $user = User::query()->create([
@@ -81,11 +82,12 @@ class ApiController extends Controller
 
     }
 
-    public function instances(Request $request): JsonResponse
+    public function getInstances(Request $request): JsonResponse
     {
         $user = $request->user();
 
         $instances = Instance::query()
+            ->with('created_by')
             ->where('created_by', '=', $user->id)
             ->get();
 
@@ -95,7 +97,7 @@ class ApiController extends Controller
         );
     }
 
-    public function configurations(): JsonResponse
+    public function getConfigurations(): JsonResponse
     {
         $configurations = Configuration::all();
 
@@ -105,13 +107,13 @@ class ApiController extends Controller
         );
     }
 
-    public function update(Request $request): JsonResponse
+    public function updateUser(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', Rules\Password::defaults()],
         ]);
 
         $user = $request->user();
@@ -130,7 +132,7 @@ class ApiController extends Controller
         );
     }
 
-    public function status(Instance $instance): JsonResponse
+    public function getStatus(Instance $instance): JsonResponse
     {
         if (empty($instance->vm_id)) {
             return new JsonResponse(
@@ -187,6 +189,34 @@ class ApiController extends Controller
                 'totalMemory' => $totalMemory,
                 'usedMemory' => $usedMemory,
                 'totalStorage' => $totalStorage,
+            ],
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
+    public function getUser(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return new JsonResponse(
+            data: [
+                'message' => 'User fetched successfully',
+                'data' => UserData::from($user)->toArray(),
+            ],
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
+    public function getPaidStatus(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return new JsonResponse(
+            data: [
+                'message' => 'User status fetched successfully',
+                'data' => [
+                    'is_paid' => $user->subscribed(),
+                ],
             ],
             status: JsonResponse::HTTP_OK,
         );

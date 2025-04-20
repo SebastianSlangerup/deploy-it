@@ -8,10 +8,20 @@ Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('configurations', [ApiController::class, 'configurations']);
-    Route::get('instances', [ApiController::class, 'instances']);
-    Route::get('status/{instance:id}', [ApiController::class, 'status']);
+    // Configuration
+    Route::get('configurations', [ApiController::class, 'getConfigurations']);
+
+    // Status
+    Route::get('status/{instance:id}', [ApiController::class, 'getStatus']);
+
+    // Instance
+    Route::get('instances', [ApiController::class, 'getInstances']);
     Route::post('instances/create', [InstanceController::class, 'store']);
+    Route::patch('instances/{instance:id}/update', [InstanceController::class, 'update']);
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy']);
-    Route::patch('user/update', [ApiController::class, 'update']);
+
+    // User
+    Route::get('user', [ApiController::class, 'getUser']);
+    Route::get('user/paid-status', [ApiController::class, 'getPaidStatus']);
+    Route::patch('user/update', [ApiController::class, 'updateUser']);
 });
