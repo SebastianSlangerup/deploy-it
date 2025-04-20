@@ -2,41 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { BreadcrumbItem } from '@/types';
-import { computed } from 'vue';
 import InstanceData = App.Data.InstanceData;
-import { Container, HardDrive, LayoutGrid } from 'lucide-vue-next';
+import { Container } from 'lucide-vue-next';
 
 
-const props = defineProps<{
+defineProps<{
     instance: InstanceData;
 }>();
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: route('dashboard'),
-    },
-    {
-        title: props.instance.name,
-        href: route('instances.show', props.instance),
-    },
-];
-
-const statusColor = computed(() => {
-    switch (props.instance.status.status) {
-        case 'started':
-            return 'bg-green-500';
-        case 'stopped':
-            return 'bg-red-500';
-        case 'suspended':
-            return 'bg-yellow-500';
-        case 'configuring':
-            return 'bg-blue-500';
-        default:
-            return 'bg-gray-500';
-    }
-});
 
 const formatDate = (date: any) => {
     if (!date) return 'N/A';
@@ -50,20 +22,20 @@ const formatDate = (date: any) => {
           <div class="border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="flex items-center gap-6">
               <div class="flex items-center">
-                <div :class="[statusColor, 'w-3 h-3 rounded-full mr-2']"></div>
+                <div :class="[instance.status.color, 'w-3 h-3 rounded-full mr-2']"></div>
                 <span class="font-medium capitalize">{{ instance.status.label }}</span>
               </div>
-              
+
               <div class="flex items-center">
                         <Container class="w-5 h-5 mr-2" />
                         <p class="font-medium">nginx:latest</p>
                     </div>
-              
+
               <div class="flex items-center">
-                <span class=" lucide lucide-container-icon font-mono text-sm">{{ instance.id}}</span>
+                <span class=" lucide lucide-container-icon font-mono text-sm">{{ instance.id }}</span>
               </div>
             </div>
-            
+
             <div class="flex space-x-2">
               <Button variant="default" size="sm">Start</Button>
               <Button variant="outline" size="sm">Stop</Button>
@@ -74,7 +46,7 @@ const formatDate = (date: any) => {
             </div>
           </div>
         </div>
-        
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
           <!-- Left Column: Container Info -->
@@ -111,7 +83,7 @@ const formatDate = (date: any) => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <!-- Creation Info Card -->
             <Card>
               <CardHeader class="pb-2">
@@ -131,7 +103,7 @@ const formatDate = (date: any) => {
               </CardContent>
             </Card>
           </div>
-          
+
           <!-- Right Column: Details -->
           <div class="md:col-span-9 space-y-6">
             <!-- Container Description -->
@@ -143,7 +115,7 @@ const formatDate = (date: any) => {
                 <p class="text-gray-700">{{ instance.description || 'No description provided.' }}</p>
               </CardContent>
             </Card>
-            
+
             <!-- Container Ports -->
             <Card>
               <CardHeader>

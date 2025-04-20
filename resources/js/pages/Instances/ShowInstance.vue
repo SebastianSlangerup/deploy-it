@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
@@ -34,15 +33,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('instances.show', props.instance),
     },
 ];
-console.log(props.instance)
 </script>
 
 <template>
 
     <Head :title="instance.name" />
-    
+
     <AppLayout :breadcrumbs="breadcrumbs">
         <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance"/>
-        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance":configuration="configuration"/>
+        <component v-if="instance.is_ready"
+                   :is="detailComponents[instance.type]"
+                   :instance="instance"
+                   :configuration="configuration"
+        />
     </AppLayout>
 </template>

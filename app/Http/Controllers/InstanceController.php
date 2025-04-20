@@ -47,6 +47,7 @@ class InstanceController extends Controller
     {
         $instance->load('created_by');
 
+        // We only check for Server instances here. Containers don't have a configuration
         if ($instance->type === InstanceTypeEnum::Server) {
             $configuration = $instance->instanceable->configuration;
         }
@@ -155,7 +156,12 @@ class InstanceController extends Controller
         $instance->instanceable()->associate($model);
 
         $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
-        $selectedPackages = $request->collect('selected_packages');
+        $selectedPackages = Package::query()
+            ->whereIn(
+                'id',
+                $request->collect('selected_packages')->pluck('id')
+            )
+            ->get();
 
         // Dispatch jobs to process the newly created server
         Bus::chain([
