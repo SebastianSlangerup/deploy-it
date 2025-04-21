@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ref, computed } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { computed, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
 import ConfigurationData = App.Data.ConfigurationData;
 
 const props = defineProps<{
     instance: InstanceData;
-    configuration: ConfigurationData
+    configuration: ConfigurationData;
 }>();
 
 const tabs = [
@@ -64,11 +64,12 @@ const formatDate = (date: any) => {
 
 <template>
     <div class="container mx-auto py-6">
-        <div class="mb-6 bg-white rounded-lg">
-            <div class="px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="mb-6 rounded-lg bg-white">
+            <div class="flex flex-col items-start justify-between gap-4 px-6 sm:flex-row sm:items-center">
                 <div class="flex items-center gap-6">
                     <div class="flex items-center">
-                        <div :class="[statusColor, 'w-3 h-3 rounded-full mr-2']"></div> <span>{{ instance.name }}</span>
+                        <div :class="[statusColor, 'mr-2 h-3 w-3 rounded-full']"></div>
+                        <span>{{ instance.name }}</span>
                     </div>
                 </div>
 
@@ -78,7 +79,7 @@ const formatDate = (date: any) => {
                     <Button variant="outline" size="sm">Restart</Button>
                 </div>
             </div>
-            <div class="px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col items-start justify-between gap-4 px-6 sm:flex-row sm:items-center">
                 <div class="flex items-center gap-6">
                     <div class="flex items-center">
                         <div class="mt-2 text-sm text-gray-500">
@@ -91,7 +92,7 @@ const formatDate = (date: any) => {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-36">
+        <div class="mb-36 grid grid-cols-1 gap-6 md:grid-cols-3">
             <Card>
                 <CardHeader class="pb-2">
                     <CardTitle class="text-sm font-medium">Connection info</CardTitle>
@@ -100,27 +101,37 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Hostname:</span>
-                            <span class="text-xs font-mono">{{ instance.hostname }}.deploy-it.dk</span>
+                            <span class="font-mono text-xs">{{ instance.hostname }}.deploy-it.dk</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Username:</span>
-                            <span class="text-xs font-mono">{{ instance.vm_username }}</span>
+                            <span class="font-mono text-xs">{{ instance.vm_username }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
-                            <span class="text-xs font-mono">{{ '192.168.1.40' }}</span>
+                            <span class="font-mono text-xs">{{ '192.168.1.40' }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex items-center justify-between">
                             <span class="text-gray-500">SSH:</span>
                             <div class="w-3/4">
                                 <div class="relative">
-                                    <div
-                                        @click="copySSHCommand"
-                                        class="flex items-center cursor-pointer group"
-                                    >
-                                        <div class="relative w-full text-xs font-mono bg-gray-100 hover:bg-gray-200 transition-colors duration-200 p-2 px-3 rounded flex justify-between items-center">
+                                    <div @click="copySSHCommand" class="group flex cursor-pointer items-center">
+                                        <div
+                                            class="relative flex w-full items-center justify-between rounded bg-gray-100 p-2 px-3 font-mono text-xs transition-colors duration-200 hover:bg-gray-200"
+                                        >
                                             <span class="mr-2 truncate">{{ sshCommand }}</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="opacity-50 transition-opacity group-hover:opacity-100"
+                                            >
                                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                             </svg>
@@ -128,10 +139,21 @@ const formatDate = (date: any) => {
                                     </div>
                                     <div
                                         v-if="copiedSSH"
-                                        class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 rounded transition-opacity"
+                                        class="absolute left-0 top-0 flex h-full w-full items-center justify-center rounded bg-black bg-opacity-5 transition-opacity"
                                     >
-                                        <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-1">
+                                        <div class="flex items-center rounded bg-white px-2 py-1 shadow-sm">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="mr-1 text-green-500"
+                                            >
                                                 <polyline points="20 6 9 17 4 12"></polyline>
                                             </svg>
                                             <span class="text-xs">Copied</span>
@@ -141,17 +163,27 @@ const formatDate = (date: any) => {
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center mt-1">
+                        <div class="mt-1 flex items-center justify-between">
                             <span class="text-gray-500">SFTP:</span>
                             <div class="w-3/4">
                                 <div class="relative">
-                                    <div
-                                        @click="copySFTPCommand"
-                                        class="flex items-center cursor-pointer group"
-                                    >
-                                        <div class="relative w-full text-xs font-mono bg-gray-100 hover:bg-gray-200 transition-colors duration-200 p-2 px-3 rounded flex justify-between items-center">
+                                    <div @click="copySFTPCommand" class="group flex cursor-pointer items-center">
+                                        <div
+                                            class="relative flex w-full items-center justify-between rounded bg-gray-100 p-2 px-3 font-mono text-xs transition-colors duration-200 hover:bg-gray-200"
+                                        >
                                             <span class="mr-2 truncate">{{ sftpCommand }}</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="opacity-50 transition-opacity group-hover:opacity-100"
+                                            >
                                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                             </svg>
@@ -159,10 +191,21 @@ const formatDate = (date: any) => {
                                     </div>
                                     <div
                                         v-if="copiedSFTP"
-                                        class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 rounded transition-opacity"
+                                        class="absolute left-0 top-0 flex h-full w-full items-center justify-center rounded bg-black bg-opacity-5 transition-opacity"
                                     >
-                                        <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-1">
+                                        <div class="flex items-center rounded bg-white px-2 py-1 shadow-sm">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="mr-1 text-green-500"
+                                            >
                                                 <polyline points="20 6 9 17 4 12"></polyline>
                                             </svg>
                                             <span class="text-xs">Copied</span>
@@ -184,7 +227,7 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Name:</span>
-                            <span class="text-xs font-mono">{{ instance.hostname }}</span>
+                            <span class="font-mono text-xs">{{ instance.hostname }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Instantiated:</span>
@@ -194,15 +237,15 @@ const formatDate = (date: any) => {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">ID:</span>
-                            <span class="text-xs font-mono">{{ instance.id }}</span>
+                            <span class="font-mono text-xs">{{ instance.id }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Proxmox Node:</span>
-                            <span class="text-xs font-mono">{{ instance.node }}</span>
+                            <span class="font-mono text-xs">{{ instance.node }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Vm id:</span>
-                            <span class="text-xs font-mono">{{ instance.vm_id }}</span>
+                            <span class="font-mono text-xs">{{ instance.vm_id }}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -229,7 +272,7 @@ const formatDate = (date: any) => {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Config ID:</span>
-                            <span class="text-xs font-mono">{{ configuration.proxmox_configuration_id }}</span>
+                            <span class="font-mono text-xs">{{ configuration.proxmox_configuration_id }}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -240,13 +283,18 @@ const formatDate = (date: any) => {
         <div class="w-full space-y-1">
             <!-- Tab Navigation -->
             <div class="border-b border-gray-200">
-                <div class="flex -mb-px" style="width: 100%;">
-                    <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                        'py-3 text-center font-medium text-sm flex-1',
-                        activeTab === tab.id
-                            ? 'border-b-2 border-primary text-primary'
-                            : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b border-transparent'
-                    ]">
+                <div class="-mb-px flex" style="width: 100%">
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="[
+                            'flex-1 py-3 text-center text-sm font-medium',
+                            activeTab === tab.id
+                                ? 'border-b-2 border-primary text-primary'
+                                : 'border-b border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                        ]"
+                    >
                         {{ tab.label }}
                     </button>
                 </div>
@@ -261,7 +309,7 @@ const formatDate = (date: any) => {
                         <CardDescription>Server details and configuration</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium">Server Name</label>
                                 <p class="text-gray-500">{{ instance.name }}</p>
@@ -295,7 +343,7 @@ const formatDate = (date: any) => {
                         <CardDescription>IP addresses and network settings</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium">IP Address</label>
                                 <p class="text-gray-500">{{ '192.168.1.40' }}</p>
@@ -337,23 +385,15 @@ const formatDate = (date: any) => {
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Name</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Type</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody class="divide-y divide-gray-200 bg-white">
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">No containers found</td>
+                                        <td class="whitespace-nowrap px-6 py-4">No containers found</td>
                                     </tr>
                                 </tbody>
                             </table>
