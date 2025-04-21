@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -32,5 +33,22 @@ class Container extends Model
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
+    }
+
+    public function getNextAvailablePort(int $min = 1000, int $max = 5000): int
+    {
+        $server = $this->port()->allocatedOn;
+
+        $usedPorts = PortNumber::query()
+            ->where('allocated_on', '=', $server)
+            ->get();
+
+        // Exclude the ports already in use
+        return collect(range($min, $max))->diff($usedPorts)->first();
+    }
+
+    public function port(): HasOne
+    {
+        return $this->hasOne(PortNumber::class);
     }
 }
