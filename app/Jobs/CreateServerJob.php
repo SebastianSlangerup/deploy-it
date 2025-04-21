@@ -41,7 +41,7 @@ class CreateServerJob implements ShouldQueue
             $response = Http::proxmox()
                 ->post('/clone-vm', [
                     'ciuser' => 'sysadmin',
-                    'name' => $this->instance->name,
+                    'name' => $this->instance->hostname,
                     'vmid' => $this->selectedConfiguration->proxmox_configuration_id,
                     'sshkeys' => 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDpZc/0UAaCbvtfz1ckZRazVlvz/iqDmHuXFPPypMhc sebastian.slangerup1@gmail.com',
                 ]);
