@@ -45,13 +45,13 @@ class GetQemuStatusJob implements ShouldQueue
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }
 
         if (! $response->successful() || $response->json('status') !== 'Running') {
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }

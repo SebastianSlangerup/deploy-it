@@ -10,10 +10,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', [InstanceController::class, 'index'])
-    ->middleware(['auth', 'verified', 'subscribed'])
+    ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'admin', 'subscribed'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('containers', [InstanceController::class, 'containers'])->name('containers.index');
     Route::get('servers', [InstanceController::class, 'servers'])->name('servers.index');
 

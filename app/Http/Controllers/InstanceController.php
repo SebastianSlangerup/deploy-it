@@ -204,6 +204,8 @@ class InstanceController extends Controller
 
         $instance->instanceable()->associate($model);
 
+        $instance->save();
+
         $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
         $selectedPackages = Package::query()
             ->whereIn(
@@ -229,6 +231,8 @@ class InstanceController extends Controller
         ]);
 
         $instance->instanceable()->associate($model);
+
+        $instance->save();
 
         $dockerImage = $request->safe()->string('docker_image');
 

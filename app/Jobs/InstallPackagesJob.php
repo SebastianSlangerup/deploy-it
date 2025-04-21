@@ -44,10 +44,10 @@ class InstallPackagesJob implements ShouldQueue
     {
         $file = Storage::disk('local')->get('package-installation-template.sh');
 
-        # Create a fluent string to manipulate contents
+        // Create a fluent string to manipulate contents
         $installScript = Str::of($file);
 
-        # Pass $installScript by reference
+        // Pass $installScript by reference
         $this->selectedPackages->each(function ($package) use (&$installScript) {
             $installScript = $installScript->newLine()->append($package->command);
         });
@@ -64,7 +64,7 @@ class InstallPackagesJob implements ShouldQueue
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }
@@ -75,7 +75,7 @@ class InstallPackagesJob implements ShouldQueue
                 'message' => $response->body(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }

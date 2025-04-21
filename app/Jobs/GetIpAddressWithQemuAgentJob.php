@@ -44,7 +44,7 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }
@@ -55,7 +55,7 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
                 'message' => $response->body(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }

@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Package;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use function Laravel\Prompts\warning;
 
 class PackageFactory extends Factory
 {

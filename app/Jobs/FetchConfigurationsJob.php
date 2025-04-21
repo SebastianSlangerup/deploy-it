@@ -9,8 +9,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Ramsey\Uuid\Rfc4122\UuidV4;
-use Ramsey\Uuid\Uuid;
 
 class FetchConfigurationsJob implements ShouldQueue
 {
@@ -28,8 +26,6 @@ class FetchConfigurationsJob implements ShouldQueue
         $existingConfigurationIds = Configuration::query()
             ->whereIn('proxmox_configuration_id', array_keys($configurations))
             ->pluck('proxmox_configuration_id');
-
-        $configurationsToCreate = collect();
 
         // Reject configurations that already exist
         $configurations = collect($configurations)->reject(fn (array $value, int $key) => $existingConfigurationIds->contains($key));

@@ -9,7 +9,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -17,6 +16,8 @@ use Throwable;
 class CreateDockerImageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public int $backoff = 10;
 
     public function __construct(
         public Instance $instance,
@@ -39,7 +40,7 @@ class CreateDockerImageJob implements ShouldQueue
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
 
             return;
         }
@@ -50,7 +51,7 @@ class CreateDockerImageJob implements ShouldQueue
                 'message' => $response->body(),
             ]);
 
-            $this->release();
+            $this->release($this->backoff);
         }
 
         $this->instance->is_ready = true;
