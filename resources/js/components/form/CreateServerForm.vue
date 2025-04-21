@@ -37,12 +37,14 @@ const handlePackageChecked = (pkg: PackageData, isChecked: boolean) => {
 const form = useForm<{
     name: string;
     description: string;
+    hostname: string;
     instance_type: InstanceTypeEnum;
     selected_configuration: ConfigurationData;
     selected_packages: PackageData[];
 }>({
     name: '',
     description: '',
+    hostname: '',
     instance_type: 'server',
     selected_configuration: selectedConfiguration.value,
     selected_packages: selectedPackages.value,
@@ -95,6 +97,12 @@ const submit = () =>
                 <FormItem name="description" label="Description" :form class="mb-2" is-required>
                     <template #input>
                         <Textarea placeholder="Description" v-model="form.description" />
+                    </template>
+                </FormItem>
+
+                <FormItem name="hostname" label="Hostname" :form class="mb-2" is-required>
+                    <template #input>
+                        <Input type="text" placeholder="Hostname" v-model="form.hostname" />
                     </template>
                 </FormItem>
 
