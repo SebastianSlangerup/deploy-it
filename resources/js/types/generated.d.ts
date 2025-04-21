@@ -13,7 +13,7 @@ declare namespace App.Data {
     export type InstanceData = {
         id: string;
         name: string;
-        tecnical_name: string;
+        hostname: string;
         node: string;
         vm_id: number | null;
         vm_username: string | null;
@@ -54,8 +54,8 @@ declare namespace App.Data {
     };
 }
 declare namespace App.Enums {
-    export type InstanceStatusEnum = 'started' | 'stopped' | 'suspended' | 'configuring';
-    export type InstanceTypeEnum = 'server' | 'container';
-    export type NotificationTypeEnum = 'default' | 'success' | 'info' | 'warning' | 'error';
-    export type RolesEnum = 'admin' | 'user';
+export type InstanceStatusEnum = 'started' | 'stopped' | 'suspended' | 'configuring';
+export type InstanceTypeEnum = 'server' | 'container';
+export type NotificationTypeEnum = 'default' | 'success' | 'info' | 'warning' | 'error';
+export type RolesEnum = 'admin' | 'user';
 }

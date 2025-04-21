@@ -8,6 +8,7 @@ use App\Data\InstanceData;
 use App\Data\PackageData;
 use App\Enums\InstanceTypeEnum;
 use App\Http\Requests\CreateInstanceRequest;
+use App\Http\Requests\UpdateInstanceRequest;
 use App\Jobs\CheckOnTaskIdJob;
 use App\Jobs\CreateDockerImageJob;
 use App\Jobs\CreateServerJob;
@@ -75,7 +76,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function store(CreateInstanceRequest $request): RedirectResponse | JsonResponse
+    public function store(CreateInstanceRequest $request): RedirectResponse|JsonResponse
     {
         $instanceType = $request->safe()->enum('instance_type', InstanceTypeEnum::class);
 
@@ -140,7 +141,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, Instance $instance): RedirectResponse | JsonResponse
+    public function destroy(Request $request, Instance $instance): RedirectResponse|JsonResponse
     {
         if ($instance->instanceable_type === Server::class) {
             Gate::authorize('interact-with-servers');
@@ -160,6 +161,33 @@ class InstanceController extends Controller
                 data: [
                     'message' => 'Instance deleted Successfully',
                     'id' => $instance->id,
+                ],
+                status: JsonResponse::HTTP_OK,
+            );
+        }
+
+        return redirect()->back(303);
+    }
+
+    public function update(UpdateInstanceRequest $request, Instance $instance): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validated();
+
+        if ($instance->instanceable_type === Server::class) {
+            Gate::authorize('interact-with-servers');
+        }
+
+        if (! empty($validated['status'])) {
+            $instance->status->transitionTo($validated['status']);
+        }
+
+        $instance->update($validated);
+
+        if ($request->expectsJson()) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'Instance updated Successfully',
+                    'data' => InstanceData::from($instance)->toArray(),
                 ],
                 status: JsonResponse::HTTP_OK,
             );
