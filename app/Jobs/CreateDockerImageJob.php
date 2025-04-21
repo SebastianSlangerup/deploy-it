@@ -9,7 +9,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -20,7 +19,6 @@ class CreateDockerImageJob implements ShouldQueue
 
     public function __construct(
         public Instance $instance,
-        public string $dockerImage,
     ) {}
 
     public function handle(): void
@@ -30,7 +28,7 @@ class CreateDockerImageJob implements ShouldQueue
                 ->timeout(30)
                 ->withQueryParameters([
                     'vmid' => $this->instance->vm_id,
-                    'image_name' => $this->dockerImage,
+                    'image_name' => $this->instance->instanceable()->docker_image,
                 ])
                 ->post('/pull_docker_image');
         } catch (ConnectionException $exception) {

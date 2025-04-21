@@ -230,9 +230,7 @@ class InstanceController extends Controller
 
         $instance->instanceable()->associate($model);
 
-        $dockerImage = $request->safe()->string('docker_image');
-
         // Dispatch job to process the newly created container
-        CreateDockerImageJob::dispatch($instance, $dockerImage)->onQueue('polling');
+        CreateDockerImageJob::dispatch($instance)->onQueue('polling');
     }
 }
