@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import StepperForm from '@/components/form/StepperForm.vue';
+import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
+import ViewServerForm from '@/components/form/ViewServerForm.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import InstanceData = App.Data.InstanceData;
-import StepperForm from '@/components/form/StepperForm.vue';
-import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
-import ViewServerForm from '@/components/form/ViewServerForm.vue';
 import ConfigurationData = App.Data.ConfigurationData;
 
 const props = defineProps<{
     instance: InstanceData;
-    configuration: ConfigurationData
+    configuration: ConfigurationData;
 }>();
 
 const stepperComponents = {
@@ -34,15 +33,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('instances.show', props.instance),
     },
 ];
-console.log(props.instance)
 </script>
 
 <template>
-
     <Head :title="instance.name" />
-    
+
     <AppLayout :breadcrumbs="breadcrumbs">
-        <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance"/>
-        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance":configuration="configuration"/>
+        <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance" />
+        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance" :configuration="configuration" />
     </AppLayout>
 </template>

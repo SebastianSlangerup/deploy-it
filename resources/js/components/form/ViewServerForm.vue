@@ -20,30 +20,15 @@ const tabs = [
 const activeTab = ref('general');
 // Removing the old 'copied' ref as we now use separate refs for SSH and SFTP
 
-const statusColor = computed(() => {
-    switch (props.instance.status.status) {
-        case 'started':
-            return 'bg-green-500';
-        case 'stopped':
-            return 'bg-red-500';
-        case 'suspended':
-            return 'bg-yellow-500';
-        case 'configuring':
-            return 'bg-blue-500';
-        default:
-            return 'bg-gray-500';
-    }
-});
-
 const sshCommand = computed(() => {
-    const hostname = `${props.instance.name}.deploy-it.dk`;
-    const username = props.instance.name;
+    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const username = props.instance.vm_username;
     return `ssh ${username}@${hostname}`;
 });
 
 const sftpCommand = computed(() => {
-    const hostname = `${props.instance.name}.deploy-it.dk`;
-    const username = props.instance.name;
+    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const username = props.instance.vm_username;
     return `://sftp ${username}@${hostname}`;
 });
 
@@ -55,7 +40,7 @@ const copiedSFTP = ref(false);
 const copySSHCommand = () => {
     navigator.clipboard.writeText(sshCommand.value);
     copiedSSH.value = true;
-    
+
     setTimeout(() => {
         copiedSSH.value = false;
     }, 2000);
@@ -65,7 +50,7 @@ const copySSHCommand = () => {
 const copySFTPCommand = () => {
     navigator.clipboard.writeText(sftpCommand.value);
     copiedSFTP.value = true;
-    
+
     setTimeout(() => {
         copiedSFTP.value = false;
     }, 2000);
@@ -115,11 +100,11 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Hostname:</span>
-                            <span class="text-xs font-mono">{{ instance.tecnical_name }}.deploy-it.dk</span>
+                            <span class="text-xs font-mono">{{ instance.hostname }}.deploy-it.dk</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Username:</span>
-                            <span class="text-xs font-mono">{{ 'sysadmin' }}</span>
+                            <span class="text-xs font-mono">{{ instance.vm_username }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
@@ -129,8 +114,8 @@ const formatDate = (date: any) => {
                             <span class="text-gray-500">SSH:</span>
                             <div class="w-3/4">
                                 <div class="relative">
-                                    <div 
-                                        @click="copySSHCommand" 
+                                    <div
+                                        @click="copySSHCommand"
                                         class="flex items-center cursor-pointer group"
                                     >
                                         <div class="relative w-full text-xs font-mono bg-gray-100 hover:bg-gray-200 transition-colors duration-200 p-2 px-3 rounded flex justify-between items-center">
@@ -141,8 +126,8 @@ const formatDate = (date: any) => {
                                             </svg>
                                         </div>
                                     </div>
-                                    <div 
-                                        v-if="copiedSSH" 
+                                    <div
+                                        v-if="copiedSSH"
                                         class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 rounded transition-opacity"
                                     >
                                         <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center">
@@ -155,13 +140,13 @@ const formatDate = (date: any) => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="flex justify-between items-center mt-1">
                             <span class="text-gray-500">SFTP:</span>
                             <div class="w-3/4">
                                 <div class="relative">
-                                    <div 
-                                        @click="copySFTPCommand" 
+                                    <div
+                                        @click="copySFTPCommand"
                                         class="flex items-center cursor-pointer group"
                                     >
                                         <div class="relative w-full text-xs font-mono bg-gray-100 hover:bg-gray-200 transition-colors duration-200 p-2 px-3 rounded flex justify-between items-center">
@@ -172,8 +157,8 @@ const formatDate = (date: any) => {
                                             </svg>
                                         </div>
                                     </div>
-                                    <div 
-                                        v-if="copiedSFTP" 
+                                    <div
+                                        v-if="copiedSFTP"
                                         class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5 rounded transition-opacity"
                                     >
                                         <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center">
@@ -199,7 +184,7 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Name:</span>
-                            <span class="text-xs font-mono">{{ instance.tecnical_name }}</span>
+                            <span class="text-xs font-mono">{{ instance.hostname }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Instantiated:</span>
@@ -329,11 +314,11 @@ const formatDate = (date: any) => {
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Hostname</label>
-                                <p class="text-gray-500">{{ '8.8.8.8' }}</p>
+                                <p class="text-gray-500">{{ instance.hostname }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Username</label>
-                                <p class="text-gray-500">{{ '8.8.8.8' }}</p>
+                                <p class="text-gray-500">{{ instance.vm_username }}</p>
                             </div>
                         </div>
                     </CardContent>

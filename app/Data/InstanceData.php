@@ -13,7 +13,7 @@ class InstanceData extends Data
     public function __construct(
         public string $id,
         public string $name,
-        public string $tecnical_name,
+        public string $hostname,
         public string $node,
         public ?int $vm_id = null,
         public ?string $vm_username = null,

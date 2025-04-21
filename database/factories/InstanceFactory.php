@@ -19,7 +19,7 @@ class InstanceFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'tecnical_name' => $this->faker->domainWord(),
+            'hostname' => $this->faker->domainWord(),
             'node' => 'node1',
             'description' => $this->faker->text(),
             'status' => $this->faker->randomElement([Started::class, Stopped::class, Suspended::class]),

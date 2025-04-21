@@ -72,7 +72,6 @@ class CreateServerJob implements ShouldQueue
         $this->instance->vm_id = $json['vm']['vmid'];
         $this->instance->vm_username = $json['vm']['user'];
         $this->instance->vm_password = Hash::make($json['vm']['password']);
-        $this->instance->save();
 
         // Store upid for access in CheckOnTaskIdJob.php
         Cache::put("instance.{$this->instance->id}.upid", $json['tasks'][0]['upid']);

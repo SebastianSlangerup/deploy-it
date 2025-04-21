@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +44,6 @@ const steps = [
         description: 'Installing your desired packages',
     },
 ];
-
 </script>
 
 <template>
