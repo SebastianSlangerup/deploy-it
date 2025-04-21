@@ -20,30 +20,15 @@ const tabs = [
 const activeTab = ref('general');
 // Removing the old 'copied' ref as we now use separate refs for SSH and SFTP
 
-const statusColor = computed(() => {
-    switch (props.instance.status.status) {
-        case 'started':
-            return 'bg-green-500';
-        case 'stopped':
-            return 'bg-red-500';
-        case 'suspended':
-            return 'bg-yellow-500';
-        case 'configuring':
-            return 'bg-blue-500';
-        default:
-            return 'bg-gray-500';
-    }
-});
-
 const sshCommand = computed(() => {
-    const hostname = `${props.instance.name}.deploy-it.dk`;
-    const username = props.instance.name;
+    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const username = props.instance.vm_username;
     return `ssh ${username}@${hostname}`;
 });
 
 const sftpCommand = computed(() => {
-    const hostname = `${props.instance.name}.deploy-it.dk`;
-    const username = props.instance.name;
+    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const username = props.instance.vm_username;
     return `://sftp ${username}@${hostname}`;
 });
 
@@ -116,11 +101,11 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Hostname:</span>
-                            <span class="font-mono text-xs">{{ instance.name }}</span>
+                            <span class="font-mono text-xs">{{ instance.hostname }}.deploy-it.dk</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Username:</span>
-                            <span class="font-mono text-xs">{{ '{hostname}.deploy-it.dk' }}</span>
+                            <span class="font-mono text-xs">{{ instance.vm_username }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
@@ -242,11 +227,7 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Name:</span>
-                            <span class="font-mono text-xs">{{ instance.name }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Type:</span>
-                            <Badge variant="outline">{{ instance.type }}</Badge>
+                            <span class="font-mono text-xs">{{ instance.hostname }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Server Instantiated:</span>
@@ -260,7 +241,11 @@ const formatDate = (date: any) => {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Proxmox Node:</span>
-                            <span class="font-mono text-xs">{{ 'Node1' }}</span>
+                            <span class="font-mono text-xs">{{ instance.node }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Vm id:</span>
+                            <span class="font-mono text-xs">{{ instance.vm_id }}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -377,11 +362,11 @@ const formatDate = (date: any) => {
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Hostname</label>
-                                <p class="text-gray-500">{{ '8.8.8.8' }}</p>
+                                <p class="text-gray-500">{{ instance.hostname }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Username</label>
-                                <p class="text-gray-500">{{ '8.8.8.8' }}</p>
+                                <p class="text-gray-500">{{ instance.vm_username }}</p>
                             </div>
                         </div>
                     </CardContent>
