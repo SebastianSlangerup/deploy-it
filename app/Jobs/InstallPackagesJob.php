@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\InstanceCreationFailedEvent;
 use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
 use App\Models\Package;
@@ -42,6 +43,11 @@ class InstallPackagesJob implements ShouldQueue
 
     public function handle(): void
     {
+        // No need to process anything if no packages were selected
+        if ($this->selectedPackages->isEmpty()) {
+            return;
+        }
+
         $file = Storage::disk('local')->get('package-installation-template.sh');
 
         // Create a fluent string to manipulate contents
@@ -55,7 +61,10 @@ class InstallPackagesJob implements ShouldQueue
         // Time to send the instructions to our virtual machine!
         try {
             $response = Http::proxmox()
-                ->withQueryParameters(['vmid' => $this->instance->vm_id])
+                ->withQueryParameters([
+                    'node' => $this->instance->node,
+                    'vmid' => $this->instance->vm_id,
+                ])
                 ->attach('config_file', $installScript, 'package-installation-script.sh')
                 ->post('/configure_vm_custom');
         } catch (ConnectionException $exception) {
@@ -91,6 +100,8 @@ class InstallPackagesJob implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         $this->instance->delete();
+
+        InstanceCreationFailedEvent::dispatch($this->instance);
 
         Log::error('Job failed. Instance has been deleted. Message: {message}', [
             'message' => $exception?->getMessage(),

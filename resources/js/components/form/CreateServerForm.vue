@@ -6,6 +6,7 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, Car
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/vue3';
@@ -38,6 +39,7 @@ const form = useForm<{
     name: string;
     description: string;
     hostname: string;
+    node: string;
     instance_type: InstanceTypeEnum;
     selected_configuration: ConfigurationData;
     selected_packages: PackageData[];
@@ -45,6 +47,7 @@ const form = useForm<{
     name: '',
     description: '',
     hostname: '',
+    node: 'node1',
     instance_type: 'server',
     selected_configuration: selectedConfiguration.value,
     selected_packages: selectedPackages.value,
@@ -87,6 +90,23 @@ const submit = () =>
             </CardHeader>
             <CardContent>
                 <Separator class="mb-6" label="Basic information" />
+
+                <FormItem name="node" label="Node" :form class="mb-2" is-required>
+                    <template #input>
+                        <Select v-model="form.node">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a node" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="node1">Node 1</SelectItem>
+                                    <SelectItem value="node2">Node 2</SelectItem>
+                                    <SelectItem value="node3">Node 3</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </template>
+                </FormItem>
 
                 <FormItem name="name" label="Name" :form class="mb-2" is-required>
                     <template #input>

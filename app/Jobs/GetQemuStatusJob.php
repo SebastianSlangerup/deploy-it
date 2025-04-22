@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Events\InstanceCreationFailedEvent;
 use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
-use App\States\InstanceStatusState\Started;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,9 +36,10 @@ class GetQemuStatusJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $response = Http::proxmox()
-                ->withQueryParameters(['vmid' => $this->instance->vm_id])
-                ->get('/get_qemu_agent_status');
+            $response = Http::proxmox()->withQueryParameters([
+                'node' => $this->instance->node,
+                'vmid' => $this->instance->vm_id,
+            ])->get('/get_qemu_agent_status');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",
@@ -56,8 +57,6 @@ class GetQemuStatusJob implements ShouldQueue
             return;
         }
 
-        $this->instance->status->transitionTo(Started::class);
-
         // Job completed. Dispatch an event to refresh the front-end with the next step
         $nextStep = 3;
         InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
@@ -66,6 +65,8 @@ class GetQemuStatusJob implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         $this->instance->delete();
+
+        InstanceCreationFailedEvent::dispatch($this->instance);
 
         Log::error('Job failed. Instance has been deleted. Message: {message}', [
             'message' => $exception?->getMessage(),

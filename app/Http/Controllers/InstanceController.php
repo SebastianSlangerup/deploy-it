@@ -15,6 +15,8 @@ use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
 use App\Jobs\GetQemuStatusJob;
 use App\Jobs\InstallPackagesJob;
+use App\Jobs\ResizeServerDiskJob;
+use App\Jobs\StartServerJob;
 use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
@@ -45,7 +47,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function show(Request $request, Instance $instance): Response
+    public function show(Instance $instance): Response
     {
         $instance->load('created_by');
 
@@ -60,7 +62,7 @@ class InstanceController extends Controller
         ]);
     }
 
-    public function create(Request $request, InstanceTypeEnum $instanceType): Response
+    public function create(InstanceTypeEnum $instanceType): Response
     {
         if ($instanceType === InstanceTypeEnum::Server) {
             Gate::authorize('interact-with-servers');
@@ -88,6 +90,7 @@ class InstanceController extends Controller
             'name' => $request->safe()->string('name'),
             'description' => $request->safe()->string('description'),
             'hostname' => $request->safe()->string('hostname'),
+            'node' => $request->safe()->string('node'),
             'created_by' => $request->user()->id,
         ]);
 
@@ -200,14 +203,14 @@ class InstanceController extends Controller
     public function setupServer(Instance $instance, Request $request): void
     {
         $model = Server::query()->create([
-            'configuration_id' => $request->safe()->array('selected_configuration')['id'],
+            'configuration_id' => $request->array('selected_configuration')['id'],
         ]);
 
         $instance->instanceable()->associate($model);
 
         $instance->save();
 
-        $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
+        $selectedConfiguration = ConfigurationData::from($request->array('selected_configuration'));
         $selectedPackages = Package::query()
             ->whereIn(
                 'id',
@@ -219,6 +222,9 @@ class InstanceController extends Controller
         Bus::chain([
             new CreateServerJob($instance, $selectedConfiguration),
             new CheckOnTaskIdJob($instance),
+            new ResizeServerDiskJob($instance, $selectedConfiguration),
+            new StartServerJob($instance),
+            new CheckOnTaskIdJob($instance),
             new GetQemuStatusJob($instance),
             new GetIpAddressWithQemuAgentJob($instance),
             new InstallPackagesJob($instance, $selectedPackages),
@@ -228,7 +234,7 @@ class InstanceController extends Controller
     public function setupContainer(Instance $instance, Request $request): void
     {
         $model = Container::query()->create([
-            'docker_image' => $request->safe()->string('docker_image'),
+            'docker_image' => $request->string('docker_image'),
         ]);
 
         $instance->instanceable()->associate($model);

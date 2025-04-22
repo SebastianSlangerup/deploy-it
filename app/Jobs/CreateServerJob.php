@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Data\ConfigurationData;
+use App\Events\InstanceCreationFailedEvent;
 use App\Models\Instance;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,7 +40,10 @@ class CreateServerJob implements ShouldQueue
     {
         try {
             $response = Http::proxmox()
-                ->post('/clone-vm', [
+                ->withQueryParameters([
+                    'node' => $this->instance->node,
+                ])
+                ->post('/clone_vm', [
                     'ciuser' => 'sysadmin',
                     'name' => $this->instance->hostname,
                     'vmid' => $this->selectedConfiguration->proxmox_configuration_id,
@@ -74,12 +78,14 @@ class CreateServerJob implements ShouldQueue
         $this->instance->vm_password = Hash::make($json['vm']['password']);
 
         // Store upid for access in CheckOnTaskIdJob.php
-        Cache::put("instance.{$this->instance->id}.upid", $json['tasks'][0]['upid']);
+        Cache::put("instance.{$this->instance->id}.upid", $json['task']);
     }
 
     public function failed(?Throwable $exception): void
     {
         $this->instance->delete();
+
+        InstanceCreationFailedEvent::dispatch($this->instance);
 
         Log::error('Job failed. Instance has been deleted. Message: {message}', [
             'message' => $exception?->getMessage(),

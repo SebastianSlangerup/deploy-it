@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\InstanceCreationFailedEvent;
-use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,33 +15,25 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class CheckOnTaskIdJob implements ShouldQueue
+class StartServerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The number of times the job may be attempted
-     */
     public int $tries = 5;
 
-    /**
-     * The number of seconds to wait before retrying the job
-     */
     public int $backoff = 10;
 
     public function __construct(
-        public Instance $instance,
+        public Instance $instance
     ) {}
 
     public function handle(): void
     {
-        $upid = Cache::get("instance.{$this->instance->id}.upid");
-
         try {
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
-                'upid' => $upid,
-            ])->get('/get_task_status');
+                'vmid' => $this->instance->vm_id,
+            ])->post('/start_vm');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",
@@ -54,20 +45,16 @@ class CheckOnTaskIdJob implements ShouldQueue
             return;
         }
 
-        if (! $response->successful() || $response->json('exitstatus') !== 'OK') {
+        if (! $response->successful()) {
             Log::warning('{job}: Response unsuccessful. Message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
+                'job' => "[ID: {$this->job->getJobId()}]",
                 'message' => $response->body(),
             ]);
-
-            $this->release($this->backoff);
-
-            return;
         }
 
-        // Job completed. Dispatch an event to refresh the front-end with the next step
-        $nextStep = 2;
-        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
+        $json = $response->json();
+
+        Cache::put("instance.{$this->instance->id}.upid", $json['task']);
     }
 
     public function failed(?Throwable $exception): void

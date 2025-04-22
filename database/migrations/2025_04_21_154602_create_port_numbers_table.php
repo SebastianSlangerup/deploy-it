@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Container;
-use App\Models\Server;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->integer('port');
             $table->boolean('is_active');
-            $table->foreignUuid('container_id')->references('id')->on(Container::class)->onDelete('cascade');
-            $table->foreignUuid('allocated_on')->references('id')->on(Server::class)->onDelete('cascade');
+            $table->foreignUuid('container_id')->references('id')->on('containers')->onDelete('cascade');
+            $table->foreignUuid('allocated_on')->references('id')->on('servers')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

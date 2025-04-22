@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\InstanceCreationFailedEvent;
 use App\Events\InstanceStatusUpdatedEvent;
 use App\Models\Instance;
 use Illuminate\Bus\Queueable;
@@ -35,9 +36,10 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $response = Http::proxmox()
-                ->withQueryParameters(['vmid' => $this->instance->vm_id])
-                ->get('/get_vm_ip');
+            $response = Http::proxmox()->withQueryParameters([
+                'node' => $this->instance->node,
+                'vmid' => $this->instance->vm_id,
+            ])->get('/get_vm_ip');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
@@ -71,6 +73,8 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         $this->instance->delete();
+
+        InstanceCreationFailedEvent::dispatch($this->instance);
 
         Log::error('Job failed. Instance has been deleted. Message: {message}', [
             'message' => $exception?->getMessage(),

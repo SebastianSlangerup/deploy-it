@@ -5,7 +5,9 @@ import { Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitl
 import Echo from '@/echo.js';
 import { Check, Dot, LoaderCircle } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
+import { toast } from 'vue-sonner';
 import InstanceData = App.Data.InstanceData;
+
 const props = defineProps<{
     instance: InstanceData;
 }>();
@@ -19,6 +21,10 @@ const currentStep = ref<number>(1);
 onMounted(() => {
     Echo.private('instances.' + props.instance.id).listen('InstanceStatusUpdatedEvent', (event: EventData) => {
         currentStep.value = event.step;
+    });
+
+    Echo.private('instances.' + props.instance.id).listen('InstanceCreationFailedEvent', () => {
+        toast.error('Instance creation failed. Please refresh and try again');
     });
 });
 

@@ -23,6 +23,8 @@ class Instance extends Model
     protected $fillable = [
         'name',
         'description',
+        'hostname',
+        'node',
         'created_by',
     ];
 
