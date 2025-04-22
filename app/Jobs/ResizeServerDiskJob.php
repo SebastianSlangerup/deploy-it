@@ -35,9 +35,10 @@ class ResizeServerDiskJob implements ShouldQueue
                 ->withQueryParameters([
                     'node' => $this->instance->node,
                     'vmid' => $this->instance->vm_id,
-                    'disk' => $this->selectedConfiguration->disk_space,
+                    'disk' => $this->selectedConfiguration->disk,
+                    'disk_size' => $this->selectedConfiguration->disk_space,
                 ])
-                ->put('/resize_disk');
+                ->put('/vm/resize_disk');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

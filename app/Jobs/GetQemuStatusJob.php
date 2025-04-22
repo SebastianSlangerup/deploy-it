@@ -39,7 +39,7 @@ class GetQemuStatusJob implements ShouldQueue
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
                 'vmid' => $this->instance->vm_id,
-            ])->get('/get_qemu_agent_status');
+            ])->get('/qemu/get_qemu_agent_status');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

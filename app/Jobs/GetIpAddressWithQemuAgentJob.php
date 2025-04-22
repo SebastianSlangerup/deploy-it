@@ -39,7 +39,7 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
                 'vmid' => $this->instance->vm_id,
-            ])->get('/get_vm_ip');
+            ])->get('/network/get_vm_ip');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",

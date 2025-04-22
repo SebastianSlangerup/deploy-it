@@ -6,6 +6,7 @@ description: string;
 cores: number;
 memory: number;
 disk_space: number;
+disk: string;
 proxmox_configuration_id: number;
 created_at: any;
 updated_at: any;

@@ -18,7 +18,7 @@ class FetchConfigurationsJob implements ShouldQueue
 
     public function handle(): void
     {
-        $response = Http::proxmox()->get('/get_all_configurations');
+        $response = Http::proxmox()->get('/vm/get_all_configurations');
 
         $configurations = $response->json();
 

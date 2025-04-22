@@ -33,7 +33,7 @@ class StartServerJob implements ShouldQueue
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
                 'vmid' => $this->instance->vm_id,
-            ])->post('/start_vm');
+            ])->post('/vm/start_vm');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

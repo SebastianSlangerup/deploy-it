@@ -42,7 +42,7 @@ class CheckOnTaskIdJob implements ShouldQueue
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
                 'upid' => $upid,
-            ])->get('/get_task_status');
+            ])->get('/task/get_task_status');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

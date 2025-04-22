@@ -32,7 +32,7 @@ class CreateDockerImageJob implements ShouldQueue
                     'vmid' => $this->instance->vm_id,
                     'image_name' => $this->instance->instanceable()->docker_image,
                 ])
-                ->post('/pull_docker_image');
+                ->post('/software/pull_docker_image');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

@@ -66,7 +66,7 @@ class InstallPackagesJob implements ShouldQueue
                     'vmid' => $this->instance->vm_id,
                 ])
                 ->attach('config_file', $installScript, 'package-installation-script.sh')
-                ->post('/configure_vm_custom');
+                ->post('/software/configure_vm_custom');
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",

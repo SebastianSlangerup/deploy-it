@@ -43,7 +43,7 @@ class CreateServerJob implements ShouldQueue
                 ->withQueryParameters([
                     'node' => $this->instance->node,
                 ])
-                ->post('/clone_vm', [
+                ->post('/vm/clone_vm', [
                     'ciuser' => 'sysadmin',
                     'name' => $this->instance->hostname,
                     'vmid' => $this->selectedConfiguration->proxmox_configuration_id,
