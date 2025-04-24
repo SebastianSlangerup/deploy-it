@@ -34,8 +34,6 @@ class ResizeServerDiskJob implements ShouldQueue
 
     public function handle(): void
     {
-        sleep(2);
-
         try {
             $response = Http::proxmox()
                 ->withQueryParameters([
@@ -69,8 +67,8 @@ class ResizeServerDiskJob implements ShouldQueue
         $this->instance->delete();
 
         $notification = NotificationData::from([
-            'title' => 'Server creation failed',
-            'description' => 'The server creation failed. The instance has been deleted. Please try creating the instance again.',
+            'title' => 'Server disk resize failed',
+            'description' => 'The server disk resize failed. The instance has been deleted. Please try creating the instance again.',
             'notificationType' => NotificationTypeEnum::Error,
         ]);
 

@@ -6,7 +6,7 @@ import Echo from '@/echo';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
 
 const props = defineProps<{
@@ -34,6 +34,10 @@ onMounted(() => {
         .listen('RefreshFrontendInstanceEvent', (event: RefreshInstanceEventData) => {
             reactiveInstance.value = event.instance;
         });
+});
+
+onUnmounted(() => {
+    Echo.leave('instances.' + props.instance.id);
 });
 
 const detailComponents = {

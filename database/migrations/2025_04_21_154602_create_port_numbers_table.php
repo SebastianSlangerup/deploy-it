@@ -14,6 +14,7 @@ return new class extends Migration
             $table->boolean('is_active');
             $table->foreignUuid('container_id')->references('id')->on('containers')->onDelete('cascade');
             $table->foreignUuid('allocated_on')->references('id')->on('servers')->onDelete('cascade');
+            $table->unique(['port', 'allocated_on'], 'unique_ports_per_server');
             $table->timestamps();
             $table->softDeletes();
         });

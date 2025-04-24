@@ -52,6 +52,7 @@ class StartServerJob implements ShouldQueue
             $json = $response->json();
 
             $this->instance->status->transitionTo(Started::class);
+            $this->instance->save();
 
             Cache::put("instance.{$this->instance->id}.upid", $json['task']);
         } catch (ConnectionException $exception) {

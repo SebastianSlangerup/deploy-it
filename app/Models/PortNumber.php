@@ -15,6 +15,7 @@ class PortNumber extends Model
         'port',
         'is_active',
         'container_id',
+        'allocated_on',
     ];
 
     public function container(): BelongsTo

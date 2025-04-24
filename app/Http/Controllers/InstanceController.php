@@ -212,9 +212,9 @@ class InstanceController extends Controller
 
         $instance->instanceable()->associate($model);
 
-        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
-
         $instance->save();
+
+        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
 
         $selectedConfiguration = ConfigurationData::from($request->array('selected_configuration'));
         $selectedPackages = Package::query()
@@ -256,9 +256,9 @@ class InstanceController extends Controller
 
         $instance->instanceable()->associate($model);
 
-        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
-
         $instance->save();
+
+        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
 
         // Dispatch job to process the newly created container
         CreateDockerImageJob::dispatch($instance)->onQueue('polling');
@@ -267,7 +267,6 @@ class InstanceController extends Controller
     public function performAction(Request $request, Instance $instance): RedirectResponse
     {
         $validated = $request->validate([
-            'type' => ['required', Rule::enum(InstanceTypeEnum::class)],
             'action' => ['required', Rule::enum(InstanceActionsEnum::class)],
         ]);
 

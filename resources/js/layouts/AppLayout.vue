@@ -3,7 +3,7 @@ import Echo from '@/echo';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItemType, SharedData } from '@/types';
 import { usePage } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { toast, Toaster } from 'vue-sonner';
 import NotificationData = App.Data.NotificationData;
 
@@ -20,7 +20,7 @@ withDefaults(defineProps<Props>(), {
 
 onMounted(() => {
     Echo.private('notifications.' + user.id).listen('NotifyUserEvent', (notification: NotificationData) => {
-        if (notification.notificationType === 'default' || notification.notificationType === 'info') {
+        if (notification.notificationType === 'info') {
             toast.info(notification.title, {
                 description: notification.description,
             });
@@ -41,6 +41,10 @@ onMounted(() => {
             });
         }
     });
+});
+
+onUnmounted(() => {
+    Echo.leave('notifications.' + user.id);
 });
 </script>
 

@@ -83,8 +83,19 @@ class ApiController extends Controller
 
     }
 
-    public function getInstance(Instance $instance): JsonResponse
+    public function getInstance(Request $request, Instance $instance): JsonResponse
     {
+        $user = $request->user();
+
+        if ($user->id !== $instance->created_by->id) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'You do not have access to this instance',
+                ],
+                status: JsonResponse::HTTP_FORBIDDEN,
+            );
+        }
+
         $instance->load('created_by');
 
         return new JsonResponse(
