@@ -9,12 +9,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class InstanceStatusUpdatedEvent implements ShouldBroadcast
+class RefreshFrontendInstanceEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public int $nextStep,
         public InstanceData $instance,
     ) {}
 

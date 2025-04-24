@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Instance
     Route::get('instances', [ApiController::class, 'getInstances']);
+    Route::get('instances/{instance:id}', [ApiController::class, 'getInstance']);
     Route::post('instances/create', [InstanceController::class, 'store']);
     Route::patch('instances/{instance:id}/update', [InstanceController::class, 'update']);
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy']);

@@ -23,8 +23,12 @@ class Instance extends Model
     protected $fillable = [
         'name',
         'description',
+        'hostname',
+        'node',
         'created_by',
     ];
+
+    protected $with = ['created_by', 'instanceable'];
 
     /** @return array<int, string> */
     public function casts(): array

@@ -14,6 +14,7 @@ class ConfigurationData extends Data
         public int $cores,
         public int $memory,
         public int $disk_space,
+        public string $disk,
         public int $proxmox_configuration_id,
         public Carbon $created_at,
         public Carbon $updated_at,

@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Actions\DeleteInstanceAction;
 use App\Data\ConfigurationData;
 use App\Data\InstanceData;
+use App\Data\NotificationData;
 use App\Data\PackageData;
+use App\Enums\InstanceActionsEnum;
 use App\Enums\InstanceTypeEnum;
+use App\Enums\NotificationTypeEnum;
+use App\Events\NotifyUserEvent;
 use App\Http\Requests\CreateInstanceRequest;
 use App\Http\Requests\UpdateInstanceRequest;
 use App\Jobs\CheckOnTaskIdJob;
@@ -14,7 +18,12 @@ use App\Jobs\CreateDockerImageJob;
 use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
 use App\Jobs\GetQemuStatusJob;
+use App\Jobs\GetServerStatusJob;
 use App\Jobs\InstallPackagesJob;
+use App\Jobs\PerformContainerActionJob;
+use App\Jobs\PerformServerActionJob;
+use App\Jobs\ResizeServerDiskJob;
+use App\Jobs\StartServerJob;
 use App\Models\Configuration;
 use App\Models\Container;
 use App\Models\Instance;
@@ -27,6 +36,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,31 +46,29 @@ class InstanceController extends Controller
     {
         // Get all instances by user
         $instances = Instance::query()
-            ->with('created_by')
+            ->with(['created_by', 'instanceable'])
             ->where('created_by', '=', $request->user()->id)
-            ->get();
+            ->get()
+            ->loadMorph('instanceable', [
+                Server::class => ['configuration'],
+                Container::class => ['server'],
+            ]);
 
         return Inertia::render('Dashboard', [
             'instances' => InstanceData::collect($instances),
         ]);
     }
 
-    public function show(Request $request, Instance $instance): Response
+    public function show(Instance $instance): Response
     {
         $instance->load('created_by');
 
-        // We only check for Server instances here. Containers don't have a configuration
-        if ($instance->type === InstanceTypeEnum::Server) {
-            $configuration = $instance->instanceable->configuration;
-        }
-
         return Inertia::render('Instances/ShowInstance', [
             'instance' => InstanceData::from($instance),
-            'configuration' => $configuration ?? null,
         ]);
     }
 
-    public function create(Request $request, InstanceTypeEnum $instanceType): Response
+    public function create(InstanceTypeEnum $instanceType): Response
     {
         if ($instanceType === InstanceTypeEnum::Server) {
             Gate::authorize('interact-with-servers');
@@ -87,6 +95,8 @@ class InstanceController extends Controller
         $instance = Instance::query()->make([
             'name' => $request->safe()->string('name'),
             'description' => $request->safe()->string('description'),
+            'hostname' => $request->safe()->string('hostname'),
+            'node' => $request->safe()->string('node'),
             'created_by' => $request->user()->id,
         ]);
 
@@ -117,7 +127,6 @@ class InstanceController extends Controller
 
         // Get all instances that are of type 'server'
         $instances = Instance::query()
-            ->with('created_by')
             ->where('created_by', '=', $request->user()->id)
             ->where('instanceable_type', '=', Server::class)
             ->get();
@@ -131,7 +140,6 @@ class InstanceController extends Controller
     {
         // Get all instances that are of type 'container'
         $instances = Instance::query()
-            ->with('created_by')
             ->where('created_by', '=', $request->user()->id)
             ->where('instanceable_type', '=', Container::class)
             ->get();
@@ -148,7 +156,7 @@ class InstanceController extends Controller
         }
 
         try {
-            app(DeleteInstanceAction::class)->execute($instance);
+            app(DeleteInstanceAction::class)->execute($request, $instance);
         } catch (ConnectionException $exception) {
             Log::error('Connection failed when attempting to delete instance: {instance}. Error message: {message}', [
                 'job' => "[ID: {$instance->id}]",
@@ -199,12 +207,16 @@ class InstanceController extends Controller
     public function setupServer(Instance $instance, Request $request): void
     {
         $model = Server::query()->create([
-            'configuration_id' => $request->safe()->array('selected_configuration')['id'],
+            'configuration_id' => $request->array('selected_configuration')['id'],
         ]);
 
         $instance->instanceable()->associate($model);
 
-        $selectedConfiguration = ConfigurationData::from($request->safe()->array('selected_configuration'));
+        $instance->save();
+
+        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
+
+        $selectedConfiguration = ConfigurationData::from($request->array('selected_configuration'));
         $selectedPackages = Package::query()
             ->whereIn(
                 'id',
@@ -212,27 +224,70 @@ class InstanceController extends Controller
             )
             ->get();
 
+        $user = $request->user();
+
+        $notification = NotificationData::from([
+            'title' => 'Server creation begun',
+            'description' => 'We have begun setting up your server. Please hold tight',
+            'notificationType' => NotificationTypeEnum::Info,
+        ]);
+
+        NotifyUserEvent::dispatch($user, $notification);
+
         // Dispatch jobs to process the newly created server
         Bus::chain([
-            new CreateServerJob($instance, $selectedConfiguration),
-            new CheckOnTaskIdJob($instance),
-            new GetQemuStatusJob($instance),
-            new GetIpAddressWithQemuAgentJob($instance),
-            new InstallPackagesJob($instance, $selectedPackages),
+            new CreateServerJob($user, $instance, $selectedConfiguration),
+            new CheckOnTaskIdJob($user, $instance),
+            new ResizeServerDiskJob($user, $instance, $selectedConfiguration),
+            new StartServerJob($user, $instance),
+            new CheckOnTaskIdJob($user, $instance),
+            new GetQemuStatusJob($user, $instance),
+            new GetIpAddressWithQemuAgentJob($user, $instance),
+            new GetServerStatusJob($user, $instance),
+            new InstallPackagesJob($user, $instance, $selectedPackages),
         ])->onQueue('polling')->dispatch();
     }
 
     public function setupContainer(Instance $instance, Request $request): void
     {
         $model = Container::query()->create([
-            'docker_image' => $request->safe()->string('docker_image'),
+            'docker_image' => $request->string('docker_image'),
         ]);
 
         $instance->instanceable()->associate($model);
 
-        $dockerImage = $request->safe()->string('docker_image');
+        $instance->save();
+
+        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
 
         // Dispatch job to process the newly created container
-        CreateDockerImageJob::dispatch($instance, $dockerImage)->onQueue('polling');
+        CreateDockerImageJob::dispatch($instance)->onQueue('polling');
+    }
+
+    public function performAction(Request $request, Instance $instance): RedirectResponse
+    {
+        $validated = $request->validate([
+            'action' => ['required', Rule::enum(InstanceActionsEnum::class)],
+        ]);
+
+        $user = $request->user();
+
+        if ($instance->type === InstanceTypeEnum::Server) {
+            Gate::authorize('interact-with-servers');
+
+            PerformServerActionJob::dispatch(
+                $user,
+                $instance,
+                $validated['action']
+            )->onQueue('actions');
+        } else {
+            PerformContainerActionJob::dispatch(
+                $user,
+                $instance,
+                $validated['action']
+            )->onQueue('actions');
+        }
+
+        return redirect()->back(303);
     }
 }

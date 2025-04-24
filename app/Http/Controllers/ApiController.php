@@ -6,15 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Data\ConfigurationData;
 use App\Data\InstanceData;
+use App\Data\PackageData;
 use App\Data\UserData;
 use App\Enums\RolesEnum;
 use App\Models\Configuration;
 use App\Models\Instance;
+use App\Models\Package;
 use App\Models\User;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -82,6 +83,30 @@ class ApiController extends Controller
 
     }
 
+    public function getInstance(Request $request, Instance $instance): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->id !== $instance->created_by->id) {
+            return new JsonResponse(
+                data: [
+                    'message' => 'You do not have access to this instance',
+                ],
+                status: JsonResponse::HTTP_FORBIDDEN,
+            );
+        }
+
+        $instance->load('created_by');
+
+        return new JsonResponse(
+            data: [
+                'message' => 'Instance fetched successfully',
+                'data' => InstanceData::from($instance)->toArray(),
+            ],
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
     public function getInstances(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -110,10 +135,10 @@ class ApiController extends Controller
     public function updateUser(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', Rules\Password::defaults()],
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|lowercase|email|max:255|unique:'.User::class,
+            'current_password' => ['required_with:password', 'current_password'],
+            'password' => ['sometimes', Rules\Password::defaults()],
         ]);
 
         $user = $request->user();
@@ -217,6 +242,19 @@ class ApiController extends Controller
                 'data' => [
                     'is_paid' => $user->subscribed(),
                 ],
+            ],
+            status: JsonResponse::HTTP_OK,
+        );
+    }
+
+    public function getPackages(Request $request): JsonResponse
+    {
+        $packages = Package::all();
+
+        return new JsonResponse(
+            data: [
+                'message' => 'Packages fetched successfully',
+                'data' => PackageData::collect($packages)->toArray(),
             ],
             status: JsonResponse::HTTP_OK,
         );

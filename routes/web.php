@@ -10,10 +10,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', [InstanceController::class, 'index'])
-    ->middleware(['auth', 'verified', 'subscribed'])
+    ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'admin', 'subscribed'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('containers', [InstanceController::class, 'containers'])->name('containers.index');
     Route::get('servers', [InstanceController::class, 'servers'])->name('servers.index');
 
@@ -21,6 +21,8 @@ Route::middleware(['auth', 'verified', 'admin', 'subscribed'])->group(function (
     Route::get('instances/create/{instance_type}', [InstanceController::class, 'create'])->name('instances.create');
     Route::post('instances/store', [InstanceController::class, 'store'])->name('instances.store');
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy'])->name('instances.destroy');
+
+    Route::post('instances/{instance:id}/action', [InstanceController::class, 'performAction'])->name('instances.action');
 });
 
 Route::get('/checkout', function (Request $request) {

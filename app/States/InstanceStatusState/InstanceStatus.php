@@ -24,6 +24,7 @@ abstract class InstanceStatus extends State
     {
         return parent::config()
             ->default(Stopped::class)
+            ->ignoreSameState()
             ->allowTransition(Configuring::class, Stopped::class, ToStopped::class)
             ->allowTransition(Configuring::class, Started::class, ToStarted::class)
             ->allowTransition(Configuring::class, Suspended::class, ToSuspended::class)

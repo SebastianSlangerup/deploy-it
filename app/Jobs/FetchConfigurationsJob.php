@@ -9,8 +9,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Ramsey\Uuid\Rfc4122\UuidV4;
-use Ramsey\Uuid\Uuid;
 
 class FetchConfigurationsJob implements ShouldQueue
 {
@@ -20,7 +18,7 @@ class FetchConfigurationsJob implements ShouldQueue
 
     public function handle(): void
     {
-        $response = Http::proxmox()->get('/get_all_configurations');
+        $response = Http::proxmox()->get('/vm/get_all_configurations');
 
         $configurations = $response->json();
 
@@ -28,8 +26,6 @@ class FetchConfigurationsJob implements ShouldQueue
         $existingConfigurationIds = Configuration::query()
             ->whereIn('proxmox_configuration_id', array_keys($configurations))
             ->pluck('proxmox_configuration_id');
-
-        $configurationsToCreate = collect();
 
         // Reject configurations that already exist
         $configurations = collect($configurations)->reject(fn (array $value, int $key) => $existingConfigurationIds->contains($key));
@@ -40,7 +36,8 @@ class FetchConfigurationsJob implements ShouldQueue
                 'description' => $configuration['desc'],
                 'cores' => $configuration['hardware']['cores'],
                 'memory' => $configuration['hardware']['memory'],
-                'disk_space' => $configuration['hardware']['disksize'],
+                'disk_space' => $configuration['hardware']['disksize'] / 2,
+                'disk' => $configuration['hardware']['disk'],
                 'proxmox_configuration_id' => $configurationId,
             ]);
         }

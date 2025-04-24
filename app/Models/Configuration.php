@@ -19,6 +19,7 @@ class Configuration extends Model
         'cores',
         'memory',
         'disk_space',
+        'disk',
     ];
 
     /** @return array<int, string> */

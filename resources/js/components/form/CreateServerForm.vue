@@ -6,6 +6,7 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, Car
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/vue3';
@@ -37,12 +38,16 @@ const handlePackageChecked = (pkg: PackageData, isChecked: boolean) => {
 const form = useForm<{
     name: string;
     description: string;
+    hostname: string;
+    node: string;
     instance_type: InstanceTypeEnum;
     selected_configuration: ConfigurationData;
     selected_packages: PackageData[];
 }>({
     name: '',
     description: '',
+    hostname: '',
+    node: 'node1',
     instance_type: 'server',
     selected_configuration: selectedConfiguration.value,
     selected_packages: selectedPackages.value,
@@ -86,6 +91,23 @@ const submit = () =>
             <CardContent>
                 <Separator class="mb-6" label="Basic information" />
 
+                <FormItem name="node" label="Node" :form class="mb-2" is-required>
+                    <template #input>
+                        <Select v-model="form.node">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a node" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="node1">Node 1</SelectItem>
+                                    <SelectItem value="node2">Node 2</SelectItem>
+                                    <SelectItem value="node3">Node 3</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </template>
+                </FormItem>
+
                 <FormItem name="name" label="Name" :form class="mb-2" is-required>
                     <template #input>
                         <Input type="text" placeholder="Name" v-model="form.name" />
@@ -95,6 +117,12 @@ const submit = () =>
                 <FormItem name="description" label="Description" :form class="mb-2" is-required>
                     <template #input>
                         <Textarea placeholder="Description" v-model="form.description" />
+                    </template>
+                </FormItem>
+
+                <FormItem name="hostname" label="Hostname" :form class="mb-2" is-required>
+                    <template #input>
+                        <Input type="text" placeholder="Hostname" v-model="form.hostname" />
                     </template>
                 </FormItem>
 
@@ -119,7 +147,7 @@ const submit = () =>
                                                 <ul class="list-disc">
                                                     <li>{{ configuration.cores }} {{ configuration.cores > 1 ? 'cores' : 'core' }}</li>
                                                     <li>{{ configuration.memory }}gb RAM</li>
-                                                    <li>{{ configuration.disk_space }}gb disk space</li>
+                                                    <li>{{ configuration.disk_space * 2 }}gb disk space</li>
                                                 </ul>
                                             </CardContent>
                                         </Card>

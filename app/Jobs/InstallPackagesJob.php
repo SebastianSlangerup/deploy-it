@@ -2,9 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Data\InstanceData;
+use App\Data\NotificationData;
+use App\Enums\NotificationTypeEnum;
 use App\Events\InstanceStatusUpdatedEvent;
+use App\Events\NotifyUserEvent;
 use App\Models\Instance;
 use App\Models\Package;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,18 +41,24 @@ class InstallPackagesJob implements ShouldQueue
      * @param  Collection<int, Package>  $selectedPackages
      */
     public function __construct(
+        public User $user,
         public Instance $instance,
         public Collection $selectedPackages,
     ) {}
 
     public function handle(): void
     {
+        // No need to process anything if no packages were selected
+        if ($this->selectedPackages->isEmpty()) {
+            return;
+        }
+
         $file = Storage::disk('local')->get('package-installation-template.sh');
 
-        # Create a fluent string to manipulate contents
+        // Create a fluent string to manipulate contents
         $installScript = Str::of($file);
 
-        # Pass $installScript by reference
+        // Pass $installScript by reference
         $this->selectedPackages->each(function ($package) use (&$installScript) {
             $installScript = $installScript->newLine()->append($package->command);
         });
@@ -55,44 +66,62 @@ class InstallPackagesJob implements ShouldQueue
         // Time to send the instructions to our virtual machine!
         try {
             $response = Http::proxmox()
-                ->withQueryParameters(['vmid' => $this->instance->vm_id])
+                ->withQueryParameters([
+                    'node' => $this->instance->node,
+                    'vmid' => $this->instance->vm_id,
+                ])
                 ->attach('config_file', $installScript, 'package-installation-script.sh')
-                ->post('/configure_vm_custom');
+                ->post('/software/configure_vm_custom');
+
+            if (! $response->successful() || $response->json()['status'] !== 'completed') {
+                Log::warning('{job}: Response unsuccessful. Message: {message}', [
+                    'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
+                    'message' => $response->body(),
+                ]);
+
+                $this->release($this->backoff);
+            }
+
+            // Final step in the chain. Instance is now ready to be used by end user
+            $this->instance->is_ready = true;
+            $this->instance->save();
+
+            $notification = NotificationData::from([
+                'title' => 'Server setup completed',
+                'description' => 'Your server is now ready to be used. You can now log in and start using it.',
+                'notificationType' => NotificationTypeEnum::Success,
+            ]);
+
+            NotifyUserEvent::dispatch($this->user, $notification);
+
+            $nextStep = 5;
+            $data = InstanceData::from($this->instance);
+            InstanceStatusUpdatedEvent::dispatch($nextStep, $data);
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Retrying. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
                 'message' => $exception->getMessage(),
             ]);
 
-            $this->release();
-
-            return;
+            $this->release($this->backoff);
         }
-
-        if (! $response->successful()) {
-            Log::warning('{job}: Response unsuccessful. Message: {message}', [
-                'job' => "[ID: {$this->job->getJobId()}, Name: {$this->job->getName()}]",
-                'message' => $response->body(),
-            ]);
-
-            $this->release();
-
-            return;
-        }
-
-        // Final step in the chain. Instance is now ready to be used by end user
-        $this->instance->is_ready;
-        $this->instance->save();
-
-        $nextStep = 5;
-        InstanceStatusUpdatedEvent::dispatch($nextStep, $this->instance);
     }
 
     public function failed(?Throwable $exception): void
     {
-        $this->instance->delete();
+        // Server can still be ready without packages.
+        $this->instance->is_ready = true;
+        $this->instance->save();
 
-        Log::error('Job failed. Instance has been deleted. Message: {message}', [
+        $notification = NotificationData::from([
+            'title' => 'Package installation failed',
+            'description' => 'Could not install your desired packages. Your server is still ready to be used. Please contact support if you need help.',
+            'notificationType' => NotificationTypeEnum::Warning,
+        ]);
+
+        NotifyUserEvent::dispatch($this->user, $notification);
+
+        Log::error('Package installation failed. Instance has been deployed without packages. Message: {message}', [
             'message' => $exception?->getMessage(),
         ]);
     }

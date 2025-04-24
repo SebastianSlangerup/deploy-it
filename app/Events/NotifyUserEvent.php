@@ -2,24 +2,25 @@
 
 namespace App\Events;
 
-use App\Data\InstanceData;
+use App\Data\NotificationData;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class InstanceStatusUpdatedEvent implements ShouldBroadcast
+class NotifyUserEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public int $nextStep,
-        public InstanceData $instance,
+        public User $recipient,
+        public NotificationData $notification,
     ) {}
 
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel('instances.'.$this->instance->id);
+        return new PrivateChannel('notifications.'.$this->recipient->id);
     }
 }

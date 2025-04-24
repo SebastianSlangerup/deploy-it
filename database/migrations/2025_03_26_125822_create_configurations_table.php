@@ -15,6 +15,7 @@ return new class extends Migration
             $table->tinyInteger('cores')->unsigned();
             $table->integer('memory');
             $table->integer('disk_space');
+            $table->string('disk')->default('scsi0');
             $table->unsignedSmallInteger('proxmox_configuration_id');
             $table->timestamps();
             $table->softDeletes();

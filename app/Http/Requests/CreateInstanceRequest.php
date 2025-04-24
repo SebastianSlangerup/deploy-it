@@ -13,6 +13,8 @@ class CreateInstanceRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
+            'hostname' => ['required', 'string', 'alpha_dash:ascii', 'unique:App\Models\Instance,hostname', 'lowercase'],
+            'node' => ['required', 'string', 'max:255'],
             'instance_type' => Rule::enum(InstanceTypeEnum::class),
             'selected_configuration' => [
                 'required_if:instance_type,'.InstanceTypeEnum::Server->value,

@@ -34,7 +34,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Http::macro('proxmox', function () {
-            return Http::baseUrl(config('services.proxmox.endpoint'))->withQueryParameters(['node' => 'node1']);
+            return Http::baseUrl(config('services.proxmox.endpoint'))
+                ->withToken(config('services.proxmox.token'))
+                ->timeout(30);
         });
     }
 }

@@ -2,21 +2,43 @@
 import StepperForm from '@/components/form/StepperForm.vue';
 import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
 import ViewServerForm from '@/components/form/ViewServerForm.vue';
+import Echo from '@/echo';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
-import ConfigurationData = App.Data.ConfigurationData;
 
 const props = defineProps<{
     instance: InstanceData;
-    configuration: ConfigurationData;
 }>();
 
-const stepperComponents = {
-    container: StepperForm,
-    server: StepperForm,
+const reactiveInstance = ref<InstanceData>(props.instance);
+const currentStep = ref<number>(1);
+
+type InstanceStatusEventData = {
+    nextStep: number;
+    instance: InstanceData;
 };
+
+type RefreshInstanceEventData = {
+    instance: InstanceData;
+};
+
+onMounted(() => {
+    Echo.private('instances.' + props.instance.id)
+        .listen('InstanceStatusUpdatedEvent', (event: InstanceStatusEventData) => {
+            currentStep.value = event.nextStep;
+            reactiveInstance.value = event.instance;
+        })
+        .listen('RefreshFrontendInstanceEvent', (event: RefreshInstanceEventData) => {
+            reactiveInstance.value = event.instance;
+        });
+});
+
+onUnmounted(() => {
+    Echo.leave('instances.' + props.instance.id);
+});
 
 const detailComponents = {
     container: ViewContainerForm,
@@ -39,7 +61,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head :title="instance.name" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <component v-if="!instance.is_ready" :is="stepperComponents[instance.type]" :instance="instance" />
-        <component v-if="instance.is_ready" :is="detailComponents[instance.type]" :instance="instance" :configuration="configuration" />
+        <component v-if="!reactiveInstance.is_ready" :is="StepperForm" :instance="reactiveInstance" v-model="currentStep" />
+        <component v-if="reactiveInstance.is_ready" :is="detailComponents[instance.type]" :instance="reactiveInstance" />
     </AppLayout>
 </template>

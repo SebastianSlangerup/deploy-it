@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Instance;
 use App\Models\User;
-use App\Models\Configuration;
 use App\States\InstanceStatusState\Started;
 use App\States\InstanceStatusState\Stopped;
 use App\States\InstanceStatusState\Suspended;

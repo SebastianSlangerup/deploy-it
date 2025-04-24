@@ -3,7 +3,6 @@
 namespace App\States\InstanceStatusState\Transitions;
 
 use App\Models\Instance;
-use App\States\InstanceStatusState\Started;
 use App\States\InstanceStatusState\Suspended;
 use Illuminate\Support\Facades\Log;
 use Spatie\ModelStates\Transition;
