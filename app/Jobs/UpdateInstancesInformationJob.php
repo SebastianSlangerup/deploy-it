@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Data\InstanceData;
-use App\Enums\InstanceStatusEnum;
 use App\Events\RefreshFrontendInstanceEvent;
 use App\Models\Instance;
 use App\States\InstanceStatusState\Started;

@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import Echo from '@/echo';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItemType, SharedData } from '@/types';
-import { toast, Toaster } from 'vue-sonner';
-import { onMounted } from 'vue';
-import Echo from '@/echo';
 import { usePage } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import { toast, Toaster } from 'vue-sonner';
 import NotificationData = App.Data.NotificationData;
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
 }
 
-const page = usePage<SharedData>()
+const page = usePage<SharedData>();
 const user = page.props.auth.user;
 
 withDefaults(defineProps<Props>(), {
@@ -19,30 +19,29 @@ withDefaults(defineProps<Props>(), {
 });
 
 onMounted(() => {
-    Echo.private('notifications.' + user.id)
-        .listen('NotifyUserEvent', (notification: NotificationData) => {
-            if (notification.notificationType === 'default' || notification.notificationType === 'info') {
-                toast.info(notification.title, {
-                    description: notification.description,
-                });
-            }
-            if (notification.notificationType === 'success') {
-                toast.success(notification.title, {
-                    description: notification.description,
-                });
-            }
-            if (notification.notificationType === 'warning') {
-                toast.warning(notification.title, {
-                    description: notification.description,
-                });
-            }
-            if (notification.notificationType === 'error') {
-                toast.error(notification.title, {
-                    description: notification.description,
-                });
-            }
-        })
-})
+    Echo.private('notifications.' + user.id).listen('NotifyUserEvent', (notification: NotificationData) => {
+        if (notification.notificationType === 'default' || notification.notificationType === 'info') {
+            toast.info(notification.title, {
+                description: notification.description,
+            });
+        }
+        if (notification.notificationType === 'success') {
+            toast.success(notification.title, {
+                description: notification.description,
+            });
+        }
+        if (notification.notificationType === 'warning') {
+            toast.warning(notification.title, {
+                description: notification.description,
+            });
+        }
+        if (notification.notificationType === 'error') {
+            toast.error(notification.title, {
+                description: notification.description,
+            });
+        }
+    });
+});
 </script>
 
 <template>

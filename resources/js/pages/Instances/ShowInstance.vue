@@ -2,12 +2,12 @@
 import StepperForm from '@/components/form/StepperForm.vue';
 import ViewContainerForm from '@/components/form/ViewContainerForm.vue';
 import ViewServerForm from '@/components/form/ViewServerForm.vue';
+import Echo from '@/echo';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import InstanceData = App.Data.InstanceData;
 import { onMounted, ref } from 'vue';
-import Echo from '@/echo';
+import InstanceData = App.Data.InstanceData;
 
 const props = defineProps<{
     instance: InstanceData;
@@ -23,7 +23,7 @@ type InstanceStatusEventData = {
 
 type RefreshInstanceEventData = {
     instance: InstanceData;
-}
+};
 
 onMounted(() => {
     Echo.private('instances.' + props.instance.id)
@@ -33,7 +33,7 @@ onMounted(() => {
         })
         .listen('RefreshFrontendInstanceEvent', (event: RefreshInstanceEventData) => {
             reactiveInstance.value = event.instance;
-        })
+        });
 });
 
 const detailComponents = {

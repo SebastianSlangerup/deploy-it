@@ -9,7 +9,7 @@ defineProps<{
     instance: InstanceData;
 }>();
 
-const stepModel = defineModel<number>()
+const stepModel = defineModel<number>();
 
 const steps = [
     {

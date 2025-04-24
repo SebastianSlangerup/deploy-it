@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Data\InstanceData;
 use App\Enums\InstanceTypeEnum;
-use App\Events\RefreshFrontendInstanceEvent;
 use App\States\InstanceStatusState\InstanceStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
