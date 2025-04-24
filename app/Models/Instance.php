@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Data\InstanceData;
 use App\Enums\InstanceTypeEnum;
+use App\Events\RefreshFrontendInstanceEvent;
 use App\States\InstanceStatusState\InstanceStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -27,6 +29,8 @@ class Instance extends Model
         'node',
         'created_by',
     ];
+
+    protected $with = ['created_by', 'instanceable'];
 
     /** @return array<int, string> */
     public function casts(): array

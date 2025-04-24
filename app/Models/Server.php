@@ -19,6 +19,8 @@ class Server extends Model
         'configuration_id',
     ];
 
+    protected $with = ['configuration'];
+
     /** @return array<int, string> */
     public function uniqueIds(): array
     {

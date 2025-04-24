@@ -40,8 +40,6 @@ class CreateDockerImageJob implements ShouldQueue
             ]);
 
             $this->release($this->backoff);
-
-            return;
         }
 
         if (! $response->successful()) {

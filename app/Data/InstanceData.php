@@ -4,6 +4,8 @@ namespace App\Data;
 
 use App\Data\Casts\InstanceStatusStateCast;
 use App\Enums\InstanceTypeEnum;
+use App\Models\Configuration;
+use App\Models\Server;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Data;
@@ -21,6 +23,7 @@ class InstanceData extends Data
         public string $description,
         public UserData $created_by,
         public bool $is_ready,
+        public Server|Configuration $instanceable,
         public InstanceTypeEnum $type,
         #[WithCast(InstanceStatusStateCast::class)]
         public InstanceStatusData $status,

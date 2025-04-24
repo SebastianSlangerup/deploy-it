@@ -19,6 +19,8 @@ class Container extends Model
         'docker_image',
     ];
 
+    protected $with = ['server'];
+
     /** @return array<int, string> */
     public function uniqueIds(): array
     {

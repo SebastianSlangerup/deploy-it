@@ -11,6 +11,11 @@ proxmox_configuration_id: number;
 created_at: any;
 updated_at: any;
 };
+export type ContainerData = {
+id: string;
+server: App.Data.ServerData;
+docker_image: string;
+};
 export type InstanceData = {
 id: string;
 name: string;
@@ -22,6 +27,7 @@ vm_password: string | null;
 description: string;
 created_by: App.Data.UserData;
 is_ready: boolean;
+instanceable: any | any;
 type: App.Enums.InstanceTypeEnum;
 status: App.Data.InstanceStatusData;
 started_at: any | null;
@@ -46,6 +52,14 @@ name: string;
 command: string;
 created_at: any;
 };
+export type ServerData = {
+id: string;
+ip: string | null;
+configuration: App.Data.ConfigurationData;
+containers: Array<App.Data.ContainerData>;
+created_at: any;
+updated_at: any;
+};
 export type UserData = {
 id: string;
 name: string;
@@ -55,6 +69,7 @@ role: App.Enums.RolesEnum;
 };
 }
 declare namespace App.Enums {
+export type InstanceActionsEnum = 'start' | 'stop' | 'shutdown' | 'reset' | 'reboot' | 'suspend' | 'resume';
 export type InstanceStatusEnum = 'started' | 'stopped' | 'suspended' | 'configuring';
 export type InstanceTypeEnum = 'server' | 'container';
 export type NotificationTypeEnum = 'default' | 'success' | 'info' | 'warning' | 'error';

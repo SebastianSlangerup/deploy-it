@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { Badge } from '@/components/ui/badge';
+import { Badge, BadgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { computed, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
-import ConfigurationData = App.Data.ConfigurationData;
+import ServerData = App.Data.ServerData;
+import ContainerData = App.Data.ContainerData;
 
 const props = defineProps<{
     instance: InstanceData;
-    configuration: ConfigurationData;
 }>();
+
+const server: ServerData = props.instance.instanceable as ServerData;
+const containers = ref<ContainerData[]>(server.containers as ContainerData[]);
 
 const tabs = [
     { id: 'general', label: 'General' },
@@ -38,7 +41,7 @@ const copiedSFTP = ref(false);
 
 // Function to copy SSH command to clipboard
 const copySSHCommand = () => {
-    navigator.clipboard.writeText(sshCommand.value);
+    window.navigator.clipboard.writeText(sshCommand.value);
     copiedSSH.value = true;
 
     setTimeout(() => {
@@ -48,7 +51,7 @@ const copySSHCommand = () => {
 
 // Function to copy SFTP command to clipboard
 const copySFTPCommand = () => {
-    navigator.clipboard.writeText(sftpCommand.value);
+    window.navigator.clipboard.writeText(sftpCommand.value);
     copiedSFTP.value = true;
 
     setTimeout(() => {
@@ -68,14 +71,14 @@ const formatDate = (date: any) => {
             <div class="flex flex-col items-start justify-between gap-4 px-6 sm:flex-row sm:items-center">
                 <div class="flex items-center gap-6">
                     <div class="flex items-center">
-                        <div :class="[statusColor, 'mr-2 h-3 w-3 rounded-full']"></div>
+                        <div :class="[instance.status.color, 'mr-2 h-3 w-3 rounded-full']"></div>
                         <span>{{ instance.name }}</span>
                     </div>
                 </div>
 
                 <div class="flex space-x-2">
-                    <Button variant="default" size="sm">Start</Button>
-                    <Button variant="outline" size="sm">Stop</Button>
+                    <Button variant="default" size="sm" v-if="instance.status.status !== 'started'">Start</Button>
+                    <Button variant="default" size="sm" v-if="instance.status.status !== 'stopped'">Stop</Button>
                     <Button variant="outline" size="sm">Restart</Button>
                 </div>
             </div>
@@ -92,7 +95,7 @@ const formatDate = (date: any) => {
             </div>
         </div>
 
-        <div class="mb-36 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="mx-4 mb-36 grid grid-cols-1 gap-6 md:grid-cols-3">
             <Card>
                 <CardHeader class="pb-2">
                     <CardTitle class="text-sm font-medium">Connection info</CardTitle>
@@ -109,7 +112,7 @@ const formatDate = (date: any) => {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
-                            <span class="font-mono text-xs">{{ '192.168.1.40' }}</span>
+                            <span class="font-mono text-xs">{{ server.ip }}</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-gray-500">SSH:</span>
@@ -226,18 +229,14 @@ const formatDate = (date: any) => {
                 <CardContent>
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Server Name:</span>
+                            <span class="text-gray-500">Name:</span>
                             <span class="font-mono text-xs">{{ instance.hostname }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Server Instantiated:</span>
-                            <Badge :variant="instance.is_ready ? 'success' : 'destructive'">
-                                {{ instance.is_ready ? 'Yes' : 'No' }}
+                            <span class="text-gray-500">Status:</span>
+                            <Badge :variant="instance.status.color as BadgeVariants['variant']">
+                                {{ instance.status.label }}
                             </Badge>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">ID:</span>
-                            <span class="font-mono text-xs">{{ instance.id }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Proxmox Node:</span>
@@ -260,19 +259,19 @@ const formatDate = (date: any) => {
                     <div class="flex flex-col space-y-1">
                         <div class="flex justify-between">
                             <span class="text-gray-500">CPU:</span>
-                            <span>{{ configuration.cores }} Cores</span>
+                            <span>{{ server.configuration.cores }} Cores</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Memory:</span>
-                            <span>{{ configuration.memory }} GB</span>
+                            <span>{{ server.configuration.memory }} GB</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Disk:</span>
-                            <span>{{ configuration.disk_space }} GB</span>
+                            <span>{{ server.configuration.disk_space }} GB</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">Config ID:</span>
-                            <span class="font-mono text-xs">{{ configuration.proxmox_configuration_id }}</span>
+                            <span class="font-mono text-xs">{{ server.configuration.proxmox_configuration_id }}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -346,19 +345,7 @@ const formatDate = (date: any) => {
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium">IP Address</label>
-                                <p class="text-gray-500">{{ '192.168.1.40' }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium">Subnet Mask</label>
-                                <p class="text-gray-500">{{ '255.255.255.255' }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium">Gateway</label>
-                                <p class="text-gray-500">{{ '192.168.1.1' }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium">DNS</label>
-                                <p class="text-gray-500">{{ '8.8.8.8' }}</p>
+                                <p class="text-gray-500">{{ server.ip }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Hostname</label>
@@ -392,8 +379,8 @@ const formatDate = (date: any) => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
-                                    <tr>
-                                        <td class="whitespace-nowrap px-6 py-4">No containers found</td>
+                                    <tr v-for="container in containers" :key="container.id">
+                                        <td class="whitespace-nowrap px-6 py-4">{{ container.docker_image }}</td>
                                     </tr>
                                 </tbody>
                             </table>

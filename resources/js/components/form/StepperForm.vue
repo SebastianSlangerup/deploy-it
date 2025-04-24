@@ -2,31 +2,14 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui/stepper';
-import Echo from '@/echo.js';
 import { Check, Dot, LoaderCircle } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
-import { toast } from 'vue-sonner';
 import InstanceData = App.Data.InstanceData;
 
-const props = defineProps<{
+defineProps<{
     instance: InstanceData;
 }>();
 
-type EventData = {
-    step: number;
-    instance: InstanceData;
-};
-const currentStep = ref<number>(1);
-
-onMounted(() => {
-    Echo.private('instances.' + props.instance.id).listen('InstanceStatusUpdatedEvent', (event: EventData) => {
-        currentStep.value = event.step;
-    });
-
-    Echo.private('instances.' + props.instance.id).listen('InstanceCreationFailedEvent', () => {
-        toast.error('Instance creation failed. Please refresh and try again');
-    });
-});
+const stepModel = defineModel<number>()
 
 const steps = [
     {
@@ -62,7 +45,7 @@ const steps = [
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <Stepper class="flex w-full items-start gap-2" v-model="currentStep">
+            <Stepper class="flex w-full items-start gap-2" v-model="stepModel">
                 <StepperItem
                     v-for="step in steps"
                     :key="step.step"

@@ -21,6 +21,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('instances/create/{instance_type}', [InstanceController::class, 'create'])->name('instances.create');
     Route::post('instances/store', [InstanceController::class, 'store'])->name('instances.store');
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy'])->name('instances.destroy');
+
+    Route::post('instances/{instance:id}/action', [InstanceController::class, 'performAction'])->name('instances.action');
 });
 
 Route::get('/checkout', function (Request $request) {

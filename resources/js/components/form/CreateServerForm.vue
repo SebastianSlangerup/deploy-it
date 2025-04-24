@@ -147,7 +147,7 @@ const submit = () =>
                                                 <ul class="list-disc">
                                                     <li>{{ configuration.cores }} {{ configuration.cores > 1 ? 'cores' : 'core' }}</li>
                                                     <li>{{ configuration.memory }}gb RAM</li>
-                                                    <li>{{ configuration.disk_space }}gb disk space</li>
+                                                    <li>{{ configuration.disk_space * 2 }}gb disk space</li>
                                                 </ul>
                                             </CardContent>
                                         </Card>

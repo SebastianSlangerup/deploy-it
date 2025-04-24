@@ -36,7 +36,7 @@ class FetchConfigurationsJob implements ShouldQueue
                 'description' => $configuration['desc'],
                 'cores' => $configuration['hardware']['cores'],
                 'memory' => $configuration['hardware']['memory'],
-                'disk_space' => $configuration['hardware']['disksize'],
+                'disk_space' => $configuration['hardware']['disksize'] / 2,
                 'disk' => $configuration['hardware']['disk'],
                 'proxmox_configuration_id' => $configurationId,
             ]);
