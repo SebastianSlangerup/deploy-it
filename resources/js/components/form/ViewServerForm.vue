@@ -111,6 +111,10 @@ const formatDate = (date: any) => {
                             <span class="font-mono text-xs">{{ instance.vm_username }}</span>
                         </div>
                         <div class="flex justify-between">
+                            <span class="text-gray-500">Password:</span>
+                            <span class="font-mono text-xs">{{ instance.vm_password }}</span>
+                        </div>
+                        <div class="flex justify-between">
                             <span class="text-gray-500">IP:</span>
                             <span class="font-mono text-xs">{{ server.ip }}</span>
                         </div>
