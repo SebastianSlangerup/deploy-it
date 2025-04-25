@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Data\NotificationData;
-use App\Enums\InstanceActionsEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Events\NotifyUserEvent;
 use App\Models\Instance;
@@ -24,7 +23,7 @@ class PerformServerActionJob implements ShouldQueue
     public function __construct(
         public User $user,
         public Instance $instance,
-        public InstanceActionsEnum $action,
+        public string $action,
     ) {}
 
     public function handle(): void
@@ -34,7 +33,7 @@ class PerformServerActionJob implements ShouldQueue
             $response = Http::proxmox()->withQueryParameters([
                 'node' => $this->instance->node,
                 'vmid' => $this->instance->vm_id,
-            ])->post("/vm/{$this->action->value}_vm");
+            ])->post("/vm/{$this->action}_vm");
 
             if (! $response->successful()) {
                 Log::warning('{job}: Response unsuccessful. Message: {message}', [
@@ -45,6 +44,9 @@ class PerformServerActionJob implements ShouldQueue
                 $this->fail();
             }
 
+            // Give the job a second to let the API platform process the request before checking the task
+            sleep(1);
+
             // Check return value
             $upid = $response->json()['task'];
 
@@ -53,11 +55,11 @@ class PerformServerActionJob implements ShouldQueue
                 'upid' => $upid,
             ])->get('/task/get_task_status');
 
-            if (! $response->successful() || $response->json('exitstatus') !== 'OK') {
+            if (! $response->successful()) {
                 $this->fail();
 
                 $notification = NotificationData::from([
-                    'title' => "Action {$this->action->value} failed",
+                    'title' => "Action {$this->action} failed",
                     'description' => 'Could not complete the action. Please try again later.',
                     'notificationType' => NotificationTypeEnum::Error,
                 ]);
@@ -65,13 +67,21 @@ class PerformServerActionJob implements ShouldQueue
                 NotifyUserEvent::dispatch($this->user, $notification);
             }
 
+            if ($response->json('exitstatus') === 'running') {
+                // Retry the job if the process is still ongoing
+                $this->release(1);
+            }
+
             $notification = NotificationData::from([
-                'title' => "Action {$this->action->value} completed",
+                'title' => "Action {$this->action} completed",
                 'description' => 'The action has been completed.',
                 'notificationType' => NotificationTypeEnum::Success,
             ]);
 
             NotifyUserEvent::dispatch($this->user, $notification);
+
+            // Force-refresh the frontend
+            UpdateInstancesInformationJob::dispatch($this->instance->node);
         } catch (ConnectionException $exception) {
             Log::error('{job}: Connection failed. Error message: {message}', [
                 'job' => "[ID: {$this->job->getJobId()}]",

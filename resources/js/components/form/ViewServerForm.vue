@@ -6,6 +6,8 @@ import { computed, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
 import ServerData = App.Data.ServerData;
 import ContainerData = App.Data.ContainerData;
+import InstanceActionsEnum = App.Enums.InstanceActionsEnum;
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     instance: InstanceData;
@@ -63,6 +65,12 @@ const formatDate = (date: any) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleString();
 };
+
+const runAction = (action: InstanceActionsEnum) => {
+    router.post(route('instances.action', props.instance.id), {
+        'action': action,
+    })
+}
 </script>
 
 <template>
@@ -77,9 +85,9 @@ const formatDate = (date: any) => {
                 </div>
 
                 <div class="flex space-x-2">
-                    <Button variant="default" size="sm" v-if="instance.status.status !== 'started'">Start</Button>
-                    <Button variant="default" size="sm" v-if="instance.status.status !== 'stopped'">Stop</Button>
-                    <Button variant="outline" size="sm">Restart</Button>
+                    <Button @click="runAction('start')" variant="default" size="sm" v-if="instance.status.status !== 'started'">Start</Button>
+                    <Button @click="runAction('stop')" variant="default" size="sm" v-if="instance.status.status !== 'stopped'">Stop</Button>
+                    <Button @click="runAction('reboot')" variant="outline" size="sm">Restart</Button>
                 </div>
             </div>
             <div class="flex flex-col items-start justify-between gap-4 px-6 sm:flex-row sm:items-center">

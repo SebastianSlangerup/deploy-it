@@ -72,6 +72,6 @@ declare namespace App.Enums {
 export type InstanceActionsEnum = 'start' | 'stop' | 'shutdown' | 'reset' | 'reboot' | 'suspend' | 'resume';
 export type InstanceStatusEnum = 'started' | 'stopped' | 'suspended' | 'configuring';
 export type InstanceTypeEnum = 'server' | 'container';
-export type NotificationTypeEnum = 'default' | 'success' | 'info' | 'warning' | 'error';
+export type NotificationTypeEnum = 'success' | 'info' | 'warning' | 'error';
 export type RolesEnum = 'admin' | 'user';
 }
