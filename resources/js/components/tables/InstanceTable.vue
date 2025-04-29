@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import FormItem from '@/components/form/FormItem.vue';
 import { Badge, BadgeVariants } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { SharedData, User } from '@/types';
 import { InertiaForm, Link, useForm, usePage } from '@inertiajs/vue3';
-import { EllipsisVertical, HardDrive, Plus, Container } from 'lucide-vue-next';
-import InstanceData = App.Data.InstanceData;
-import { ref } from 'vue';
-import { Input } from '@/components/ui/input';
-import FormItem from '@/components/form/FormItem.vue';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Container, EllipsisVertical, HardDrive, Plus } from 'lucide-vue-next';
+import { ref } from 'vue';
+import InstanceData = App.Data.InstanceData;
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 
@@ -21,25 +21,23 @@ defineProps<{
     instances: InstanceData[];
 }>();
 
-type InstanceForm = InertiaForm<{name: string}>;
+type InstanceForm = InertiaForm<{ name: string }>;
 
-const instanceForms = ref<Map<string, InstanceForm>>(
-    new Map<string, InstanceForm>()
-);
+const instanceForms = ref<Map<string, InstanceForm>>(new Map<string, InstanceForm>());
 
 const getInstanceForm = (instance: InstanceData): InstanceForm => {
-    if (! instanceForms.value.has(instance.id)) {
+    if (!instanceForms.value.has(instance.id)) {
         const form = useForm<{
             name: string;
         }>({
-            name: instance.name
+            name: instance.name,
         });
 
         instanceForms.value.set(instance.id, form);
     }
 
     return instanceForms.value.get(instance.id) as InstanceForm;
-}
+};
 
 const startEditing = (instance: InstanceData) => {
     const form = getInstanceForm(instance);
@@ -48,15 +46,13 @@ const startEditing = (instance: InstanceData) => {
     form.name = instance.name;
 
     editingStates.value.set(instance.id, true);
-}
+};
 
-const editingStates = ref<Map<string, boolean>>(
-    new Map<string, boolean>()
-)
+const editingStates = ref<Map<string, boolean>>(new Map<string, boolean>());
 
 const isEditing = (instance: InstanceData): boolean => {
     return !!editingStates.value.get(instance.id);
-}
+};
 
 const cancelEditing = (instance: InstanceData) => {
     if (instanceForms.value.has(instance.id)) {
@@ -74,8 +70,8 @@ const submitName = (instance: InstanceData) => {
         onSuccess: () => {
             editingStates.value.set(instance.id, false);
         },
-    })
-}
+    });
+};
 </script>
 
 <template>
@@ -119,17 +115,28 @@ const submitName = (instance: InstanceData) => {
                                     <Label for="new-name" class="sr-only">New name</Label>
                                 </template>
                                 <template #input>
-                                    <Input @keydown.esc="cancelEditing(instance)" id="new-name" type="text" v-model="getInstanceForm(instance).name" />
+                                    <Input
+                                        @keydown.esc="cancelEditing(instance)"
+                                        id="new-name"
+                                        type="text"
+                                        v-model="getInstanceForm(instance).name"
+                                    />
                                 </template>
                             </FormItem>
                         </form>
-                        <p v-if="! isEditing(instance)" class="text-sm/6 font-semibold text-gray-900 dark:text-white">{{ instance.name }}</p>
+                        <p v-if="!isEditing(instance)" class="text-sm/6 font-semibold text-gray-900 dark:text-white">{{ instance.name }}</p>
                         <Badge :variant="instance.status.color as BadgeVariants['variant']">{{ instance.status.label }} </Badge>
                     </div>
                     <div class="mt-1 flex items-center gap-x-2 text-xs/5 text-gray-500">
-                        <p v-if="instance.status.status === 'stopped'" class="truncate">Stopped: {{ instance.stopped_at ? dayjs().to(instance.stopped_at) : 'Never' }}</p>
-                        <p v-if="instance.status.status === 'suspended'" class="truncate">Suspended: {{ instance.suspended_at ? dayjs().to(instance.suspended_at) : 'Never' }}</p>
-                        <p v-if="instance.status.status === 'started'" class="truncate">Started: {{ instance.started_at ? dayjs().to(instance.started_at) : 'Never' }}</p>
+                        <p v-if="instance.status.status === 'stopped'" class="truncate">
+                            Stopped: {{ instance.stopped_at ? dayjs().to(instance.stopped_at) : 'Never' }}
+                        </p>
+                        <p v-if="instance.status.status === 'suspended'" class="truncate">
+                            Suspended: {{ instance.suspended_at ? dayjs().to(instance.suspended_at) : 'Never' }}
+                        </p>
+                        <p v-if="instance.status.status === 'started'" class="truncate">
+                            Started: {{ instance.started_at ? dayjs().to(instance.started_at) : 'Never' }}
+                        </p>
                         <svg viewBox="0 0 2 2" class="size-0.5 fill-current">
                             <circle cx="1" cy="1" r="1" />
                         </svg>

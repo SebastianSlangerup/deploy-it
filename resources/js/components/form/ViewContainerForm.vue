@@ -2,10 +2,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { router } from '@inertiajs/vue3';
 import { Container } from 'lucide-vue-next';
 import InstanceData = App.Data.InstanceData;
 import ContainerData = App.Data.ContainerData;
-import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     instance: InstanceData;
@@ -15,9 +15,9 @@ const container: ContainerData = props.instance.instanceable as ContainerData;
 
 const runAction = (action: InstanceActionsEnum) => {
     router.post(route('instances.action', props.instance.id), {
-        'action': action,
-    })
-}
+        action: action,
+    });
+};
 const formatDate = (date: any) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleString();

@@ -10,7 +10,7 @@ import InstanceData = App.Data.InstanceData;
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
 
 const props = defineProps<{
-    instance?: InstanceData
+    instance?: InstanceData;
 }>();
 
 const form = useForm<{
@@ -20,7 +20,7 @@ const form = useForm<{
     node: string;
     docker_image: string;
     instance_type: InstanceTypeEnum;
-    server_id: string,
+    server_id: string;
 }>({
     name: '',
     description: '',

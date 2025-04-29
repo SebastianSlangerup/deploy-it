@@ -20,9 +20,9 @@ withDefaults(defineProps<Props>(), {
 });
 
 type NotificationEventData = {
-    recipient: UserData
-    notification: NotificationData
-}
+    recipient: UserData;
+    notification: NotificationData;
+};
 
 onMounted(() => {
     Echo.private('notifications.' + user.id).listen('NotifyUserEvent', (event: NotificationEventData) => {

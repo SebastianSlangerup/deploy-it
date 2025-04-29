@@ -2,19 +2,17 @@
 import { Badge, BadgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import InstanceData = App.Data.InstanceData;
 import ServerData = App.Data.ServerData;
-import ContainerData = App.Data.ContainerData;
 import InstanceActionsEnum = App.Enums.InstanceActionsEnum;
-import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     instance: InstanceData;
 }>();
 
 const server: ServerData = props.instance.instanceable as ServerData;
-const containers = ref<ContainerData[]>(server.containers as ContainerData[]);
 
 const tabs = [
     { id: 'general', label: 'General' },
@@ -67,9 +65,9 @@ const formatDate = (date: any) => {
 
 const runAction = (action: InstanceActionsEnum) => {
     router.post(route('instances.action', props.instance.id), {
-        'action': action,
-    })
-}
+        action: action,
+    });
+};
 </script>
 
 <template>
