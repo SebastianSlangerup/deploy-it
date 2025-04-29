@@ -31,7 +31,7 @@ defineProps<{
             </template>
         </div>
         <div>
-            <DropdownMenu>
+            <DropdownMenu v-if="hasRole('admin')">
                 <DropdownMenuTrigger as-child>
                     <Button variant="default">
                         <Plus />
@@ -40,19 +40,10 @@ defineProps<{
                 </DropdownMenuTrigger>
                 <DropdownMenuContent class="w-56">
                     <DropdownMenuGroup>
-                        <div v-if="hasRole('admin')">
-                            <DropdownMenuItem>
-                                <Link :href="route('instances.create', 'server')" class="flex items-center">
-                                    <HardDrive class="mr-2 h-4 w-4" />
-                                    <span>Create new Server</span>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                        </div>
                         <DropdownMenuItem>
-                            <Link :href="route('instances.create', 'container')" class="flex items-center">
-                                <Container class="mr-2 h-4 w-4" />
-                                <span>Create new Container</span>
+                            <Link :href="route('instances.create', 'server')" class="flex items-center">
+                                <HardDrive class="mr-2 h-4 w-4" />
+                                <span>Create new Server</span>
                             </Link>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>

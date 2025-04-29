@@ -35,7 +35,7 @@ class GetIpAddressWithQemuAgentJob implements ShouldQueue
 
     public function __construct(
         public User $user,
-        public readonly Instance $instance,
+        public Instance $instance,
     ) {}
 
     public function handle(): void

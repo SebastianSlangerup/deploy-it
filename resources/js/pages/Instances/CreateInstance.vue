@@ -7,11 +7,13 @@ import { Head } from '@inertiajs/vue3';
 import ConfigurationData = App.Data.ConfigurationData;
 import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
 import PackageData = App.Data.PackageData;
+import InstanceData = App.Data.InstanceData;
 
 const props = defineProps<{
     instanceType: InstanceTypeEnum;
     configurations?: ConfigurationData[];
     packages?: PackageData[];
+    instance?: InstanceData;
 }>();
 
 const formComponents = {
@@ -35,6 +37,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Create instance" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <component :is="formComponents[instanceType]" :configurations="configurations" :packages="packages" />
+        <component :is="formComponents[instanceType]" :configurations="configurations" :packages="packages" :instance="instance" />
     </AppLayout>
 </template>

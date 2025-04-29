@@ -37,10 +37,8 @@ class Container extends Model
         return $this->belongsTo(Server::class);
     }
 
-    public function getNextAvailablePort(int $min = 1000, int $max = 5000): int
+    public function getNextAvailablePort(Server $server, int $min = 1000, int $max = 5000): int
     {
-        $server = $this->port()->allocatedOn;
-
         $usedPorts = PortNumber::query()
             ->where('allocated_on', '=', $server)
             ->get();

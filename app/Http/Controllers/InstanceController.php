@@ -10,6 +10,7 @@ use App\Data\PackageData;
 use App\Enums\InstanceActionsEnum;
 use App\Enums\InstanceTypeEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Enums\RolesEnum;
 use App\Events\NotifyUserEvent;
 use App\Http\Requests\CreateInstanceRequest;
 use App\Http\Requests\UpdateInstanceRequest;
@@ -44,15 +45,27 @@ class InstanceController extends Controller
 {
     public function index(Request $request): Response
     {
-        // Get all instances by user
-        $instances = Instance::query()
-            ->with(['created_by', 'instanceable'])
-            ->where('created_by', '=', $request->user()->id)
-            ->get()
-            ->loadMorph('instanceable', [
-                Server::class => ['configuration'],
-                Container::class => ['server'],
-            ]);
+        $user = $request->user();
+
+        // Administrators should see all instances, other users should only see their own instances
+        if ($user->role === RolesEnum::Admin) {
+            $instances = Instance::query()
+                ->with(['created_by', 'instanceable'])
+                ->get()
+                ->loadMorph('instanceable', [
+                    Server::class => ['configuration'],
+                    Container::class => ['server'],
+                ]);
+        } else {
+            $instances = Instance::query()
+                ->with(['created_by', 'instanceable'])
+                ->where('created_by', '=', $request->user()->id)
+                ->get()
+                ->loadMorph('instanceable', [
+                    Server::class => ['configuration'],
+                    Container::class => ['server'],
+                ]);
+        }
 
         return Inertia::render('Dashboard', [
             'instances' => InstanceData::collect($instances),
@@ -61,7 +74,10 @@ class InstanceController extends Controller
 
     public function show(Instance $instance): Response
     {
-        $instance->load('created_by');
+        $instance->load('created_by')
+            ->loadMorph('instanceable', [
+                Server::class => ['configuration', 'containers'],
+            ]);
 
         return Inertia::render('Instances/ShowInstance', [
             'instance' => InstanceData::from($instance),
@@ -81,6 +97,14 @@ class InstanceController extends Controller
             'configurations' => ConfigurationData::collect($configurations),
             'packages' => PackageData::collect($packages),
             'instanceType' => $instanceType->value,
+        ]);
+    }
+
+    public function createContainer(Instance $instance): Response
+    {
+        return Inertia::render('Instances/CreateInstance', [
+            'instanceType' => InstanceTypeEnum::Container->value,
+            'instance' => InstanceData::from($instance),
         ]);
     }
 
@@ -250,18 +274,21 @@ class InstanceController extends Controller
 
     public function setupContainer(Instance $instance, Request $request): void
     {
+        $server = Instance::find($request->string('server_id'));
+
         $model = Container::query()->create([
             'docker_image' => $request->string('docker_image'),
+            'server_id' => $server->id,
         ]);
 
         $instance->instanceable()->associate($model);
+        $instance->instanceable->server()->associate($server);
 
         $instance->save();
 
-        $instance->loadMorph('instanceable', [Server::class => ['configuration']]);
-
+        $instance->loadMorph('instanceable', [Container::class => ['server']]);
         // Dispatch job to process the newly created container
-        CreateDockerImageJob::dispatch($instance)->onQueue('polling');
+        CreateDockerImageJob::dispatch($request->user(), $instance, $server->instanceable)->onQueue('polling');
     }
 
     public function performAction(Request $request, Instance $instance): RedirectResponse
@@ -287,6 +314,27 @@ class InstanceController extends Controller
                 $validated['action']
             )->onQueue('actions');
         }
+
+        return redirect()->back(303);
+    }
+
+    public function rename(Request $request, Instance $instance): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $instance->update([
+            'name' => $validated['name'],
+        ]);
+
+        $toast = NotificationData::from([
+            'title' => 'Instance renamed',
+            'description' => 'Your instance has been renamed',
+            'notificationType' => NotificationTypeEnum::Success,
+        ]);
+
+        NotifyUserEvent::dispatch($request->user(), $toast);
 
         return redirect()->back(303);
     }

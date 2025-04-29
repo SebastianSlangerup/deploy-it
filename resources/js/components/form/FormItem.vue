@@ -7,7 +7,7 @@ import { computed, HTMLAttributes, ref } from 'vue';
 
 const props = defineProps<{
     name: string;
-    label: string;
+    label?: string | undefined;
     form: InertiaForm<any>;
     class?: HTMLAttributes['class'];
     disableErrors?: boolean;

@@ -27,7 +27,7 @@ class PerformContainerActionJob implements ShouldQueue
     {
         try {
             $response = Http::proxmox()->withQueryParameters([
-
+                'node' => $this->instance->node,
             ]);
         } catch (ConnectionException $exception) {
 

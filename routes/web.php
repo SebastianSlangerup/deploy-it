@@ -19,7 +19,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
     Route::get('instances/{instance:id}', [InstanceController::class, 'show'])->name('instances.show');
     Route::get('instances/create/{instance_type}', [InstanceController::class, 'create'])->name('instances.create');
+    Route::get('instances/create-container/{instance:id}', [InstanceController::class, 'createContainer'])->name('instances.create.container');
     Route::post('instances/store', [InstanceController::class, 'store'])->name('instances.store');
+    Route::post('instances/container/store/{instance:id}', [InstanceController::class, 'storeContainer'])->name('instances.container.store');
+    Route::patch('instances/{instance:id}/rename', [InstanceController::class, 'rename'])->name('instances.rename');
     Route::delete('instances/{instance:id}', [InstanceController::class, 'destroy'])->name('instances.destroy');
 
     Route::post('instances/{instance:id}/action', [InstanceController::class, 'performAction'])->name('instances.action');

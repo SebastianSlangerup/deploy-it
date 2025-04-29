@@ -11,43 +11,52 @@ defineProps<{
 
 const stepModel = defineModel<number>();
 
-const steps = [
-    {
-        step: 1,
-        title: 'Creating server',
-        description: 'We have requested to create your server in the cloud',
-    },
-    {
-        step: 2,
-        title: 'Get Qemu agent status',
-        description: 'Waiting to receive word from the Qemu agent',
-    },
-    {
-        step: 3,
-        title: 'Fetch IP address',
-        description: 'Receiving an IP address from the network',
-    },
-    {
-        step: 4,
-        title: 'Installing packages',
-        description: 'Installing your desired packages',
-    },
-];
+const steps = {
+    server: [
+        {
+            step: 1,
+            title: 'Creating server',
+            description: 'We have requested to create your server in the cloud',
+        },
+        {
+            step: 2,
+            title: 'Get Qemu agent status',
+            description: 'Waiting to receive word from the Qemu agent',
+        },
+        {
+            step: 3,
+            title: 'Fetch IP address',
+            description: 'Receiving an IP address from the network',
+        },
+        {
+            step: 4,
+            title: 'Installing packages',
+            description: 'Installing your desired packages',
+        },
+    ],
+    container: [
+        {
+            step: 1,
+            title: 'Creating container',
+            description: 'Pulling down your image',
+        },
+    ],
+};
 </script>
 
 <template>
     <Card class="m-0 lg:m-8">
         <CardHeader>
-            <CardTitle> Configuring {{ instance.name }}... </CardTitle>
+            <CardTitle> Configuring {{ instance.name }}...</CardTitle>
             <CardDescription>
-                <p>Your server is currently being set up. This will take a few minutes.</p>
+                <p>Your instance is currently being set up. This will take a few minutes.</p>
                 <p>You can follow the progress below!</p>
             </CardDescription>
         </CardHeader>
         <CardContent>
             <Stepper class="flex w-full items-start gap-2" v-model="stepModel">
                 <StepperItem
-                    v-for="step in steps"
+                    v-for="step in steps[instance.type]"
                     :key="step.step"
                     v-slot="{ state }"
                     class="relative flex w-full flex-col items-center justify-center"
@@ -55,7 +64,7 @@ const steps = [
                     disabled
                 >
                     <StepperSeparator
-                        v-if="step.step !== steps[steps.length - 1].step"
+                        v-if="step.step !== steps[instance.type][steps[instance.type].length - 1].step"
                         class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-primary"
                     />
 

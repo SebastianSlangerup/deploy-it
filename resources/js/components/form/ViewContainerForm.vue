@@ -4,11 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Container } from 'lucide-vue-next';
 import InstanceData = App.Data.InstanceData;
+import ContainerData = App.Data.ContainerData;
+import { router } from '@inertiajs/vue3';
 
-defineProps<{
+const props = defineProps<{
     instance: InstanceData;
 }>();
 
+const container: ContainerData = props.instance.instanceable as ContainerData;
+
+const runAction = (action: InstanceActionsEnum) => {
+    router.post(route('instances.action', props.instance.id), {
+        'action': action,
+    })
+}
 const formatDate = (date: any) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleString();
@@ -27,7 +36,7 @@ const formatDate = (date: any) => {
 
                     <div class="flex items-center">
                         <Container class="mr-2 h-5 w-5" />
-                        <p class="font-medium">nginx:latest</p>
+                        <p class="font-medium">{{ container.docker_image }}</p>
                     </div>
 
                     <div class="flex items-center">
@@ -36,11 +45,8 @@ const formatDate = (date: any) => {
                 </div>
 
                 <div class="flex space-x-2">
-                    <Button variant="default" size="sm">Start</Button>
-                    <Button variant="outline" size="sm">Stop</Button>
-                    <Button variant="outline" size="sm">Restart</Button>
-                    <Button variant="outline" size="sm">Re-deploy</Button>
-                    <Button variant="ghost" size="sm" class="ml-2"> </Button>
+                    <Button @click="runAction('start')" variant="default" size="sm" v-if="instance.status.status === 'stopped'">Start</Button>
+                    <Button @click="runAction('stop')" variant="outline" size="sm" v-if="instance.status.status === 'started'">Stop</Button>
                 </div>
             </div>
         </div>
@@ -65,7 +71,7 @@ const formatDate = (date: any) => {
                                 <label class="text-sm font-medium">Image</label>
                                 <div class="flex items-center">
                                     <Container class="mr-2 h-5 w-5" />
-                                    <p class="font-medium text-gray-500">nginx:latest</p>
+                                    <p class="font-medium text-gray-500">{{ container.docker_image }}</p>
                                 </div>
                             </div>
                             <div>

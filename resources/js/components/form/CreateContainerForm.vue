@@ -6,15 +6,29 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/vue3';
+import InstanceData = App.Data.InstanceData;
+import InstanceTypeEnum = App.Enums.InstanceTypeEnum;
+
+const props = defineProps<{
+    instance?: InstanceData
+}>();
 
 const form = useForm<{
     name: string;
     description: string;
+    hostname: string;
+    node: string;
     docker_image: string;
+    instance_type: InstanceTypeEnum;
+    server_id: string,
 }>({
     name: '',
     description: '',
+    hostname: '',
+    node: props.instance.node ?? 'node1',
     docker_image: '',
+    instance_type: 'container',
+    server_id: props.instance.id,
 });
 
 const submit = () => form.post(route('instances.store'));
@@ -39,6 +53,12 @@ const submit = () => form.post(route('instances.store'));
                 <FormItem name="description" label="Description" :form class="mb-2" is-required>
                     <template #input>
                         <Textarea placeholder="Description" v-model="form.description" />
+                    </template>
+                </FormItem>
+
+                <FormItem name="hostname" label="Hostname" :form class="mb-2" is-required>
+                    <template #input>
+                        <Input type="text" placeholder="Hostname" v-model="form.hostname" />
                     </template>
                 </FormItem>
 

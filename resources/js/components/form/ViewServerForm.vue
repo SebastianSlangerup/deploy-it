@@ -19,7 +19,6 @@ const containers = ref<ContainerData[]>(server.containers as ContainerData[]);
 const tabs = [
     { id: 'general', label: 'General' },
     { id: 'network', label: 'Network' },
-    { id: 'containers', label: 'Containers' },
 ];
 
 const activeTab = ref('general');
@@ -367,38 +366,6 @@ const runAction = (action: InstanceActionsEnum) => {
                                 <label class="text-sm font-medium">Username</label>
                                 <p class="text-gray-500">{{ instance.vm_username }}</p>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Containers Tab -->
-            <div v-show="activeTab === 'containers'" class="mt-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Linked Containers</CardTitle>
-                        <CardDescription>Containers running on this server</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div class="rounded-md border">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    <tr v-for="container in containers" :key="container.id">
-                                        <td class="whitespace-nowrap px-6 py-4">{{ container.docker_image }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <Button variant="outline">Add Container</Button>
                         </div>
                     </CardContent>
                 </Card>

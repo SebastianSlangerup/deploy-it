@@ -21,9 +21,16 @@ class CreateInstanceRequest extends FormRequest
             ],
             'docker_image' => [
                 'required_if:instance_type,'.InstanceTypeEnum::Container->value,
-                'url',
+                'string',
             ],
-            'selected_packages' => ['array'],
+            'selected_packages' => [
+                'required_if:instance_type,'.InstanceTypeEnum::Server->value,
+                'array',
+            ],
+            'server_id' => [
+                'required_if:instance_type,'.InstanceTypeEnum::Container->value,
+                'string',
+            ],
         ];
     }
 
