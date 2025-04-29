@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\FetchConfigurationsJob;
+use App\Jobs\UpdateInstancesInformationJob;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::job(new FetchConfigurationsJob)->daily();
+
+collect(['node1', 'node2', 'node3'])->each(function ($node) {
+    Schedule::job(new UpdateInstancesInformationJob($node))->everyThirtySeconds()->withoutOverlapping();
+});

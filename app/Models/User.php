@@ -2,16 +2,27 @@
 
 namespace App\Models;
 
+use App\Enums\RolesEnum;
+use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
+
+use function Illuminate\Events\queueable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasUuids, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use Billable,
+        HasApiTokens,
+        HasFactory,
+        HasUuids,
+        Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -35,6 +46,15 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    protected static function booted(): void
+    {
+        static::updated(queueable(function (User $customer) {
+            if ($customer->hasStripeId()) {
+                $customer->syncStripeCustomerDetails();
+            }
+        }));
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -45,16 +65,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => RolesEnum::class,
         ];
     }
 
-    /**
-     * Get the columns that should receive a unique identifier.
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    public function instances(): HasMany
+    {
+        return $this->hasMany(Instance::class);
     }
 }

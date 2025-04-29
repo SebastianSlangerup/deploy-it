@@ -27,6 +27,7 @@ export default defineConfig({
             {
                 name: 'typescript transform',
                 run: ['php', 'artisan', 'typescript:transform'],
+                pattern: ['app/**/Data/**/*.php', 'app/**/Enums/**/*.php'],
             }
         ])
     ],
