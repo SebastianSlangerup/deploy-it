@@ -10,10 +10,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', [InstanceController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'subscribed'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin', 'subscribed'])->group(function () {
     Route::get('containers', [InstanceController::class, 'containers'])->name('containers.index');
     Route::get('servers', [InstanceController::class, 'servers'])->name('servers.index');
 
@@ -30,12 +30,14 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
 Route::get('/checkout', function (Request $request) {
     // Has to be routed to with a regular <a> tag and not Inertia's <Link> tag to prevent CORS errors
-    return $request->user()
+    $checkout = $request->user()
         ->newSubscription('default', 'price_1R6Xup5vdXkyZpPD70MRYQGx')
         ->checkout([
             'success_url' => route('checkout.success'),
             'cancel_url' => route('checkout.cancelled'),
         ]);
+
+    return Inertia::location($checkout->asStripeCheckoutSession()->url);
 })->middleware(['auth', 'verified'])->name('checkout');
 
 Route::get('/checkout-success', function (Request $request) {
@@ -47,7 +49,7 @@ Route::get('/checkout-cancelled', function (Request $request) {
 })->name('checkout.cancelled');
 
 Route::get('/billing-portal', function (Request $request) {
-    return Inertia::location($request->user()->redirectToBillingPortal());
+    return $request->user()->redirectToBillingPortal(route('dashboard'));
 })->middleware(['auth', 'verified', 'subscribed'])->name('billing');
 
 require __DIR__.'/settings.php';
