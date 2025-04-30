@@ -23,15 +23,15 @@ const activeTab = ref('general');
 // Removing the old 'copied' ref as we now use separate refs for SSH and SFTP
 
 const sshCommand = computed(() => {
-    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const ipAddress = server.ip;
     const username = props.instance.vm_username;
-    return `ssh ${username}@${hostname}`;
+    return `ssh ${username}@${ipAddress}`;
 });
 
 const sftpCommand = computed(() => {
-    const hostname = `${props.instance.hostname}.deploy-it.dk`;
+    const ipAddress = server.ip;
     const username = props.instance.vm_username;
-    return `://sftp ${username}@${hostname}`;
+    return `://sftp ${username}@${ipAddress}`;
 });
 
 // Variables to track copy state for each command
