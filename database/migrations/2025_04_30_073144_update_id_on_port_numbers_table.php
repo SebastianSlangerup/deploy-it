@@ -9,20 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('port_numbers', function (Blueprint $table) {
-            $table->dropPrimary();
-            $table->dropColumn('id');
+            if (config('database.default') === 'mysql') {
+                $table->dropPrimary();
+                $table->dropColumn('id');
 
-            $table->uuid('id')->primary();
+                $table->uuid('id')->primary();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('port_numbers', function (Blueprint $table) {
-            $table->dropPrimary();
-            $table->dropColumn('id');
+            if (config('database.default') === 'mysql') {
+                $table->dropPrimary();
+                $table->dropColumn('id');
 
-            $table->id()->change();
+                $table->id()->change();
+            }
         });
     }
 };
