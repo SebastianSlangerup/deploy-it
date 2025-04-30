@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::table('port_numbers', function (Blueprint $table) {
             if (config('database.default') === 'mysql') {
-                $table->dropPrimary();
                 $table->dropColumn('id');
 
                 $table->uuid('id')->primary();
@@ -22,7 +21,6 @@ return new class extends Migration
     {
         Schema::table('port_numbers', function (Blueprint $table) {
             if (config('database.default') === 'mysql') {
-                $table->dropPrimary();
                 $table->dropColumn('id');
 
                 $table->id()->change();
