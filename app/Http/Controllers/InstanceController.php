@@ -294,7 +294,6 @@ class InstanceController extends Controller
             new InstallDockerEngineJob($request->user(), $server),
             new CreateDockerImageJob($request->user(), $instance, $server->instanceable),
         ])->onQueue('polling')->dispatch();
-        CreateDockerImageJob::dispatch($request->user(), $instance, $server->instanceable)->onQueue('polling');
     }
 
     public function performAction(Request $request, Instance $instance): RedirectResponse
