@@ -6,6 +6,7 @@ import { router } from '@inertiajs/vue3';
 import { Container } from 'lucide-vue-next';
 import InstanceData = App.Data.InstanceData;
 import ContainerData = App.Data.ContainerData;
+import InstanceActionsEnum = App.Enums.InstanceActionsEnum;
 
 const props = defineProps<{
     instance: InstanceData;
@@ -124,7 +125,7 @@ const formatDate = (date: any) => {
                 <Card>
                     <CardHeader>
                         <CardTitle>Port Mapping</CardTitle>
-                        <CardDescription>Exposed ports for this container</CardDescription>
+                        <CardDescription>Exposed port for this container</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div class="rounded-md border">
@@ -137,12 +138,8 @@ const formatDate = (date: any) => {
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
                                     <tr>
+                                        <td class="whitespace-nowrap px-4 py-3">{{ container.port.port }}</td>
                                         <td class="whitespace-nowrap px-4 py-3">80</td>
-                                        <td class="whitespace-nowrap px-4 py-3">80</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="whitespace-nowrap px-4 py-3">443</td>
-                                        <td class="whitespace-nowrap px-4 py-3">443</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -40,8 +40,9 @@ class Container extends Model
     public function getNextAvailablePort(Server $server, int $min = 1000, int $max = 5000): int
     {
         $usedPorts = PortNumber::query()
-            ->where('allocated_on', '=', $server)
-            ->get();
+            ->where('allocated_on', '=', $server->id)
+            ->get('port')
+            ->pluck('port');
 
         // Exclude the ports already in use
         return collect(range($min, $max))->diff($usedPorts)->first();
