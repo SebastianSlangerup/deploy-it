@@ -20,6 +20,7 @@ use App\Jobs\CreateServerJob;
 use App\Jobs\GetIpAddressWithQemuAgentJob;
 use App\Jobs\GetQemuStatusJob;
 use App\Jobs\GetServerStatusJob;
+use App\Jobs\InstallDockerEngineJob;
 use App\Jobs\InstallPackagesJob;
 use App\Jobs\PerformContainerActionJob;
 use App\Jobs\PerformServerActionJob;
@@ -77,6 +78,7 @@ class InstanceController extends Controller
         $instance->load('created_by')
             ->loadMorph('instanceable', [
                 Server::class => ['configuration', 'containers'],
+                Container::class => ['server', 'port'],
             ]);
 
         return Inertia::render('Instances/ShowInstance', [
@@ -288,6 +290,10 @@ class InstanceController extends Controller
 
         $instance->loadMorph('instanceable', [Container::class => ['server']]);
         // Dispatch job to process the newly created container
+        Bus::chain([
+            new InstallDockerEngineJob($request->user(), $server),
+            new CreateDockerImageJob($request->user(), $instance, $server->instanceable),
+        ])->onQueue('polling')->dispatch();
         CreateDockerImageJob::dispatch($request->user(), $instance, $server->instanceable)->onQueue('polling');
     }
 

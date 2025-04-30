@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('port_numbers', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->integer('port');
             $table->boolean('is_active');
             $table->foreignUuid('container_id')->references('id')->on('containers')->onDelete('cascade');

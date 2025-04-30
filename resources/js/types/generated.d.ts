@@ -15,6 +15,7 @@ export type ContainerData = {
 id: string;
 server: App.Data.ServerData;
 docker_image: string;
+port: App.Data.PortData;
 };
 export type InstanceData = {
 id: string;
@@ -51,6 +52,13 @@ id: string;
 name: string;
 command: string;
 created_at: any;
+};
+export type PortData = {
+id: string;
+port: number;
+is_active: boolean;
+container_id: App.Data.ContainerData;
+allocated_on: App.Data.ServerData;
 };
 export type ServerData = {
 id: string;

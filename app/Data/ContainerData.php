@@ -10,5 +10,6 @@ class ContainerData extends Data
         public string $id,
         public ServerData $server,
         public string $docker_image,
+        public PortData $port,
     ) {}
 }
