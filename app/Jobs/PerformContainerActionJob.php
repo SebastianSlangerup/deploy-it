@@ -20,7 +20,7 @@ class PerformContainerActionJob implements ShouldQueue
     public function __construct(
         public User $user,
         public Instance $instance,
-        public InstanceActionsEnum $action,
+        public string $action,
     ) {}
 
     public function handle(): void
