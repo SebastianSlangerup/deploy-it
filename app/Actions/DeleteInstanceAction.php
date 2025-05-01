@@ -18,10 +18,10 @@ class DeleteInstanceAction
      */
     public function execute(Request $request, Instance $instance): void
     {
-        $response = Http::proxmox()->delete('/vm/delete_vm', [
-            'node' => 'node1',
+        $response = Http::proxmox()->withQueryParameters([
+            'node' => $instance->node,
             'vmid' => $instance->vm_id,
-        ]);
+        ])->delete('/vm/delete_vm');
 
         if (! $response->successful()) {
             Log::error('Failed to delete instance: {instance}. Error message: {message}', [
