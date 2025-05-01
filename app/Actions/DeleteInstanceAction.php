@@ -18,7 +18,7 @@ class DeleteInstanceAction
      */
     public function execute(Request $request, Instance $instance): void
     {
-        $response = Http::proxmox()->delete('/delete_vm', [
+        $response = Http::proxmox()->delete('/vm/delete_vm', [
             'node' => 'node1',
             'vmid' => $instance->vm_id,
         ]);
